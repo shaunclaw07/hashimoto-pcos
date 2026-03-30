@@ -1,1 +1,302 @@
-IyBQcm9kdWt0LVNjYW4gJiBPcGVuRm9vZEZhY3RzIEFQSQoKPiBEaWVzZXMgRG9rdW1lbnQgYmVzY2hyZWlidCBkaWUgdGVjaG5pc2NoZSBJbnRlZ3JhdGlvbiBlaW5lciBMZWJlbnNtaXR0ZWwtU2Nhbi1GdW5rdGlvbiBpbiBkYXMgV2ViLVRvb2wuIEVzIGJpbGRldCBkaWUgR3J1bmRsYWdlIGbDvHIgZGllIEJhY2tlbmQtRW50d2lja2x1bmcuCgotLS0KCiMjIDEuIE9wZW5Gb29kRmFjdHMgw5xiZXJibGljawoKKipPcGVuRm9vZEZhY3RzKiogaXN0IGRpZSBncsO2w590ZSBmcmVpIHZlcmbDvGdiYXJlIExlYmVuc21pdHRlbC1Qcm9kdWt0ZGF0ZW5iYW5rIGRlciBXZWx0LgoKLSAqKkRhdGVuOioqIDIuNU0rIFByb2R1a3RlICh3ZWx0d2VpdCkKLSAqKkxpemVuejoqKiBPcGVuIERhdGFiYXNlIExpY2Vuc2UgKE9EYkwpIC0gZnJlaSBmw7xyIG5pY2h0LWtvbW1lcnppZWxsZSB1bmQga29tbWVyemllbGxlIE51dHp1bmcKLSAqKkFQSToqKiBSRVNULWJhc2llcnQsIGtvc3Rlbmxvcywga2VpbmUgQW5tZWxkdW5nIGbDvHIgQmFzaXMtTnV0enVuZwotICoqQmFyY29kZS1BYmRlY2t1bmc6KiogRsO8ciBEZXV0c2NobGFuZCBjYS4gNjAtNzAlIGRlciBTdXBlcm1hcmt0cHJvZHVrdGUKCioqUmVsZXZhbnogZsO8ciBkYXMgUHJvamVrdDoqKgotIOKckyBLb3N0ZW5sb3NlIE51dHp1bmcKLSDinJMgQmFyY29kZS1TY2FuIG3DtmdsaWNoCi0g4pyTIE7DpGhyd2VydGRhdGVuIHZvcmhhbmRlbiAoRW5lcmdpZSwgRmV0dCwgWnVja2VyLCBQcm90ZWluLCBCYWxsYXN0c3RvZmZlLCBldGMuKQotIOKckyBJbmdyZWRpZW50cy1MaXN0ZSB2b3JoYW5kZW4gKGbDvHIgQWxsZXJnZW4tL1p1c2F0enN0b2ZmLUNoZWNrKQotIOKckyBDYXRlZ29yaWVzIGbDvHIgUHJvZHVrdHR5cAotIOKckyBMYWJlbHMgZsO8ciAiZ2x1dGVuZnJlaSIsICJ2ZWdhbiIsICJiaW8iIGV0Yy4KLSDimqAgS2VpbmUgc3BlemlmaXNjaGVuICJIYXNoaW1vdG8vUENPUy1TY29yZXMiIOKGkiBtw7xzc2VuIHdpciBzZWxic3QgYmVyZWNobmVuCgotLS0KCiMjIDIuIEFQSS1FbmRwdW5rdGUKCiMjIyAyLjEgUHJvZHVrdC1BYmZyYWdlIHBlciBCYXJjb2RlCgpgYGAKR0VUIGh0dHBzOi8vd29ybGQub3BlbmZvb2RmYWN0cy5vcmcvYXBpL3YwL3Byb2R1Y3Qve2JhcmNvZGV9Lmpzb24KYGBgCgoqKkJlaXNwaWVsOioqCmBgYApHRVQgaHR0cHM6Ly93b3JsZC5vcGVuZm9vZGZhY3RzLm9yZy9hcGkvdjAvcHJvZHVjdC83NjIyMjEwNDQ5MjgzLmpzb24KYGBgCgoqKkFudHdvcnQgKHJlbGV2YW50ZSBGZWxkZXIpOioqCgpgYGBqc29uCnsKICAic3RhdHVzIjogMSwKICAic3RhdHVzX3ZlcmJvc2UiOiAicHJvZHVjdCBmb3VuZCIsCiAgInByb2R1Y3QiOiB7CiAgICAicHJvZHVjdF9uYW1lIjogIlZvbGxrb3JuLUhhZmVyZmxvY2tlbiIsCiAgICAiYnJhbmRzIjogIk3DpHJraXNjaGVzIEhvZmJyw6R1IiwKICAgICJpbmdyZWRpZW50c190ZXh0IjogIlZvbGxrb3JuLUhhZmVyZmxvY2tlbiAxMDAlIiwKICAgICJudXRyaXNjb3JlX2dyYWRlIjogImEiLAogICAgIm51dHJpbWVudHMiOiB7CiAgICAgICJlbmVyZ3kta2NhbF8xMDBnIjogMzc1LAogICAgICAiZmF0XzEwMGciOiA2LjYsCiAgICAgICJzYXR1cmF0ZWQtZmF0XzEwMGciOiAxLjIsCiAgICAgICJjYXJib2h5ZHJhdGVzXzEwMGciOiA1NSwKICAgICAgInN1Z2Fyc18xMDBnIjogMS4wLAogICAgICAiZmliZXJfMTAwZyI6IDkuNywKICAgICAgInByb3RlaW5zXzEwMGciOiAxNC4wLAogICAgICAic2FsdF8xMDBnIjogMC4wMSwKICAgICAgInNvZGl1bV8xMDBnIjogMC4wMDQKICAgIH0sCiAgICAibGFiZWxzIjogImRlOkdsdXRlbmZyZWksIGRlOlZlZ2FuIiwKICAgICJjYXRlZ29yaWVzIjogImVuOkJyZWFrZmFzdCBjZXJlYWxzLGVuOk9hdG1lYWxzIiwKICAgICJhbGxlcmdlbnNfdGFncyI6IFsiZW46Z2x1dGVuIl0sCiAgICAiYWRkaXRpdmVzX3RhZ3MiOiBbXSwKICAgICJpbWFnZV91cmwiOiAiaHR0cHM6Ly9pbWFnZXMub3BlbmZvb2RmYWN0cy5vcmcvLi4uIgogIH0KfQpgYGAKCiMjIyAyLjIgU3VjaGUgbmFjaCBQcm9kdWt0ZW4KCmBgYApHRVQgaHR0cHM6Ly9kZS5vcGVuZm9vZGZhY3RzLm9yZy9jZ2kvc2VhcmNoLnBsP3NlYXJjaF90ZXJtcz17cXVlcnl9JnNlYXJjaF9zaW1wbGU9MSZhY3Rpb249cHJvY2VzcyZqc29uPTEKYGBgCgojIyMgMi4zIEJhcmNvZGUtU3VjaGUKCmBgYApHRVQgaHR0cHM6Ly93b3JsZC5vcGVuZm9vZGZhY3RzLm9yZy9hcGkvdjAvY29kZS97YmFyY29kZX0uanNvbgpgYGAKCi0tLQoKIyMgMy4gVW5zZXIgSGFzaGltb3RvLVBDT1MtU2NvcmUtQWxnb3JpdGhtdXMKCiMjIyAzLjEgRWluZ2FuZ3NkYXRlbiBhdXMgT3BlbkZvb2RGYWN0cwoKfE9GLUZlbGR8VW5zZXIgTnV0emVufAp8LS0tLS0tLS18LS0tLS0tLS0tLS18CnwgYG51dHJpbWVudHMuZmF0XzEwMGdgIHwgR2VzYW10ZmV0dCB8CnwgYG51dHJpbWVudHMuc2F0dXJhdGVkLWZhdF8xMDBnYCB8IEdlc8OkdHRpZ3RlIEZldHRlIOKGkiBzY2hsZWNodCB8CnwgYG51dHJpbWVudHMuY2FyYm9oeWRyYXRlc18xMDBnYCB8IEtvaGxlbmh5ZHJhdGUgfAp8IGBudXRyaW1lbnRzLnN1Z2Fyc18xMDBnYCB8IFp1Y2tlciDihpIgc2NobGVjaHQgfAp8IGBudXRyaW1lbnRzLmZpYmVyXzEwMGdgIHwgQmFsbGFzdHN0b2ZmZSDihpIgZ3V0IHwKfCBgbnV0cmltZW50cy5wcm90ZWluc18xMDBnYCB8IFByb3RlaW4g4oaSIGd1dCB8CnwgYG51dHJpbWVudHMuc2FsdF8xMDBnYCB8IFNhbHog4oaSIGluIGdyb8OfZW4gTWVuZ2VuIHNjaGxlY2h0IHwKfCBgaW5ncmVkaWVudHNfdGV4dGAgfCBGw7xyIEdsdXRlbiwgTGFrdG9zZSwgWnVzYXR6c3RvZmZlIHwKfCBgbGFiZWxzX3RhZ3NgIHwgRsO8ciAiZ2x1dGVuLWZyZWUiLCAidmVnYW4iLCAib3JnYW5pYyIgZXRjLiB8CnwgYG51dHJpc2NvcmVfZ3JhZGVgIHwgQWxzIHNla3VuZMOkcmUgUmVmZXJlbnogfAp8IGBjYXRlZ29yaWVzX3RhZ3NgIHwgUHJvZHVrdGthdGVnb3JpZSB8CgojIyMgMy4yIFNjb3JlLUJlcmVjaG51bmcKCmBgYHB5dGhvbgpkZWYgY2FsY3VsYXRlX2hhc2hpbW90b19wY29zX3Njb3JlKHByb2R1Y3QpIC0+IHR1cGxlW2ludCwgc3RyXToKICAgICIiIgogICAgQmVyZWNobmV0IFNjb3JlIHZvbiAxLTUgKDE9dmVybWVpZGVuLCA1PXNlaHIgZ3V0KQogICAgUmV0dXJuczogKHNjb3JlLCBleHBsYW5hdGlvbikKICAgICIiIgogICAgCiAgICBzY29yZSA9IDMgICMgU3RhcnQgbWl0IG5ldXRyYWwKICAgIHBlbmFsdGllcyA9IFtdCiAgICBib251c2VzID0gW10KICAgIAogICAgIyA9PT0gUEVOQUxUSUVTID09PQogICAgCiAgICAjIFp1Y2tlcgogICAgaWYgcHJvZHVjdC5zdWdhcnNfMTAwZyA+IDIwOgogICAgICAgIHNjb3JlIC09IDIKICAgICAgICBwZW5hbHRpZXMuYXBwZW5kKGYiU2VociBob2hlciBadWNrZXJhbnRlaWwgKHtwcm9kdWN0LnN1Z2Fyc18xMDBnfWcvMTAwZykiKQogICAgZWxpZiBwcm9kdWN0LnN1Z2Fyc18xMDBnID4gMTA6CiAgICAgICAgc2NvcmUgLT0gMQogICAgICAgIHBlbmFsdGllcy5hcHBlbmQoZiJIb2hlciBadWNrZXJhbnRlaWwgKHtwcm9kdWN0LnN1Z2Fyc18xMDBnfWcvMTAwZykiKQogICAgCiAgICAjIEdlc8OkdHRpZ3RlIEZldHRlCiAgICBpZiBwcm9kdWN0LnNhdHVyYXRlZF9mYXRfMTAwZyA+IDEwOgogICAgICAgIHNjb3JlIC09IDEKICAgICAgICBwZW5hbHRpZXMuYXBwZW5kKGYiSG9oZXIgQW50ZWlsIGdlc8OkdHRpZ3RlciBGZXR0ZSAoe3Byb2R1Y3Quc2F0dXJhdGVkX2ZhdF8xMDBnfWcvMTAwZykiKQogICAgCiAgICAjIFNhbHoKICAgIGlmIHByb2R1Y3Quc2FsdF8xMDBnID4gMi41OgogICAgICAgIHNjb3JlIC09IDEKICAgICAgICBwZW5hbHRpZXMuYXBwZW5kKGYiU2VociBob2hlciBTYWx6Z2VoYWx0ICh7cHJvZHVjdC5zYWx0XzEwMGd9Zy8xMDBnKSIpCiAgICBlbGlmIHByb2R1Y3Quc2FsdF8xMDBnID4gMS41OgogICAgICAgIHNjb3JlIC09IDAuNQogICAgICAgIHBlbmFsdGllcy5hcHBlbmQoZiJFcmjDtmh0ZXIgU2FsemdlaGFsdCIpCiAgICAKICAgICMgVHJhbnMtRmV0dGUgKGF1cyBpbmdyZWRpZW50cykKICAgIGlmICJoeWRyb2dlbmF0ZWQiIGluIHByb2R1Y3QuaW5ncmVkaWVudHNfdGV4dC5sb3dlcigpIG9yIFwKICAgICAgICJwYXJ0aWFsbHkgaHlkcm9nZW5hdGVkIiBpbiBwcm9kdWN0LmluZ3JlZGllbnRzX3RleHQubG93ZXIoKToKICAgICAgICBzY29yZSAtPSAyCiAgICAgICAgcGVuYWx0aWVzLmFwcGVuZCgiRW50aMOkbHQgZ2Vow6RydGV0ZS9wYWxtaWVydGUgRmV0dGUiKQogICAgCiAgICAjID09PSBCT05VU0VTID09PQogICAgCiAgICAjIEJhbGxhc3RzdG9mZmUKICAgIGlmIHByb2R1Y3QuZmliZXJfMTAwZyA+IDY6CiAgICAgICAgc2NvcmUgKz0gMQogICAgICAgIGJvbnVzZXMuYXBwZW5kKGYiSG9oZXIgQmFsbGFzdHN0b2ZmZ2VoYWx0ICh7cHJvZHVjdC5maWJlcl8xMDBnfWcvMTAwZykiKQogICAgZWxpZiBwcm9kdWN0LmZpYmVyXzEwMGcgPiAzOgogICAgICAgIHNjb3JlICs9IDAuNQogICAgICAgIGJvbnVzZXMuYXBwZW5kKCJHdXRlIEJhbGxhc3RzdG9mZmUiKQogICAgCiAgICAjIFByb3RlaW4KICAgIGlmIHByb2R1Y3QucHJvdGVpbnNfMTAwZyA+IDIwOgogICAgICAgIHNjb3JlICs9IDAuNQogICAgICAgIGJvbnVzZXMuYXBwZW5kKCJIb2hlciBQcm90ZWluZ2VoYWx0IikKICAgIAogICAgIyBPbWVnYS0zIChiZWkgRmlzY2gvRmlzY2hwcm9kdWt0ZW4pCiAgICBpZiAiZmlzaCIgaW4gcHJvZHVjdC5jYXRlZ29yaWVzX3RhZ3Mgb3IgInNhdW1vbiIgaW4gcHJvZHVjdC5pbmdyZWRpZW50c190ZXh0Lmxvd2VyKCk6CiAgICAgICAgaWYgcHJvZHVjdC5vbWVnYTNfMTAwZyBhbmQgcHJvZHVjdC5vbWVnYTNfMTAwZyA+IDE6CiAgICAgICAgICAgIHNjb3JlICs9IDEKICAgICAgICAgICAgYm9udXNlcy5hcHBlbmQoIlJlaWNoIGFuIE9tZWdhLTMiKQogICAgCiAgICAjID09PSBMQUJFTFMgQ0hFQ0sgPT09CiAgICAKICAgIGlmICJlbjpnbHV0ZW4tZnJlZSIgaW4gcHJvZHVjdC5sYWJlbHNfdGFnczoKICAgICAgICBzY29yZSArPSAwLjUKICAgICAgICBib251c2VzLmFwcGVuZCgiRXhwbGl6aXQgZ2x1dGVuZnJlaSIpCiAgICAKICAgIGlmICJlbjpvcmdhbmljIiBpbiBwcm9kdWN0LmxhYmVsc190YWdzOgogICAgICAgIHNjb3JlICs9IDAuNQogICAgICAgIGJvbnVzZXMuYXBwZW5kKCJCaW8tUXVhbGl0w6R0IikKICAgIAogICAgaWYgImVuOnZlZ2FuIiBpbiBwcm9kdWN0LmxhYmVsc190YWdzOgogICAgICAgIHNjb3JlICs9IDAuMwogICAgICAgIGJvbnVzZXMuYXBwZW5kKCJWZWdhbiIpCiAgICAKICAgICMgPT09IElOR1JFRElFTlRTIENIRUNLID09PQogICAgCiAgICAjIEdsdXRlbi1DaGVjawogICAgZ2x1dGVuX2tleXdvcmRzID0gWyJ3aGVhdCIsICJnZXJzdGUiLCAicm9nZ2VuIiwgImhhZmVyIiwgImRpbmtlbCIsICJicm90IiwgIm1laGwiXQogICAgaWYgYW55KGt3IGluIHByb2R1Y3QuaW5ncmVkaWVudHNfdGV4dC5sb3dlcigpIGZvciBrdyBpbiBnbHV0ZW5fa2V5d29yZHMpOgogICAgICAgIHNjb3JlIC09IDAuNQogICAgICAgIHBlbmFsdGllcy5hcHBlbmQoIkVudGjDpGx0IEdsdXRlbi1oYWx0aWdlIFp1dGF0ZW4iKQogICAgCiAgICAjIExha3Rvc2UtQ2hlY2sKICAgIGRhaXJ5X2tleXdvcmRzID0gWyJtaWxrIiwgIm1pbGNoIiwgImxhY3Rvc2UiLCAibGFrdG9zZSIsICJjaGVlc2UiLCAia8Okc2UiLCAieW9ndXJ0IiwgImpvZ2h1cnQiLCAiYnV0dGVyIiwgInJhaG0iXQogICAgaWYgYW55KGt3IGluIHByb2R1Y3QuaW5ncmVkaWVudHNfdGV4dC5sb3dlcigpIGZvciBrdyBpbiBkYWlyeV9rZXl3b3Jkcyk6CiAgICAgICAgc2NvcmUgLT0gMC4zCiAgICAgICAgcGVuYWx0aWVzLmFwcGVuZCgiRW50aMOkbHQgTWlsY2hwcm9kdWt0ZSIpCiAgICAKICAgICMgWnVzYXR6c3RvZmZlICh2ZXJlaW5mYWNodCkKICAgIGlmIGxlbihwcm9kdWN0LmFkZGl0aXZlc190YWdzKSA+IDU6CiAgICAgICAgc2NvcmUgLT0gMC41CiAgICAgICAgcGVuYWx0aWVzLmFwcGVuZChmIlZpZWxlIFp1c2F0enN0b2ZmZSAoe2xlbihwcm9kdWN0LmFkZGl0aXZlc190YWdzKX0pIikKICAgIAogICAgIyA9PT0gRklOQUxJU0lFUlVORyA9PT0KICAgIAogICAgIyBDbGFtcCBiZXR3ZWVuIDEtNQogICAgc2NvcmUgPSBtYXgoMSwgbWluKDUsIHJvdW5kKHNjb3JlKSkpCiAgICAKICAgICMgRXJrbMOkcnVuZyB6dXNhbW1lbmJhdWVuCiAgICBleHBsYW5hdGlvbl9wYXJ0cyA9IFtdCiAgICBpZiBib251c2VzOgogICAgICAgIGV4cGxhbmF0aW9uX3BhcnRzLmFwcGVuZCgiR1VUOiAiICsgIjsgIi5qb2luKGJvbnVzZXMpKQogICAgaWYgcGVuYWx0aWVzOgogICAgICAgIGV4cGxhbmF0aW9uX3BhcnRzLmFwcGVuZCgiUFJPQkxFTTogIiArICI7ICIuam9pbihwZW5hbHRpZXMpKQogICAgCiAgICByZXR1cm4gc2NvcmUsICJcbiIuam9pbihleHBsYW5hdGlvbl9wYXJ0cykgaWYgZXhwbGFuYXRpb25fcGFydHMgZWxzZSAiTmV1dHJhbCIKYGBgCgojIyMgMy4zIFNjb3JlLU1hcHBpbmcgenUgRmFyYmVuCgp8IFNjb3JlIHwgQmV3ZXJ0dW5nIHwgRmFyYmNvZGUgfCBFbW9qaSB8CnwtLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS18LS0tLS0tLXwKfCA1IHwg4q2Q4q2Q4q2Q4q2Q4q2QIFNFSFIgR1VUIHwgYCMyMmM1NWVgIChHcsO8bikgfCDwn5+iIHwKfCA0IHwg4q2Q4q2Q4q2Q4q2QIEdVVCB8IGAjODRjYzE2YCAoSGVsbGdyw7xuKSB8IPCfn6IgfAp8IDMgfCDirZDirZDirZAgTkVVVFJBTCB8IGAjZWFiMzA4YCAoR2VsYikgfCDwn5+hIHwKfCAyIHwg4q2Q4q2QIFdFTklHRVIgR1VUIHwgYCNmOTczMTZgIChPcmFuZ2UpIHwg8J+foCB8CnwgMSB8IOKtkCBWRVJNRUlERU4gfCBgI2VmNDQ0NGAgKFJvdCkgfCDwn5S0IHwKCi0tLQoKIyMgNC4gQmFyY29kZS1TY2FuIEludGVncmF0aW9uCgojIyMgNC4xIEZyb250ZW5kLU9wdGlvbmVuCgp8IE1ldGhvZGUgfCBCaWJsaW90aGVrIHwgVm9ydGVpbGUgfCBOYWNodGVpbGUgfAp8LS0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS18LS0tLS0tLS0tLXwKfCAqKkthbWVyYS1TY2FuKiogfCBRdWFnZ2FKUywgWlhpbmcgfCBLZWluIEFwcC1Eb3dubG9hZCB8IEJyb3dzZXItQWJow6RuZ2lnIHwKfCAqKkthbWVyYS1TY2FuKiogfCBAYXNwZWN0L2JhcmNvZGUtc2Nhbm5lciAoUmVhY3QpIHwgUmVhY3QtbmF0aXYgfCAtIHwKfCAqKklucHV0LUZlbGQqKiB8IE1hbnVhbCB8IEltbWVyIHZlcmbDvGdiYXIgfCBXZW5pZ2VyIGtvbWZvcnRhYmVsIHwKCiMjIyA0LjIgRW1wZm9obGVuZXIgVGVjaC1TdGFjawoKYGBgCkZyb250ZW5kOiBSZWFjdC9OZXh0LmpzCkJhcmNvZGUtU2Nhbm5pbmc6IFF1YWdnYUpTIChKUy1iYXNpZXJ0LCBvcGVuc291cmNlKQpPRGVyOiBAYXNwZWN0L2JhcmNvZGUtc2Nhbm5lciAoUmVhY3QtV3JhcHBlcikKRmFsbGJhY2s6IE1hbnVhbCBCYXJjb2RlIEVudHJ5CgpBUEktQ2FsbDogCkdFVCBodHRwczovL3dvcmxkLm9wZW5mb29kZmFjdHMub3JnL2FwaS92MC9wcm9kdWN0L3tiYXJjb2RlfS5qc29uCmBgYAoKIyMjIDQuMyBPZmZsaW5lLUNhY2hpbmcKCi0gZ2dmLiBsb2thbGUgSW5kZXhlZERCIGbDvHIgaMOkdWZpZyBnZXNjYW5udGUgUHJvZHVrdGUKLSBTY29yZSBiZXJlaXRzIGJlcmVjaG5ldCBjYWNoZW4KLSBBUEkgUmF0ZS1MaW1pdGluZzogbWF4IDEgQW5mcmFnZS9TZWt1bmRlIGVtcGZvaGxlbgoKLS0tCgojIyA1LiBlcndlaXRlcnRlIFByb2R1a3RrYXRlZ29yaWVuCgojIyMgNS4xIEthdGVnb3JpZW4tTWFwcGluZyBmw7xyIHNjaG5lbGwtRWlub3JkbnVuZwoKfCBLYXRlZ29yaWUgfCBCYXNpcy1TY29yZSB8IEFubWVya3VuZyB8CnwtLS0tLS0tLS0tLXwtLS0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tfAp8IEZyaXNjaGVzIEdlbcO8c2UgfCA1IHwgSWRlYWwgfAp8IEZyaXNjaGVzIE9ic3QgKEJlZXJlbikgfCA1IHwgSWRlYWwgfAp8IEZldHRlciBGaXNjaCB8IDUgfCBPbWVnYS0zIHJlaWNoIHwKfCBFaWVyIHwgNC01IHwgUHJvdGVpbiArIE7DpGhyc3RvZmZlIHwKfCBOw7xzc2UsIFNhbWVuIHwgNSB8IEdlc3VuZGUgRmV0dGUgfAp8IFZvbGxrb3JucHJvZHVrdGUgfCA0IHwgQmFsbGFzdHN0b2ZmZSB8CnwgT2xpdmVuw7ZsIHwgNSB8IEVudHrDvG5kdW5nc2hlbW1lbmQgfAp8IFZlcmFyYmVpdGV0ZXMgRmxlaXNjaCB8IDEtMiB8IFp1IHZlcm1laWRlbiB8CnwgU8O8w59pZ2tlaXRlbiB8IDEgfCBTdGFyayB6dWNrZXJoYWx0aWcgfAp8IEVuZXJneSBEcmlua3MgfCAxIHwgS29mZmVpbiArIFp1Y2tlciB8CnwgQWxrb2hvbCB8IDEgfCBFbnR6w7xuZHVuZ3Nmw7ZyZGVybmQgfAp8IE1pbGNocHJvZHVrdGUgfCAyLTMgfCBMYWt0b3NlLVByb2JsZW0gYmVpIEhhc2hpbW90byB8CgotLS0KCiMjIDYuIEV4dGVybmUgRGF0ZW5xdWVsbGVuCgojIyMgNi4xIFdlaXRlcmUgQVBJcwoKfCBRdWVsbGUgfCBOdXR6ZW4gfCBVUkwgfAp8LS0tLS0tLS18LS0tLS0tLS18LS0tLS18CnwgT3BlbkZvb2RGYWN0cyB8IFByaW3DpHItTGViZW5zbWl0dGVsLURCIHwgaHR0cHM6Ly93b3JsZC5vcGVuZm9vZGZhY3RzLm9yZyB8CnwgVVNEQSBGb29kRGF0YSBDZW50cmFsIHwgVVMtTsOkaHJzdG9mZmRhdGVuIHwgaHR0cHM6Ly9mZGMubmFsLnVzZGEuZ292IHwKfCBGb29EQiB8IE7DpGhyc3RvZmZlICYgQ2hlbWlrYWxpZW4gfCBodHRwczovL2Zvb2RiLmNhICh0ZWlsd2Vpc2UgcGFpZCkgfAp8IEVkYW1hbSBGb29kIERhdGFiYXNlIHwgUmV6ZXB0LUludGVncmF0aW9uIHwgaHR0cHM6Ly9kZXZlbG9wZXIuZWRhbWFtLmNvbSB8CgojIyMgNi4yIEJhcmNvZGUtU3VjaGUKCnwgUXVlbGxlIHwgTnV0emVuIHwgQW5tZXJrdW5nIHwKfC0tLS0tLS0tfC0tLS0tLS0tfC0tLS0tLS0tLS0tfAp8IGludGVybmF0aW9uYWwtYmFyY29kZS1kYXRhYmFzZSB8IEJhcmNvZGUtTG9va3VwIHwgb3BlbnNvdXJjZSB8CnwgR29vZ2xlIEJhcmNvZGVzIHwgQmlsZC1iYXNpZXJ0IHwgTUwtYmFzaWVydCB8CgotLS0KCiMjIDcuIFF1ZWxsZW4KCjEuIE9wZW5Gb29kRmFjdHMgQVBJIERvY3M6IGh0dHBzOi8vb3BlbmZvb2RmYWN0cy5naXRodWIuaW8vZG9jdW1lbnRhdGlvbi9kb2NzL1Byb2R1Y3QtT3BlbmVyL2FwaS8KMi4gT3BlbkZvb2RGYWN0cyBXaWtpcGVkaWE6IGh0dHBzOi8vZW4ud2lraXBlZGlhLm9yZy93aWtpL09wZW5Gb29kRmFjdHMKMy4gUHVibGljIEFQSXMgRGlyZWN0b3J5OiBodHRwczovL3B1YmxpY2FwaXMuaW8vb3Blbi1mb29kLWZhY3RzLWFwaQo0LiBOdXRyaXRpb25GYWN0cy5vcmcgQW50aS1JbmZsYW1tYXRvcnk6IGh0dHBzOi8vbnV0cml0aW9uZmFjdHMub3JnL3RvcGljcy9hbnRpLWluZmxhbW1hdG9yeS8K
+# Produkt-Scan & OpenFoodFacts API
+
+> Dieses Dokument beschreibt die technische Integration einer Lebensmittel-Scan-Funktion in das Web-Tool. Es bildet die Grundlage für die Backend-Entwicklung.
+
+---
+
+## 1. OpenFoodFacts Überblick
+
+**OpenFoodFacts** ist die größte frei verfügbare Lebensmittel-Produktdatenbank der Welt.
+
+- **Daten:** 2.5M+ Produkte (weltweit)
+- **Lizenz:** Open Database License (ODbL) - frei für nicht-kommerzielle und kommerzielle Nutzung
+- **API:** REST-basiert, kostenlos, keine Anmeldung für Basis-Nutzung
+- **Barcode-Abdeckung:** Für Deutschland ca. 60-70% der Supermarktprodukte
+
+**Relevanz für das Projekt:**
+- ✓ Kostenlose Nutzung
+- ✓ Barcode-Scan möglich
+- ✓ Nährwertdaten vorhanden (Energie, Fett, Zucker, Protein, Ballaststoffe, etc.)
+- ✓ Ingredients-Liste vorhanden (für Allergen-/Zusatzstoff-Check)
+- ✓ Categories für Produkttyp
+- ✓ Labels für "glutenfrei", "vegan", "bio" etc.
+- ⚠ Keine spezifischen "Hashimoto/PCOS-Scores" → müssen wir selbst berechnen
+
+---
+
+## 2. API-Endpunkte
+
+### 2.1 Produkt-Abfrage per Barcode
+
+```
+GET https://world.openfoodfacts.org/api/v0/product/{barcode}.json
+```
+
+**Beispiel:**
+```
+GET https://world.openfoodfacts.org/api/v0/product/7622210449283.json
+```
+
+**Antwort (relevante Felder):**
+
+```json
+{
+  "status": 1,
+  "status_verbose": "product found",
+  "product": {
+    "product_name": "Vollkorn-Haferflocken",
+    "brands": "Märkisches Hofbräu",
+    "ingredients_text": "Vollkorn-Haferflocken 100%",
+    "nutriscore_grade": "a",
+    "nutriments": {
+      "energy-kcal_100g": 375,
+      "fat_100g": 6.6,
+      "saturated-fat_100g": 1.2,
+      "carbohydrates_100g": 55,
+      "sugars_100g": 1.0,
+      "fiber_100g": 9.7,
+      "proteins_100g": 14.0,
+      "salt_100g": 0.01,
+      "sodium_100g": 0.004
+    },
+    "labels": "de:Glutenfrei, de:Vegan",
+    "categories": "en:Breakfast cereals,en:Oatmeals",
+    "allergens_tags": ["en:gluten"],
+    "additives_tags": [],
+    "image_url": "https://images.openfoodfacts.org/..."
+  }
+}
+```
+
+### 2.2 Suche nach Produkten
+
+```
+GET https://de.openfoodfacts.org/cgi/search.pl?search_terms={query}&search_simple=1&action=process&json=1
+```
+
+### 2.3 Barcode-Suche
+
+```
+GET https://world.openfoodfacts.org/api/v0/code/{barcode}.json
+```
+
+---
+
+## 3. Unser Hashimoto-PCOS-Score-Algorithmus
+
+### 3.1 Eingangsdaten aus OpenFoodFacts
+
+|OF-Feld|Unser Nutzen|
+|--------|-----------|
+| `nutriments.fat_100g` | Gesamtfett |
+| `nutriments.saturated-fat_100g` | Gesättigte Fette → schlecht |
+| `nutriments.carbohydrates_100g` | Kohlenhydrate |
+| `nutriments.sugars_100g` | Zucker → schlecht |
+| `nutriments.fiber_100g` | Ballaststoffe → gut |
+| `nutriments.proteins_100g` | Protein → gut |
+| `nutriments.salt_100g` | Salz → in großen Mengen schlecht |
+| `ingredients_text` | Für Gluten, Laktose, Zusatzstoffe |
+| `labels_tags` | Für "gluten-free", "vegan", "organic" etc. |
+| `nutriscore_grade` | Als sekundäre Referenz |
+| `categories_tags` | Produktkategorie |
+
+### 3.2 Score-Berechnung
+
+```python
+def calculate_hashimoto_pcos_score(product) -> tuple[int, str]:
+    """
+    Berechnet Score von 1-5 (1=vermeiden, 5=sehr gut)
+    Returns: (score, explanation)
+    """
+    
+    score = 3  # Start mit neutral
+    penalties = []
+    bonuses = []
+    
+    # === PENALTIES ===
+    
+    # Zucker
+    if product.sugars_100g > 20:
+        score -= 2
+        penalties.append(f"Sehr hoher Zuckeranteil ({product.sugars_100g}g/100g)")
+    elif product.sugars_100g > 10:
+        score -= 1
+        penalties.append(f"Hoher Zuckeranteil ({product.sugars_100g}g/100g)")
+    
+    # Gesättigte Fette
+    if product.saturated_fat_100g > 10:
+        score -= 1
+        penalties.append(f"Hoher Anteil gesättigter Fette ({product.saturated_fat_100g}g/100g)")
+    
+    # Salz
+    if product.salt_100g > 2.5:
+        score -= 1
+        penalties.append(f"Sehr hoher Salzgehalt ({product.salt_100g}g/100g)")
+    elif product.salt_100g > 1.5:
+        score -= 0.5
+        penalties.append(f"Erhöhter Salzgehalt")
+    
+    # Trans-Fette (aus ingredients)
+    if "hydrogenated" in product.ingredients_text.lower() or \
+       "partially hydrogenated" in product.ingredients_text.lower():
+        score -= 2
+        penalties.append("Enthält gehärtete/palmierte Fette")
+    
+    # === BONUSES ===
+    
+    # Ballaststoffe
+    if product.fiber_100g > 6:
+        score += 1
+        bonuses.append(f"Hoher Ballaststoffgehalt ({product.fiber_100g}g/100g)")
+    elif product.fiber_100g > 3:
+        score += 0.5
+        bonuses.append("Gute Ballaststoffe")
+    
+    # Protein
+    if product.proteins_100g > 20:
+        score += 0.5
+        bonuses.append("Hoher Proteingehalt")
+    
+    # Omega-3 (bei Fisch/Fischprodukten)
+    if "fish" in product.categories_tags or "saumon" in product.ingredients_text.lower():
+        if product.omega3_100g and product.omega3_100g > 1:
+            score += 1
+            bonuses.append("Reich an Omega-3")
+    
+    # === LABELS CHECK ===
+    
+    if "en:gluten-free" in product.labels_tags:
+        score += 0.5
+        bonuses.append("Explizit glutenfrei")
+    
+    if "en:organic" in product.labels_tags:
+        score += 0.5
+        bonuses.append("Bio-Qualität")
+    
+    if "en:vegan" in product.labels_tags:
+        score += 0.3
+        bonuses.append("Vegan")
+    
+    # === INGREDIENTS CHECK ===
+    
+    # Gluten-Check
+    gluten_keywords = ["wheat", "gerste", "roggen", "hafer", "dinkel", "brot", "mehl"]
+    if any(kw in product.ingredients_text.lower() for kw in gluten_keywords):
+        score -= 0.5
+        penalties.append("Enthält Gluten-haltige Zutaten")
+    
+    # Laktose-Check
+    dairy_keywords = ["milk", "milch", "lactose", "laktose", "cheese", "käse", "yogurt", "joghurt", "butter", "rahm"]
+    if any(kw in product.ingredients_text.lower() for kw in dairy_keywords):
+        score -= 0.3
+        penalties.append("Enthält Milchprodukte")
+    
+    # Zusatzstoffe (vereinfacht)
+    if len(product.additives_tags) > 5:
+        score -= 0.5
+        penalties.append(f"Viele Zusatzstoffe ({len(product.additives_tags)})")
+    
+    # === FINALISIERUNG ===
+    
+    # Clamp between 1-5
+    score = max(1, min(5, round(score)))
+    
+    # Erklärung zusammenbauen
+    explanation_parts = []
+    if bonuses:
+        explanation_parts.append("GUT: " + "; ".join(bonuses))
+    if penalties:
+        explanation_parts.append("PROBLEM: " + "; ".join(penalties))
+    
+    return score, "\n".join(explanation_parts) if explanation_parts else "Neutral"
+```
+
+### 3.3 Score-Mapping zu Farben
+
+| Score | Bewertung | Farbcode | Emoji |
+|-------|-----------|----------|-------|
+| 5 | ⭐⭐⭐⭐⭐ SEHR GUT | `#22c55e` (Grün) | 🟢 |
+| 4 | ⭐⭐⭐⭐ GUT | `#84cc16` (Hellgrün) | 🟢 |
+| 3 | ⭐⭐⭐ NEUTRAL | `#eab308` (Gelb) | 🟡 |
+| 2 | ⭐⭐ WENIGER GUT | `#f97316` (Orange) | 🟠 |
+| 1 | ⭐ VERMEIDEN | `#ef4444` (Rot) | 🔴 |
+
+---
+
+## 4. Barcode-Scan Integration
+
+### 4.1 Frontend-Optionen
+
+| Methode | Bibliothek | Vorteile | Nachteile |
+|---------|-----------|----------|----------|
+| **Kamera-Scan** | QuaggaJS, ZXing | Kein App-Download | Browser-Abhängig |
+| **Kamera-Scan** | @aspect/barcode-scanner (React) | React-nativ | - |
+| **Input-Feld** | Manual | Immer verfügbar | Weniger komfortabel |
+
+### 4.2 Empfohlener Tech-Stack
+
+```
+Frontend: React/Next.js
+Barcode-Scanning: QuaggaJS (JS-basiert, opensource)
+ODer: @aspect/barcode-scanner (React-Wrapper)
+Fallback: Manual Barcode Entry
+
+API-Call: 
+GET https://world.openfoodfacts.org/api/v0/product/{barcode}.json
+```
+
+### 4.3 Offline-Caching
+
+- ggf. lokale IndexedDB für häufig gescannte Produkte
+- Score bereits berechnet cachen
+- API Rate-Limiting: max 1 Anfrage/Sekunde empfohlen
+
+---
+
+## 5. erweiterte Produktkategorien
+
+### 5.1 Kategorien-Mapping für schnell-Einordnung
+
+| Kategorie | Basis-Score | Anmerkung |
+|-----------|-------------|-----------|
+| Frisches Gemüse | 5 | Ideal |
+| Frisches Obst (Beeren) | 5 | Ideal |
+| Fetter Fisch | 5 | Omega-3 reich |
+| Eier | 4-5 | Protein + Nährstoffe |
+| Nüsse, Samen | 5 | Gesunde Fette |
+| Vollkornprodukte | 4 | Ballaststoffe |
+| Olivenöl | 5 | Entzündungshemmend |
+| Verarbeitetes Fleisch | 1-2 | Zu vermeiden |
+| Süßigkeiten | 1 | Stark zuckerhaltig |
+| Energy Drinks | 1 | Koffein + Zucker |
+| Alkohol | 1 | Entzündungsfördernd |
+| Milchprodukte | 2-3 | Laktose-Problem bei Hashimoto |
+
+---
+
+## 6. Externe Datenquellen
+
+### 6.1 Weitere APIs
+
+| Quelle | Nutzen | URL |
+|--------|--------|-----|
+| OpenFoodFacts | Primär-Lebensmittel-DB | https://world.openfoodfacts.org |
+| USDA FoodData Central | US-Nährstoffdaten | https://fdc.nal.usda.gov |
+| FooDB | Nährstoffe & Chemikalien | https://foodb.ca (teilweise paid) |
+| Edamam Food Database | Rezept-Integration | https://developer.edamam.com |
+
+### 6.2 Barcode-Suche
+
+| Quelle | Nutzen | Anmerkung |
+|--------|--------|-----------|
+| international-barcode-database | Barcode-Lookup | opensource |
+| Google Barcodes | Bild-basiert | ML-basiert |
+
+---
+
+## 7. Quellen
+
+1. OpenFoodFacts API Docs: https://openfoodfacts.github.io/documentation/docs/Product-Opener/api/
+2. OpenFoodFacts Wikipedia: https://en.wikipedia.org/wiki/OpenFoodFacts
+3. Public APIs Directory: https://publicapis.io/open-food-facts-api
+4. NutritionFacts.org Anti-Inflammatory: https://nutritionfacts.org/topics/anti-inflammatory/
