@@ -1,1 +1,185 @@
-IyBIYXNoaW1vdG8gJiBQQ09TOiBLcmFua2hlaXRzZ3J1bmRsYWdlbiAmIGVybsOkaHJ1bmdzbWVkaXppbmlzY2hlciBadXNhbW1lbmhhbmcKCj4gKipIaW53ZWlzOioqIERpZXNlcyBEb2t1bWVudCBkaWVudCBkZXIgd2lzc2Vuc2NoYWZ0bGljaGVuIEdydW5kbGFnZW5hcmJlaXQgZsO8ciBkaWUgRW50d2lja2x1bmcgZWluZXMgRXJuw6RocnVuZ3MtVG9vbHMuIERpZSBJbmZvcm1hdGlvbmVuIGVyc2V0emVuIGtlaW5lIMOkcnp0bGljaGUgb2RlciBlcm7DpGhydW5nc3RoZXJhcGV1dGlzY2hlIEJlcmF0dW5nLgoKLS0tCgojIyAxLiBIYXNoaW1vdG8tVGh5cmVvaWRpdGlzCgojIyMgMS4xIERlZmluaXRpb24gJiBQYXRob3BoeXNpb2xvZ2llCgoqKkhhc2hpbW90by1UaHlyZW9pZGl0aXMqKiAoYXVjaDogY2hyb25pc2NoZSBseW1waG96eXTDpHJlIFRoeXJlb2lkaXRpcykgaXN0IGRpZSBow6R1Zmlnc3RlIEF1dG9pbW11bmVya3Jhbmt1bmcgd2VsdHdlaXQgdW5kIGRpZSBow6R1Zmlnc3RlIFVyc2FjaGUgZWluZXIgU2NoaWxkZHLDvHNlbnVudGVyZnVua3Rpb24gKEh5cG90aHlyZW9zZSkgaW4gaW9kaW5lLXN1ZmZpY2llbnRlbiBSZWdpb25lbi4KCioqS2Vybm1lY2hhbmlzbWVuOioqCi0gQXV0b2ltbXVub2xvZ2lzY2hlIFplcnN0w7ZydW5nIGRlcyBTY2hpbGRkcsO8c2VuZ2V3ZWJlcyBkdXJjaCBULUx5bXBob3p5dGVuCi0gQmlsZHVuZyB2b24gKipUUE8tQW50aWvDtnJwZXJuKiogKFRoeXJvaWQtUGVyb3hpZGFzZSkgdW5kICoqVEctQW50aWvDtnJwZXJuKiogKFRoeXJvZ2xvYnVsaW4pCi0gQ2hyb25pc2NoLWVudHrDvG5kbGljaGVyIFByb3plc3Mg4oaSIHByb2dyZXNzaXZlciBWZXJsdXN0IGRlciBTY2hpbGRkcsO8c2VuZnVua3Rpb24KLSBIw6R1ZmlnZSBLb2luemlkZW56IG1pdCBhbmRlcmVuIEF1dG9pbW11bmVya3Jhbmt1bmdlbgoKKipFcGlkZW1pb2xvZ2llOioqCi0gUHLDpHZhbGVuejogY2EuIDXigJMxNSAlIGRlciBlcndhY2hzZW5lbiBCZXbDtmxrZXJ1bmcgKGplIG5hY2ggRGlhZ25vc2Vrcml0ZXJpZW4pCi0gRnJhdWVuOk3DpG5uZXItVmVyaMOkbHRuaXMg4omIIDc6MQotIEjDpHVmaWdzdGVyIE1hbmlmZXN0YXRpb25zZ2lwZmVsOiAzMOKAkzUwIEphaHJlCi0gU3RhcmtlIGdlbmV0aXNjaGUgS29tcG9uZW50ZSAoZmFtaWxpw6RyZSBIw6R1ZnVuZyBuYWNoZ2V3aWVzZW4pCgojIyMgMS4yIFN5bXB0b21rb21wbGV4Cgp8IEthdGVnb3JpZSB8IFN5bXB0b21lIHwKfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS18CnwgKipNZXRhYm9saXNjaCoqIHwgR2V3aWNodHN6dW5haG1lLCBLw6RsdGVpbnRvbGVyYW56LCBCcmFkeWthcmRpZSB8CnwgKipOZXVyb2xvZ2lzY2gqKiB8IEZhdGlndWUsIEJyYWluIEZvZywgRGVwcmVzc2lvbiwgS29uemVudHJhdGlvbnNzdMO2cnVuZ2VuIHwKfCAqKkRlcm1hdG9sb2dpc2NoKiogfCBUcm9ja2VuZSBIYXV0LCBIYWFyYXVzZmFsbCwgYnLDvGNoaWdlIE7DpGdlbCB8CnwgKipHYXN0cm9pbnRlc3RpbmFsKiogfCBPYnN0aXBhdGlvbiwgdmVybGFuZ3NhbXRlIE1vdGlsaXTDpHQgfAp8ICoqUmVwcm9kdWt0aXYqKiB8IFp5a2x1c3N0w7ZydW5nZW4sIEluZmVydGlsaXTDpHQsIExpYmlkb3Zlcmx1c3QgfAp8ICoqTXVza3Vsb3NrZWxldGFsKiogfCBNeWFsZ2llbiwgR2VsZW5rc2NobWVyemVuLCBTdGVpZmlna2VpdCB8CgojIyMgMS4zIExhYm9yZGlhZ25vc3RpawoKLSAqKlRTSCoqIChUaHlyb2lkZWEtc3RpbXVsaWVyZW5kZXMgSG9ybW9uKTogTWVpc3QgZXJow7ZodAotICoqZlQzIC8gZlQ0Kio6IE1laXN0IGVybmllZHJpZ3Qgb2RlciBpbSB1bnRlcmVuIE5vcm1iZXJlaWNoCi0gKipUUE8tQWsqKiAoQW50aS1UUE8pOiBCZWkgODDigJM5MCAlIGRlciBQYXRpZW50ZW4gcG9zaXRpdgotICoqVEctQWsqKiAoQW50aS1URyk6IEJlaSA2MOKAkzgwICUgZGVyIFBhdGllbnRlbiBwb3NpdGl2Ci0gKipTb25vZ3JhZmllKio6IFR5cGlzY2hlIGVjaG9hcm1lIFZlcsOkbmRlcnVuZ2VuCgotLS0KCiMjIDIuIFBvbHl6eXN0aXNjaGVzIE92YXJpYWxzeW5kcm9tIChQQ09TKQoKIyMjIDIuMSBEZWZpbml0aW9uICYgUGF0aG9waHlzaW9sb2dpZQoKRGFzICoqUENPUyoqIGlzdCBkaWUgaMOkdWZpZ3N0ZSBlbmRva3Jpbm9sb2dpc2NoZSBTdMO2cnVuZyBiZWkgRnJhdWVuIGltIHJlcHJvZHVrdGl2ZW4gQWx0ZXIgdW5kIHdpcmQgbmFjaCBkZW4gUm90dGVyZGFtLUtyaXRlcmllbiAoMjAwMykgZGlhZ25vc3RpemllcnQ6IE1pbmRlc3RlbnMgMiB2b24gMyBLcml0ZXJpZW4gbcO8c3NlbiBlcmbDvGxsdCBzZWluOgoKMS4gKipPbGlnby0gb2RlciBBbm92dWxhdGlvbioqIChzZWx0ZW5lIG9kZXIgYXVzYmxlaWJlbmRlIEVpc3Byw7xuZ2UpCjIuICoqS2xpbmlzY2hlIG9kZXIgYmlvY2hlbWlzY2hlIEh5cGVyYW5kcm9nZW7DpG1pZSoqIChlcmjDtmh0ZSBtw6RubmxpY2hlIEhvcm1vbmUpCjMuICoqUG9seXp5c3Rpc2NoZSBPdmFyaWVuIGltIFVsdHJhc2NoYWxsKiogKOKJpTEyIEZvbGxpa2VsIHBybyBPdmFyLCBPdmFydm9sdW1lbiA+MTAgbWwpCgoqKktlcm5tZWNoYW5pc21lbjoqKgotICoqSW5zdWxpbnJlc2lzdGVueioqIChiZXRyaWZmdCA1MOKAkzcwICUgYWxsZXIgUENPUy1QYXRpZW50aW5uZW4sIHVuYWJow6RuZ2lnIHZvbSBCTUkpCi0gSHlwZXJhbmRyb2dlbsOkbWllIChlcmjDtmh0ZSBBbmRyb2dlbmUgYXVzIE92YXIgdW5kIE5lYmVubmllcmUpCi0gRHlzcmVndWxpZXJ0ZSBHb25hZG90cm9waW4tU2VrcmV0aW9uIChlcmjDtmh0ZXMgTEgvRlNILVZlcmjDpGx0bmlzKQotIENocm9uaXNjaGUgbG93LWdyYWRlIEluZmxhbW1hdGlvbgotIEFkaXBvc2l0YXMgKGJlaSBjYS4gNTDigJM4MCAlLCB2ZXJzY2hsZWNodGVydCBhbGxlIFBhcmFtZXRlcikKCioqRXBpZGVtaW9sb2dpZToqKgotIFByw6R2YWxlbno6IGNhLiA14oCTMTUgJSAoamUgbmFjaCBkaWFnbm9zdGlzY2hlbiBLcml0ZXJpZW4gdW5kIEV0aG5peml0w6R0KQotIEZyYXVlbjpNw6RubmVyLVZlcmjDpGx0bmlzOiBBdXNzY2hsaWXDn2xpY2ggd2VpYmxpY2gKLSBIw6R1Zmlnc3RlciBNYW5pZmVzdGF0aW9uc2dpcGZlbDogUHViZXJ0w6R0IGJpcyBmcsO8aGVzIEVyd2FjaHNlbmVuYWx0ZXIKCiMjIyAyLjIgU3ltcHRvbWtvbXBsZXgKCnwgS2F0ZWdvcmllIHwgU3ltcHRvbWUgfAp8LS0tLS0tLS0tLS18LS0tLS0tLS0tLXwKfCAqKlJlcHJvZHVrdGl2KiogfCBPbGlnb21lbm9ycmhvZSwgQW1lbm9ycmhvZSwgQW5vdnVsYXRpb24sIEluZmVydGlsaXTDpHQsIEhpcnN1dGlzbXVzLCBBa25lIHwKfCAqKk1ldGFib2xpc2NoKiogfCBHZXdpY2h0c3p1bmFobWUgKHYuYS4gYWJkb21pbmFsKSwgSW5zdWxpbnJlc2lzdGVueiwgZXJow7ZodGVzIERpYWJldGVzLVR5cC0yLVJpc2lrbyB8CnwgKipOZXVyb2xvZ2lzY2gqKiB8IEZhdGlndWUsIFN0aW1tdW5nc3NjaHdhbmt1bmdlbiwgRGVwcmVzc2lvbiwgQW5nc3RzdMO2cnVuZ2VuIHwKfCAqKkRlcm1hdG9sb2dpc2NoKiogfCBBa25lbmllLCBIYWFyYXVzZmFsbCAoYW5kcm9nZW5ldGlzY2gpLCBBY2FudGhvc2lzIG5pZ3JpY2FucyB8CnwgKioga2FyZGlvdmFza3Vsw6RyKiogfCBFcmjDtmh0ZXMgUmlzaWtvIGbDvHIgbWV0YWJvbGlzY2hlcyBTeW5kcm9tLCBIeXBlcnRvbmllLCBEeXNsaXBpZMOkbWllIHwKCi0tLQoKIyMgMy4gRGllIEhhc2hpbW90by1QQ09TLVZlcmJpbmR1bmcKCiMjIyAzLjEgRXBpZGVtaW9sb2dpc2NoZSDDnGJlcmxhcHB1bmcKCkZyYXVlbiBtaXQgUENPUyBoYWJlbiBlaW4gKiozLWZhY2ggZXJow7ZodGVzIFJpc2lrbyoqLCB6dXPDpHR6bGljaCBhbiBlaW5lciBhdXRvaW1tdW5lbiBTY2hpbGRkcsO8c2VuZXJrcmFua3VuZyAodi5hLiBIYXNoaW1vdG8pIHp1IGVya3JhbmtlbiwgdmVyZ2xpY2hlbiBtaXQgRnJhdWVuIG9obmUgUENPUy4gRGllIGdlbWVpbnNhbWUgSW56aWRlbnogaXN0IGluIGRlbiBsZXR6dGVuIEphaHJlbiBzaWduaWZpa2FudCBhbmdlc3RpZWdlbi4KCiMjIyAzLjIgR2VtZWluc2FtZSBwYXRob3BoeXNpb2xvZ2lzY2hlIFBhdGh3YXlzCgp8IEZha3RvciB8IEhhc2hpbW90byB8IFBDT1MgfCBHZW1laW5zYW0/IHwKfC0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLXwtLS0tLS0tLS0tLS18CnwgKipDaHJvbmlzY2hlIEluZmxhbW1hdGlvbioqIHwg4pyTIChBdXRvaW1tdW4pIHwg4pyTIChsb3ctZ3JhZGUpIHwgKipaZW50cmFsKiogfAp8ICoqSW5zdWxpbnJlc2lzdGVueioqIHwgTW9kZXJhdCBlcmjDtmh0IHwgU3RhcmsgYXVzZ2VwcsOkZ3QgfCAqKkphKiogfAp8ICoqVml0YW1pbi1ELU1hbmdlbCoqIHwgQXNzb3ppaWVydCB8IEFzc296aWllcnQgfCAqKkphKiogfAp8ICoqRGFybWR5c2Jpb3NlKiogfCBEb2t1bWVudGllcnQgfCBEb2t1bWVudGllcnQgfCAqKkphKiogfAp8ICoqT3hpZGF0aXZlciBTdHJlc3MqKiB8IEVyaMO2aHQgfCBFcmjDtmh0IHwgKipKYSoqIHwKfCAqKkdlbmV0aXNjaGUgU3VzemVwdGliaWxpdMOkdCoqIHwgSExBLURSLCBDVExBNCB8IE51bWVyb3VzIExvY2kgfCAqKsOcYmVybGFwcGVuZCoqIHwKfCAqKkFkaXBvc2l0YXMqKiB8IFZlcnNjaGxlY2h0ZXJ0IHwgVmVyc2NobGVjaHRlcnQgfCAqKkphKiogfAp8ICoqw5ZzdHJvZ2VuZG9taW5hbnoqKiB8IFJlbGF0aXYgfCBSZWxhdGl2IHwgKipKYSoqIHwKCiMjIyAzLjMgS2xpbmlzY2hlIFJlbGV2YW56CgpEaWUgS29tYmluYXRpb24gYmVpZGVyIEVya3Jhbmt1bmdlbiBwb3RlbnppZXJ0OgotICoqTWV0YWJvbGlzY2hlIER5c2Z1bmt0aW9uKiogKFN5bmVyZ2llIGF1cyBIeXBvdGh5cmVvc2UgKyBJbnN1bGlucmVzaXN0ZW56KQotICoqRnJ1Y2h0YmFya2VpdHNwcm9ibGVtZSoqIChBbm92dWxhdGlvbiArIEh5cG90aHlyZW9zZSkKLSAqKkNocm9uaXNjaGUgRXJzY2jDtnBmdW5nKiogKGJlaWRlIEVya3Jhbmt1bmdlbiB2ZXJ1cnNhY2hlbiBGYXRpZ3VlKQotICoqR2V3aWNodHNwcm9ibGVtYXRpayoqIChiZWlkZSBlcnNjaHdlcmVuIEdld2ljaHRzbWFuYWdlbWVudCkKLSAqKlBzeWNoaXNjaGUgQmVsYXN0dW5nKiogKERlcHJlc3Npb24sIEFuZ3N0IGjDpHVmaWdlciBiZWkgS29tb3JiaWRpdMOkdCkKCi0tLQoKIyMgNC4gRXJuw6RocnVuZ3NtZWRpemluaXNjaGUgR3J1bmRwcmluemlwaWVuCgojIyMgNC4xIEV2aWRlbnpiYXNpZXJ0ZSBFcm7DpGhydW5nc2ludGVydmVudGlvbmVuCgpEaWUgYWt0dWVsbGUgU3R1ZGllbmxhZ2UgemVpZ3QsIGRhc3MgYmVzdGltbXRlIEVybsOkaHJ1bmdzdW1zdGVsbHVuZ2VuIGJlaSBiZWlkZW4gRXJrcmFua3VuZ2VuIHNpZ25pZmlrYW50IHp1ciBTeW1wdG9tbGluZGVydW5nIGJlaXRyYWdlbiBrw7ZubmVuLiBFaW5lIDIwMjMgaW0gKkZyb250aWVycyBpbiBJbW11bm9sb2d5KiBwdWJsaXppZXJ0ZSB1bWZhc3NlbmRlIFJldmlldyAoaHR0cHM6Ly93d3cuZnJvbnRpZXJzaW4ub3JnL2pvdXJuYWxzL2ltbXVub2xvZ3kvYXJ0aWNsZXMvMTAuMzM4OS9maW1tdS4yMDIzLjEyMTEyMzEvZnVsbCkgZmFzc3QgZGVuIGFrdHVlbGxlbiBXaXNzZW5zc3RhbmQgenVzYW1tZW4uCgojIyMgNC4yIEdlbWVpbnNhbWUgRXJuw6RocnVuZ3NwcmluemlwaWVuIGbDvHIgSGFzaGltb3RvICsgUENPUwoKIyMjIyBBKSBFbnR6w7xuZHVuZ3NoZW1tZW5kZSBFcm7DpGhydW5nIChBbnRpLUluZmxhbW1hdG9yeSBEaWV0KQotICoqWmllbDoqKiBSZWR1a3Rpb24gZGVzIGNocm9uaXNjaGVuIEVudHrDvG5kdW5nc3N0YXR1cywgZGVyIGJlaWRlbiBFcmtyYW5rdW5nZW4genVncnVuZGUgbGllZ3QKLSAqKktlcm46KiogTWVkaXRlcnJhbmUgRXJuw6RocnVuZywgYnVudGVzIEdlbcO8c2UsIE9tZWdhLTMtcmVpY2hlIEZpc2NoZSwgT2xpdmVuw7ZsCi0gKipFdmlkZW56OioqIEd1dCBkb2t1bWVudGllcnQgZsO8ciBQQ09TIChSZWR1a3Rpb24gdm9uIEVudHrDvG5kdW5nc21hcmtlcm4gd2llIENSUCk7IGbDvHIgSGFzaGltb3RvIHplaWd0IHNpY2ggTGluZGVydW5nIGRlciBBdXRvaW1tdW5ha3Rpdml0w6R0CgojIyMjIEIpIEJsdXR6dWNrZXJyZWd1bGF0aW9uIChMb3cgR2x5Y2VtaWMgSW5kZXgpCi0gKipaaWVsOioqIFJlZHVrdGlvbiBkZXIgSW5zdWxpbnJlc2lzdGVueiAoSGF1cHRwcm9ibGVtIGJlaSBQQ09TKSB1bmQgU3RhYmlsaXNpZXJ1bmcgZGVyIFN0b2Zmd2VjaHNlbGxhZ2UKLSAqKktlcm46KiogTmllZHJpZy1nbHlrw6RtaXNjaGUgS29obGVuaHlkcmF0ZSwgQmFsbGFzdHN0b2ZmZSwgRWl3ZWnDny1iZXRvbnRlIE1haGx6ZWl0ZW4KLSAqKkV2aWRlbno6KiogRsO8ciBQQ09TIGd1dCBiZWxlZ3Q7IGbDvHIgSGFzaGltb3RvIHVudGVyc3TDvHR6ZW5kIGJlaSBHZXdpY2h0c21hbmFnZW1lbnQKCiMjIyMgQykgRWxpbWluYXRpb24gcHJvYmxlbWF0aXNjaGVyIE5haHJ1bmdzbWl0dGVsZ3J1cHBlbgotICoqWmllbDoqKiBSZWR1a3Rpb24gaW1tdW5vbG9naXNjaGVyIHVuZCBlbnR6w7xuZGxpY2hlciBUcmlnZ2VyCi0gKipLZXJuOioqIEdsdXRlbiwgTGFjdG9zZS9EYWlyeSwgc3RhcmsgcHJvemVzc2llcnRlIExlYmVuc21pdHRlbCwgWnVja2VyLCBJbmR1c3RyaWVmZXR0ZQotICoqRXZpZGVuejoqKiBGw7xyIEhhc2hpbW90bzogR2x1dGVua2FyZW56IGthbm4gVFBPLUFudGlrw7ZycGVyIHNlbmtlbiAodi5hLiBiZWkgWsO2bGlha2llLUtvbW9yYmlkaXTDpHQpOyBmw7xyIFBDT1M6IERhaXJ5LVJlZHVrdGlvbiBrYW5uIEluc3VsaW5yZXNpc3RlbnogdmVyYmVzc2VybgoKIyMjIyBEKSBNaWtyb27DpGhyc3RvZmYtT3B0aW1pZXJ1bmcKLSAqKlppZWw6KiogQmVoZWJ1bmcgaMOkdWZpZ2VyIE3DpG5nZWwsIGRpZSBiZWlkZSBFcmtyYW5rdW5nZW4gdmVyc2NobGVjaHRlcm4KLSAqKktlcm46KiogU2VsZW4sIFZpdGFtaW4gRCwgWmluaywgRWlzZW4sIE1hZ25lc2l1bSwgT21lZ2EtMywgQi1WaXRhbWluZQotICoqRXZpZGVuejoqKiBGw7xyIGJlaWRlIEVya3Jhbmt1bmdlbiBndXQgZG9rdW1lbnRpZXJ0CgotLS0KCiMjIDUuIFF1ZWxsZW4gJiBMaXRlcmF0dXJ2ZXJ6ZWljaG5pcwoKIyMjIDUuMSBXaXNzZW5zY2hhZnRsaWNoZSBSZXZpZXdzCgoxLiAqKkZyb250aWVycyBpbiBJbW11bm9sb2d5ICgyMDIzKSoqIC0gIlRoZSBpbnRlcnBsYXkgb2Ygb3hpZGF0aXZlIHN0cmVzcyBhbmQgaW1tdW5lIGR5c2Z1bmN0aW9uIGluIEhhc2hpbW90bydzIHRoeXJvaWRpdGlzIGFuZCBwb2x5Y3lzdGljIG92YXJ5IHN5bmRyb21lOiBhIGNvbXByZWhlbnNpdmUgcmV2aWV3IgogICAtIFVSTDogaHR0cHM6Ly93d3cuZnJvbnRpZXJzaW4ub3JnL2pvdXJuYWxzL2ltbXVub2xvZ3kvYXJ0aWNsZXMvMTAuMzM4OS9maW1tdS4yMDIzLjEyMTEyMzEvZnVsbAogICAtIEtlcm5lcmdlYm5pczogRG9rdW1lbnRhdGlvbiBkZXIgZ2VtZWluc2FtZW4gcGF0aG9waHlzaW9sb2dpc2NoZW4gUGF0aHdheXMKCjIuICoqUE1DMTE1NzYwOTUgKDIwMjQpKiogLSAiT3ZlcnZpZXcgb2YgYW50aS1pbmZsYW1tYXRvcnkgZGlldHMgYW5kIHRoZWlyIHByb21pc2luZyBlZmZlY3RzIgogICAtIFVSTDogaHR0cHM6Ly9wbWMubmNiaS5ubG0ubmloLmdvdi9hcnRpY2xlcy9QTUMxMTU3NjA5NS8KCjMuICoqUE1DNzk2ODQxOSAoMjAyMSkqKiAtICJHZW5ldGljIFN1c2NlcHRpYmlsaXR5IHRvIEpvaW50IE9jY3VycmVuY2Ugb2YgUG9seWN5c3RpYyBPdmFyeSBTeW5kcm9tZSBhbmQgSGFzaGltb3RvJ3MgVGh5cm9pZGl0aXMiCiAgIC0gVVJMOiBodHRwczovL3BtYy5uY2JpLm5sbS5uaWguZ292L2FydGljbGVzL1BNQzc5Njg0MTkvCgojIyMgNS4yIE1lZGl6aW5pc2NoZSBGYWNoZ2VzZWxsc2NoYWZ0ZW4KCjQuICoqRGV1dHNjaGVzIFNjaGlsZGRyw7xzZW56ZW50cnVtKiogLSBBa3R1ZWxsZSBTdHVkaWVuIHp1ciBFcm7DpGhydW5nIGJlaSBIYXNoaW1vdG8KICAgLSBVUkw6IGh0dHBzOi8vd3d3LmRldXRzY2hlcy1zY2hpbGRkcnVlc2VuemVudHJ1bS5kZS9ha3R1ZWxsZS1zdHVkaWUtZXJuYWVocnVuZy1iZWktaGFzaGltb3RvLXRoeXJlb2lkaXRpcy13YXMtYnJpbmdlbi1zcGV6aWVsbGUtZGlhZXRlbi8KCjUuICoqTkRSLmRlKiogLSBFcm7DpGhydW5nIGJlaSBIYXNoaW1vdG8tVGh5cmVvaWRpdGlzIChlbnR6w7xuZHVuZ3NoZW1tZW5kIGVzc2VuKQogICAtIFVSTDogaHR0cHM6Ly93d3cubmRyLmRlL3JhdGdlYmVyL2dlc3VuZGhlaXQvRXJuYWVocnVuZy1iZWktSGFzaGltb3RvLVRoeXJlb2lkaXRpcy1lbnR6dWVuZHVuZ3NoZW1tZW5kLWVzc2VuLGhhc2hpbW90bzExMC5odG1sCgo2LiAqKkFwb3RoZWtlbiBVbXNjaGF1KiogLSBIYXNoaW1vdG8gdW5kIEVybsOkaHJ1bmcgKFNvamEsIEtvaGwpCiAgIC0gVVJMOiBodHRwczovL3d3dy5hcG90aGVrZW4tdW1zY2hhdS5kZS9nZXN1bmQtYmxlaWJlbi9lcm5hZWhydW5nL2hhc2hpbW90by11bmQtZXJuYWVocnVuZy1zb2xsdGVuLWJldHJvZmZlbmUtc29qYS1vZGVyLWtvaGwtbWVpZGVuLTEyMzkxODMuaHRtbAoKNy4gKipORFIuZGUqKiAtIEVybsOkaHJ1bmcgYmVpIFBDTy1TeW5kcm9tCiAgIC0gVVJMOiBodHRwczovL3d3dy5uZHIuZGUvcmF0Z2ViZXIvZ2VzdW5kaGVpdC9Fcm5hZWhydW5nLWJlaW0tUENPLVN5bmRyb20scGNvc3luZHJvbTEwNC5odG1sCgojIyMgNS4zIFdlaXRlcmUgUXVlbGxlbgoKOC4gKipNZWQgVW5pIEdyYXoqKiAtIEhhYmlsaXRhdGlvbnNzY2hyaWZ0IHp1IEhhc2hpbW90byB1bmQgRXJuw6RocnVuZwogICAtIFVSTDogaHR0cHM6Ly9vbmxpbmUubWVkdW5pZ3Jhei5hdC9tdWdfb25saW5lL3diYWJzLmdldERvY3VtZW50P3BUaGVzaXNOcj01ODc0MiZwQXV0b3JOcj04NzAxNSZwT3JnTlI9MQoKOS4gKipQQ09TLmF0KiogLSBQcmFrdGlzY2hlIFRpcHBzIChnbHlrw6RtaXNjaGVyIEluZGV4KQogICAtIFVSTDogaHR0cHM6Ly93d3cucGNvcy5hdC9wcmFrdGlzY2hlLXRpcHBzLwoKMTAuICoqU291dGggUGFyayBGdW5jdGlvbmFsIE1lZGljaW5lKiogLSBQQ09TIGFuZCBIYXNoaW1vdG8ncyBDb25uZWN0aW9uICgyMDI1KQogICAgLSBVUkw6IGh0dHBzOi8vc291dGhwYXJrZnVuY3Rpb25hbG1lZGljaW5lLmNvbS9wY29zLWhhc2hpbW90b3MtY29ubmVjdGlvbi8KCi0tLQoKIyMgNi4gTsOkY2hzdGUgU2Nocml0dGUKCi0g4oaSIFNpZWhlIGAwMl9sZWJlbnNtaXR0ZWxfYmV3ZXJ0dW5nLm1kYCBmw7xyIGRhcyBMZWJlbnNtaXR0ZWwtU2NvcmluZy1TeXN0ZW0KLSDihpIgU2llaGUgYDAzX25haHJ1bmdzZXJnYWVuenVuZ2VuLm1kYCBmw7xyIE1pa3JvbsOkaHJzdG9mZi1EZXRhaWxzCi0g4oaSIFNpZWhlIGAwNF9wcm9kdWt0X3NjYW5fYXBpLm1kYCBmw7xyIGRpZSBPcGVuRm9vZEZhY3RzLUludGVncmF0aW9uCg==
+# Hashimoto & PCOS: Krankheitsgrundlagen & ernährungsmedizinischer Zusammenhang
+
+> **Hinweis:** Dieses Dokument dient der wissenschaftlichen Grundlagenarbeit für die Entwicklung eines Ernährungs-Tools. Die Informationen ersetzen keine ärztliche oder ernährungstherapeutische Beratung.
+
+---
+
+## 1. Hashimoto-Thyreoiditis
+
+### 1.1 Definition & Pathophysiologie
+
+**Hashimoto-Thyreoiditis** (auch: chronische lymphozytäre Thyreoiditis) ist die häufigste Autoimmunerkrankung weltweit und die häufigste Ursache einer Schilddrüsenunterfunktion (Hypothyreose) in iodine-sufficienten Regionen.
+
+**Kernmechanismen:**
+- Autoimmunologische Zerstörung des Schilddrüsengewebes durch T-Lymphozyten
+- Bildung von **TPO-Antikörpern** (Thyroid-Peroxidase) und **TG-Antikörpern** (Thyroglobulin)
+- Chronisch-entzündlicher Prozess → progressiver Verlust der Schilddrüsenfunktion
+- Häufige Koinzidenz mit anderen Autoimmunerkrankungen
+
+**Epidemiologie:**
+- Prävalenz: ca. 5–15 % der erwachsenen Bevölkerung (je nach Diagnosekriterien)
+- Frauen:Männer-Verhältnis ≈ 7:1
+- Häufigster Manifestationsgipfel: 30–50 Jahre
+- Starke genetische Komponente (familiäre Häufung nachgewiesen)
+
+### 1.2 Symptomkomplex
+
+| Kategorie | Symptome |
+|-----------|----------|
+| **Metabolisch** | Gewichtszunahme, Kälteintoleranz, Bradykardie |
+| **Neurologisch** | Fatigue, Brain Fog, Depression, Konzentrationsstörungen |
+| **Dermatologisch** | Trockene Haut, Haarausfall, brüchige Nägel |
+| **Gastrointestinal** | Obstipation, verlangsamte Motilität |
+| **Reproduktiv** | Zyklusstörungen, Infertilität, Libidoverlust |
+| **Muskuloskeletal** | Myalgien, Gelenkschmerzen, Steifigkeit |
+
+### 1.3 Labordiagnostik
+
+- **TSH** (Thyroidea-stimulierendes Hormon): Meist erhöht
+- **fT3 / fT4**: Meist erniedrigt oder im unteren Normbereich
+- **TPO-Ak** (Anti-TPO): Bei 80–90 % der Patienten positiv
+- **TG-Ak** (Anti-TG): Bei 60–80 % der Patienten positiv
+- **Sonografie**: Typische echoarme Veränderungen
+
+---
+
+## 2. Polyzystisches Ovarialsyndrom (PCOS)
+
+### 2.1 Definition & Pathophysiologie
+
+Das **PCOS** ist die häufigste endokrinologische Störung bei Frauen im reproduktiven Alter und wird nach den Rotterdam-Kriterien (2003) diagnostiziert: Mindestens 2 von 3 Kriterien müssen erfüllt sein:
+
+1. **Oligo- oder Anovulation** (seltene oder ausbleibende Eisprünge)
+2. **Klinische oder biochemische Hyperandrogenämie** (erhöhte männliche Hormone)
+3. **Polyzystische Ovarien im Ultraschall** (≥12 Follikel pro Ovar, Ovarvolumen >10 ml)
+
+**Kernmechanismen:**
+- **Insulinresistenz** (betrifft 50–70 % aller PCOS-Patientinnen, unabhängig vom BMI)
+- Hyperandrogenämie (erhöhte Androgene aus Ovar und Nebenniere)
+- Dysregulierte Gonadotropin-Sekretion (erhöhtes LH/FSH-Verhältnis)
+- Chronische low-grade Inflammation
+- Adipositas (bei ca. 50–80 %, verschlechtert alle Parameter)
+
+**Epidemiologie:**
+- Prävalenz: ca. 5–15 % (je nach diagnostischen Kriterien und Ethnizität)
+- Frauen:Männer-Verhältnis: Ausschließlich weiblich
+- Häufigster Manifestationsgipfel: Pubertät bis frühes Erwachsenenalter
+
+### 2.2 Symptomkomplex
+
+| Kategorie | Symptome |
+|-----------|----------|
+| **Reproduktiv** | Oligomenorrhoe, Amenorrhoe, Anovulation, Infertilität, Hirsutismus, Akne |
+| **Metabolisch** | Gewichtszunahme (v.a. abdominal), Insulinresistenz, erhöhtes Diabetes-Typ-2-Risiko |
+| **Neurologisch** | Fatigue, Stimmungsschwankungen, Depression, Angststörungen |
+| **Dermatologisch** | Aknenie, Haarausfall (androgenetisch), Acanthosis nigricans |
+| ** kardiovaskulär** | Erhöhtes Risiko für metabolisches Syndrom, Hypertonie, Dyslipidämie |
+
+---
+
+## 3. Die Hashimoto-PCOS-Verbindung
+
+### 3.1 Epidemiologische Überlappung
+
+Frauen mit PCOS haben ein **3-fach erhöhtes Risiko**, zusätzlich an einer autoimmunen Schilddrüsenerkrankung (v.a. Hashimoto) zu erkranken, verglichen mit Frauen ohne PCOS. Die gemeinsame Inzidenz ist in den letzten Jahren signifikant angestiegen.
+
+### 3.2 Gemeinsame pathophysiologische Pathways
+
+| Faktor | Hashimoto | PCOS | Gemeinsam? |
+|--------|-----------|------|------------|
+| **Chronische Inflammation** | ✓ (Autoimmun) | ✓ (low-grade) | **Zentral** |
+| **Insulinresistenz** | Moderat erhöht | Stark ausgeprägt | **Ja** |
+| **Vitamin-D-Mangel** | Assoziiert | Assoziiert | **Ja** |
+| **Darmdysbiose** | Dokumentiert | Dokumentiert | **Ja** |
+| **Oxidativer Stress** | Erhöht | Erhöht | **Ja** |
+| **Genetische Suszeptibilität** | HLA-DR, CTLA4 | Numerous Loci | **Überlappend** |
+| **Adipositas** | Verschlechtert | Verschlechtert | **Ja** |
+| **Östrogendominanz** | Relativ | Relativ | **Ja** |
+
+### 3.3 Klinische Relevanz
+
+Die Kombination beider Erkrankungen potenziert:
+- **Metabolische Dysfunktion** (Synergie aus Hypothyreose + Insulinresistenz)
+- **Fruchtbarkeitsprobleme** (Anovulation + Hypothyreose)
+- **Chronische Erschöpfung** (beide Erkrankungen verursachen Fatigue)
+- **Gewichtsproblematik** (beide erschweren Gewichtsmanagement)
+- **Psychische Belastung** (Depression, Angst häufiger bei Komorbidität)
+
+---
+
+## 4. Ernährungsmedizinische Grundprinzipien
+
+### 4.1 Evidenzbasierte Ernährungsinterventionen
+
+Die aktuelle Studienlage zeigt, dass bestimmte Ernährungsumstellungen bei beiden Erkrankungen signifikant zur Symptomlinderung beitragen können. Eine 2023 im *Frontiers in Immunology* publizierte umfassende Review (https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2023.1211231/full) fasst den aktuellen Wissensstand zusammen.
+
+### 4.2 Gemeinsame Ernährungsprinzipien für Hashimoto + PCOS
+
+#### A) Entzündungshemmende Ernährung (Anti-Inflammatory Diet)
+- **Ziel:** Reduktion des chronischen Entzündungsstatus, der beiden Erkrankungen zugrunde liegt
+- **Kern:** Mediterrane Ernährung, buntes Gemüse, Omega-3-reiche Fische, Olivenöl
+- **Evidenz:** Gut dokumentiert für PCOS (Reduktion von Entzündungsmarkern wie CRP); für Hashimoto zeigt sich Linderung der Autoimmunaktivität
+
+#### B) Blutzuckerregulation (Low Glycemic Index)
+- **Ziel:** Reduktion der Insulinresistenz (Hauptproblem bei PCOS) und Stabilisierung der Stoffwechsellage
+- **Kern:** Niedrig-glykämische Kohlenhydrate, Ballaststoffe, Eiweiß-betonte Mahlzeiten
+- **Evidenz:** Für PCOS gut belegt; für Hashimoto unterstützend bei Gewichtsmanagement
+
+#### C) Elimination problematischer Nahrungsmittelgruppen
+- **Ziel:** Reduktion immunologischer und entzündlicher Trigger
+- **Kern:** Gluten, Lactose/Dairy, stark prozessierte Lebensmittel, Zucker, Industriefette
+- **Evidenz:** Für Hashimoto: Glutenkarenz kann TPO-Antikörper senken (v.a. bei Zöliakie-Komorbidität); für PCOS: Dairy-Reduktion kann Insulinresistenz verbessern
+
+#### D) Mikronährstoff-Optimierung
+- **Ziel:** Behebung häufiger Mängel, die beide Erkrankungen verschlechtern
+- **Kern:** Selen, Vitamin D, Zink, Eisen, Magnesium, Omega-3, B-Vitamine
+- **Evidenz:** Für beide Erkrankungen gut dokumentiert
+
+---
+
+## 5. Quellen & Literaturverzeichnis
+
+### 5.1 Wissenschaftliche Reviews
+
+1. **Frontiers in Immunology (2023)** - "The interplay of oxidative stress and immune dysfunction in Hashimoto's thyroiditis and polycystic ovary syndrome: a comprehensive review"
+   - URL: https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2023.1211231/full
+   - Kernergebnis: Dokumentation der gemeinsamen pathophysiologischen Pathways
+
+2. **PMC11576095 (2024)** - "Overview of anti-inflammatory diets and their promising effects"
+   - URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC11576095/
+
+3. **PMC7968419 (2021)** - "Genetic Susceptibility to Joint Occurrence of Polycystic Ovary Syndrome and Hashimoto's Thyroiditis"
+   - URL: https://pmc.ncbi.nlm.nih.gov/articles/PMC7968419/
+
+### 5.2 Medizinische Fachgesellschaften
+
+4. **Deutsches Schilddrüsenzentrum** - Aktuelle Studien zur Ernährung bei Hashimoto
+   - URL: https://www.deutsches-schilddruesenzentrum.de/aktuelle-studie-ernaehrung-bei-hashimoto-thyreoiditis-was-bringen-spezielle-diaeten/
+
+5. **NDR.de** - Ernährung bei Hashimoto-Thyreoiditis (entzündungshemmend essen)
+   - URL: https://www.ndr.de/ratgeber/gesundheit/Ernaehrung-bei-Hashimoto-Thyreoiditis-entzuendungshemmend-essen,hashimoto110.html
+
+6. **Apotheken Umschau** - Hashimoto und Ernährung (Soja, Kohl)
+   - URL: https://www.apotheken-umschau.de/gesund-bleiben/ernaehrung/hashimoto-und-ernaehrung-sollten-betroffene-soja-oder-kohl-meiden-1239183.html
+
+7. **NDR.de** - Ernährung bei PCO-Syndrom
+   - URL: https://www.ndr.de/ratgeber/gesundheit/Ernaehrung-beim-PCO-Syndrom,pcosyndrom104.html
+
+### 5.3 Weitere Quellen
+
+8. **Med Uni Graz** - Habilitationsschrift zu Hashimoto und Ernährung
+   - URL: https://online.medunigraz.at/mug_online/wbabs.getDocument?pThesisNr=58742&pAutorNr=87015&pOrgNR=1
+
+9. **PCOS.at** - Praktische Tipps (glykämischer Index)
+   - URL: https://www.pcos.at/praktische-tipps/
+
+10. **South Park Functional Medicine** - PCOS and Hashimoto's Connection (2025)
+    - URL: https://southparkfunctionalmedicine.com/pcos-hashimotos-connection/
+
+---
+
+## 6. Nächste Schritte
+
+- → Siehe `02_lebensmittel_bewertung.md` für das Lebensmittel-Scoring-System
+- → Siehe `03_nahrungsergaenzungen.md` für Mikronährstoff-Details
+- → Siehe `04_produkt_scan_api.md` für die OpenFoodFacts-Integration
