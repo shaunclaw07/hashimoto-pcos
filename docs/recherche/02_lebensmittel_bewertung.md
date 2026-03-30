@@ -1,1 +1,352 @@
-IyBMZWJlbnNtaXR0ZWwtQmV3ZXJ0dW5nc3N5c3RlbTogV2FzIGVzc2VuIGJlaSBIYXNoaW1vdG8gKyBQQ09TPwoKPiAqKkhpbndlaXM6KiogRGllc2VzIERva3VtZW50IGJpbGRldCBkaWUgR3J1bmRsYWdlIGbDvHIgZGFzIFNjb3JpbmctU3lzdGVtIGRlcyBXZWItVG9vbHMuIEFsbGUgRW1wZmVobHVuZ2VuIGJhc2llcmVuIGF1ZiBkZXIgaW4gYDAxX2hhc2hpbW90b19wY29zX2dydW5kbGFnZW4ubWRgIHppdGllcnRlbiB3aXNzZW5zY2hhZnRsaWNoZW4gTGl0ZXJhdHVyLgoKLS0tCgojIyAxLiBCZXdlcnR1bmdza2F0ZWdvcmllbgoKRGFzIFRvb2wgdmVyd2VuZGV0IGVpbiAqKjUtU3R1ZmVuLUJld2VydHVuZ3NzeXN0ZW0qKiBtaXQgRmFyYmNvZGllcnVuZyBmw7xyIG1heGltYWxlIFZpc3VlbGxlIEtsYXJoZWl0OgoKfCBCZXdlcnR1bmcgfCBGYXJiZSB8IEJlZGV1dHVuZyB8CnwtLS0tLS0tLS0tLXwtLS0tLS0tfC0tLS0tLS0tLS18Cnwg4q2Q4q2Q4q2Q4q2Q4q2QICoqU0VIUiBHVVQqKiB8IPCfn6IgR3LDvG4gfCBQcm9ha3RpdiBlbXBmb2hsZW4sIHdpcmt0IGVudHrDvG5kdW5nc2hlbW1lbmQsIHVudGVyc3TDvHR6dCBIb3Jtb25iYWxhbmNlIHwKfCDirZDirZDirZDirZAgKipHVVQqKiB8IPCfn6IgSGVsbGdyw7xuIHwgUmVnZWxtw6TDn2lnIGVtcGZlaGxlbnN3ZXJ0LCBndXRlIE7DpGhyc3RvZmZkaWNodGUgfAp8IOKtkOKtkOKtkCAqKk5FVVRSQUwqKiB8IPCfn6EgR2VsYiB8IEluIE1hw59lbiBPSywgaW5kaXZpZHVlbGwgdW50ZXJzY2hpZWRsaWNoIHZlcnRyw6RnbGljaCB8Cnwg4q2Q4q2QICoqV0VOSUdFUiBHVVQqKiB8IPCfn6AgT3JhbmdlIHwgU2VsdGVuIG9kZXIgaW4ga2xlaW5lbiBNZW5nZW4sIHBvdGVuemllbGxlIFByb2JsZW1lIHwKfCDirZAgKipWRVJNRUlERU4qKiB8IPCflLQgUm90IHwgUHJvYmxlbWF0aXNjaCBiZWkgSGFzaGltb3RvL1BDT1MsIFRyaWdnZXItTGViZW5zbWl0dGVsIHwKCi0tLQoKIyMgMi4gTGViZW5zbWl0dGVsLUthdGVnb3JpZW4gaW0gRGV0YWlsCgojIyMgMi4xIEdlbcO8c2UgKEJ1bnQgJiBBbnRpLUVudHrDvG5kbGljaCkKCioqRW1wZm9obGVuIChTRUhSIEdVVCBiaXMgR1VUKToqKgoKfCBMZWJlbnNtaXR0ZWwgfCBCZXdlcnR1bmcgfCBCZWdyw7xuZHVuZyB8CnwtLS0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tLXwKfCBCbGF0dGdlbcO8c2UgKFNwaW5hdCwgTWFuZ29sZCwgUnVjb2xhKSB8IOKtkOKtkOKtkOKtkOKtkCB8IEJpdHRlcnN0b2ZmZSwgRWlzZW4sIE1hZ25lc2l1bTsgZW50esO8bmR1bmdzaGVtbWVuZCB8CnwgQnJva2tvbGkgJiBLcmV1emJsw7x0bGVyIHwg4q2Q4q2Q4q2Q4q2Q4q2QIHwgU3VsZm9yYXBoYW4gKGFudGllbnR6w7xuZGxpY2gpLCBCYWxsYXN0c3RvZmZlIHwKfCBHcsO8bmtvaGwgKEthbGUpIHwg4q2Q4q2Q4q2Q4q2Q4q2QIHwgQ2FsY2l1bSwgVml0YW1pbiBLLCBBbnRpb3hpZGFudGllbiB8CnwgU8O8w59rYXJ0b2ZmZWxuIHwg4q2Q4q2Q4q2Q4q2QIHwgTmllZHJpZ2VyIEdJLCBWaXRhbWluIEEsIEJhbGxhc3RzdG9mZmUgfAp8IEthcm90dGVuIHwg4q2Q4q2Q4q2Q4q2QIHwgQmV0YS1DYXJvdGluLCBuaWVkcmlnZXIgR0kgfAp8IFp1Y2NoaW5pIHwg4q2Q4q2Q4q2Q4q2QIHwgTGVpY2h0IHZlcmRhdWxpY2gsIEthbGl1bSB8CnwgUGFwcmlrYSAoYnVudCkgfCDirZDirZDirZDirZAgfCBWaXRhbWluIEMsIEFudGlveGlkYW50aWVuIHwKfCBUb21hdGVuIHwg4q2Q4q2Q4q2Q4q2QIHwgTHljb3BpbiAoZW50esO8bmR1bmdzaGVtbWVuZCkgfAp8IEd1cmtlbiB8IOKtkOKtkOKtkOKtkCB8IEh5ZHJhdGlvbiwgbmllZHJpZ2UgS2Fsb3JpZW4gfAp8IEFydGlzY2hvY2tlbiB8IOKtkOKtkOKtkOKtkCB8IEludWxpbiAoRGFybWdlc3VuZGhlaXQpIHwKCioqRWluZ2VzY2hyw6Rua3QgKE5FVVRSQUwgYmlzIFdFTklHRVIgR1VUKToqKgoKfCBMZWJlbnNtaXR0ZWwgfCBCZXdlcnR1bmcgfCBCZWdyw7xuZHVuZyB8CnwtLS0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tLXwKfCBSb2hlIEtvaGxhcnRlbiAoV2Vpw59rb2hsLCBSb3NlbmtvaGwpIHwg4q2Q4q2QIHwgR29pdHJvZ2VuZSBpbiBncm/Dn2VuIE1lbmdlbiByb2gg4oaSIGJlaSBIYXNoaW1vdG8ga29jaGVuIGJlc3NlciB8CnwgU3BpbmF0IChpbiBncm/Dn2VuIE1lbmdlbikgfCDirZDirZAgfCBPeGFsc8OkdXJlIGJpbmRldCBFaXNlbiDihpIgYmVpIEVpc2VubWFuZ2VsIGVpbnNjaHLDpG5rZW4gfAp8IFNvamFib2huZW4gKHZlcmFyYmVpdGV0KSB8IOKtkOKtkCB8IElzb2ZsYXZvbmUga8O2bm5lbiBiZWkgSGFzaGltb3RvIG1pdCBhdXRvaW1tdW5lbiBTY2hpbGRkcsO8c2VucGF0aWVudGVuIGludGVyZmVyaWVyZW4gfAoKKipWZXJtZWlkZW46KioKLSBQb21tZXMgRnJpdGVzICh0cmFucy1GZXR0ZSwgaG9oZXIgR0kpCi0gR2Vtw7xzZSBpbiBCdXR0ZXJzYXVjZSAoZ2Vzw6R0dGlndGUgRmV0dGUpCgotLS0KCiMjIyAyLjIgT2JzdCAoTW9kZXJhdGlvbiAmIEF1c3dhaGwpCgoqKkVtcGZvaGxlbjoqKgoKfCBMZWJlbnNtaXR0ZWwgfCBCZXdlcnR1bmcgfCBCZWdyw7xuZHVuZyB8CnwtLS0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tLXwKfCBCZWVyZW4gKEJsYXViZWVyZW4sIEhpbWJlZXJlbiwgRXJkYmVlcmVuKSB8IOKtkOKtkOKtkOKtkOKtkCB8IEFudGhvY3lhbmUsIEFudGlveGlkYW50aWVuLCBuaWVkcmlnZXIgR0kgfAp8IMOEcGZlbCAobWl0IFNjaGFsZSkgfCDirZDirZDirZDirZAgfCBRdWVyY2V0aW4sIEJhbGxhc3RzdG9mZmUgfAp8IEJpcm5lbiB8IOKtkOKtkOKtkOKtkCB8IEJhbGxhc3RzdG9mZmUsIEthbGl1bSB8CnwgWml0cnVzZnLDvGNodGUgfCDirZDirZDirZDirZAgfCBWaXRhbWluIEMsIEZsYXZvbm9pZGUgfAp8IEdyYW5hdMOkcGZlbCB8IOKtkOKtkOKtkOKtkOKtkCB8IFN0YXJrIGFudGlveGlkYW50aXNjaCwgRW50esO8bmR1bmdzaGVtbWVuZCB8CnwgS2lyc2NoZW4gKHNhdWVyKSB8IOKtkOKtkOKtkOKtkCB8IEFudGhvY3lhbmUsIG5pZWRyaWdlciBHSSB8CnwgS2l3aSB8IOKtkOKtkOKtkOKtkCB8IFZpdGFtaW4gQywgRW56eW1lIHwKCioqRWluZ2VzY2hyw6Rua3Q6KioKCnwgTGViZW5zbWl0dGVsIHwgQmV3ZXJ0dW5nIHwgQmVncsO8bmR1bmcgfAp8LS0tLS0tLS0tLS0tLXwtLS0tLS0tLS0tLXwtLS0tLS0tLS0tLS18CnwgQmFuYW5lbiAocmVpZikgfCDirZDirZAgfCBIb2hlciBadWNrZXIvR0k7IGdyw7xuZSBCYW5hbmUgYmVzc2VyIHwKfCBXZWludHJhdWJlbiB8IOKtkOKtkCB8IEhvaGVyIFp1Y2tlci9HSSB8CnwgTWFuZ29zIHwg4q2Q4q2QIHwgSG9oZXIgR0ksIFp1Y2tlciB8CnwgQW5hbmFzIHwg4q2Q4q2QIHwgSG9oZXIgWnVja2VyL0dJIHwKfCBXYXNzZXJtZWxvbmUgfCDirZDirZAgfCBTZWhyIGhvaGVyIEdJIHwKfCBUcm9ja2VuZnLDvGNodGUgfCDirZAgfCBLb256ZW50cmllcnRlciBadWNrZXIsIGhvaGVyIEdJIHwKCi0tLQoKIyMjIDIuMyBQcm90ZWluZSAmIEZsZWlzY2gKCioqRW1wZm9obGVuOioqCgp8IExlYmVuc21pdHRlbCB8IEJld2VydHVuZyB8IEJlZ3LDvG5kdW5nIHwKfC0tLS0tLS0tLS0tLS18LS0tLS0tLS0tLS18LS0tLS0tLS0tLS0tfAp8IFdpbGRsYWNocyB8IOKtkOKtkOKtkOKtkOKtkCB8IE9tZWdhLTMgKEVQQS9ESEEpLCBQcm90ZWluLCBTZWxlbiB8CnwgTWFrcmVsZSwgSGVyaW5nIChmZXR0KSB8IOKtkOKtkOKtkOKtkOKtkCB8IE9tZWdhLTMsIFZpdGFtaW4gRCB8CnwgRm9yZWxsZSwgU2FpYmxpbmcgfCDirZDirZDirZDirZAgfCBQcm90ZWluLCBPbWVnYS0zIHwKfCBFaWVyIChGUkVJTEFOREJFVFJJRUIpIHwg4q2Q4q2Q4q2Q4q2QIHwgUHJvdGVpbiwgQ2hvbGluLCBWaXRhbWluIEQgfAp8IEdlZmzDvGdlbCAoSHVobiwgUHV0ZSkgfCDirZDirZDirZDirZAgfCBQcm90ZWluLCBCLVZpdGFtaW5lIHwKfCBMYW1tIHwg4q2Q4q2Q4q2Q4q2QIHwgT21lZ2EtMyAoYmVpIFdlaWRlaGFsdHVuZyksIFppbmsgfAp8IFJvdGVzIEZsZWlzY2ggKG1hZ2VyLCBpbiBNYcOfZW4pIHwg4q2Q4q2Q4q2QIHwgRWlzZW4sIFppbms7IGJlaSBIYXNoaW1vdG8gYXVmIFNlbGVuLS9Kb2QtQmFsYW5jZSBhY2h0ZW4gfAoKKipFaW5nZXNjaHLDpG5rdDoqKgoKfCBMZWJlbnNtaXR0ZWwgfCBCZXdlcnR1bmcgfCBCZWdyw7xuZHVuZyB8CnwtLS0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tLXwKfCBTY2h3ZWluZWZsZWlzY2ggfCDirZDirZAgfCBIb2hlciBBcmFjaGlkb25zw6R1cmVnZWhhbHQg4oaSIGVudHrDvG5kdW5nc2bDtnJkZXJuZCB8CnwgQXVmc2Nobml0dC9XdXJzdCB8IOKtkCB8IE5pdHJpdGUsIFBob3NwaGF0LCBhZGRpdGl2ZTsgc3RhcmsgcHJvemVzc2llcnQgfAoKKipWZXJtZWlkZW46KioKCnwgTGViZW5zbWl0dGVsIHwgQmV3ZXJ0dW5nIHwgQmVncsO8bmR1bmcgfAp8LS0tLS0tLS0tLS0tLXwtLS0tLS0tLS0tLXwtLS0tLS0tLS0tLS18CnwgRnJpdHRpZXJ0ZSBGbGVpc2NocHJvZHVrdGUgfCDirZAgfCBUcmFucy1GZXR0ZSwgQUdFcywgaG9oZSBBR0UtTGFzdCB8CnwgU3RhcmsgdmVyYXJiZWl0ZXRlIEZsZWlzY2h3YXJlbiB8IOKtkCB8IEtyZWJzcmlzaWtvIChJQVJDIEdydXBwZSAxKSwgRW50esO8bmR1bmcgfAoKLS0tCgojIyMgMi40IE1pbGNocHJvZHVrdGUgJiBBbHRlcm5hdGl2ZW4KCioqUHJvYmxlbToqKiBWaWVsZSBIYXNoaW1vdG8tUGF0aWVudGlubmVuIGhhYmVuIGVpbmUgKipMYWt0b3NlaW50b2xlcmFueioqIChhdWNoIHN1YmtsaW5pc2NoKS4gS2FzZWluIChNaWxjaHByb3RlaW4pIGthbm4gYmVpIG1hbmNoZW4gYXV0b2ltbXVuZW4gUGF0aWVudGVuIEltbXVucmVha3Rpb25lbiBhdXNsw7ZzZW4uCgoqKkVtcGZvaGxlbmUgQWx0ZXJuYXRpdmVuOioqCgp8IExlYmVuc21pdHRlbCB8IEJld2VydHVuZyB8IEJlZ3LDvG5kdW5nIHwKfC0tLS0tLS0tLS0tLS18LS0tLS0tLS0tLS18LS0tLS0tLS0tLS0tfAp8IE1hbmRlbG1pbGNoICh1bmdlc8O8w590KSB8IOKtkOKtkOKtkOKtkCB8IENhbGNpdW0sIGtlaW5lIExha3Rvc2UgfAp8IEtva29zbWlsY2ggfCDirZDirZDirZDirZAgfCBNQ1QtRmV0dGUgKFN0b2Zmd2VjaHNlbCkgfAp8IEhhZmVybWlsY2ggKHVuZ2Vzw7zDn3QpIHwg4q2Q4q2Q4q2QIHwgQmFsbGFzdHN0b2ZmZSwgQ2FsY2l1bSB8CnwgUmVpc21pbGNoIHwg4q2Q4q2QIHwgTmllZHJpZyBGZXR0LCBhYmVyIGhvaGVyIEdJIHwKfCBTb2phbWlsY2ggKGJpbywgZmVybWVudGllcnQpIHwg4q2Q4q2Q4q2QIHwgUHJvdGVpbiwgcGh5dG/DtnN0cm9nZW5lIOKGkiBpbmRpdmlkdWVsbCBwcsO8ZmVuIHwKCioqRWluZ2VzY2hyw6Rua3QvTmV1dHJhbDoqKgoKfCBMZWJlbnNtaXR0ZWwgfCBCZXdlcnR1bmcgfCBCZWdyw7xuZHVuZyB8CnwtLS0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tLXwKfCBOYXR1cmpvZ2h1cnQgKGdyaWVjaGlzY2gpIHwg4q2Q4q2Q4q2QIHwgUHJvYmlvdGlzY2gsIGFiZXIgTGFrdG9zZSB8CnwgSGFydGvDpHNlIChsYWt0b3NlYXJtKSB8IOKtkOKtkOKtkCB8IExha3Rvc2XDpHJtZXIgZHVyY2ggUmVpZnVuZyB8CnwgUXVhcmsgKE1hZ2Vyc3R1ZmUpIHwg4q2Q4q2QIHwgTGFrdG9zZSArIEthc2VpbiB8CgoqKlZlcm1laWRlbjoqKgoKfCBMZWJlbnNtaXR0ZWwgfCBCZXdlcnR1bmcgfCBCZWdyw7xuZHVuZyB8CnwtLS0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tLXwKfCBWb2xsbWlsY2ggKEt1aCkgfCDirZAgfCBMYWt0b3NlICsgQTEtS2FzZWluIOKGkiBiZWkgSGFzaGltb3RvIG9mdCBwcm9ibGVtYXRpc2NoIHwKfCBGcnVjaHRqb2dodXJ0IChnZXp1Y2tlcnQpIHwg4q2QIHwgWnVja2VyICsgTGFrdG9zZSB8CnwgU2FobmUsIFJhaG0gfCDirZAgfCBHZXPDpHR0aWd0ZSBGZXR0ZSArIExha3Rvc2UgfAoKLS0tCgojIyMgMi41IEdldHJlaWRlICYgS29obGVuaHlkcmF0ZQoKKipQcmluemlwOioqIE5pZWRyaWdlciBnbHlrw6RtaXNjaGVyIEluZGV4LCBob2hlIEJhbGxhc3RzdG9mZmUKCioqRW1wZm9obGVuOioqCgp8IExlYmVuc21pdHRlbCB8IEJld2VydHVuZyB8IEJlZ3LDvG5kdW5nIHwKfC0tLS0tLS0tLS0tLS18LS0tLS0tLS0tLS18LS0tLS0tLS0tLS0tfAp8IEhhZmVyZmxvY2tlbiAoa2VybmlnKSB8IOKtkOKtkOKtkOKtkOKtkCB8IEJldGEtR2x1Y2FuICggQ2hvbGVzdGVyaW4pLCBuaWVkcmlnZXIgR0kgfAp8IFF1aW5vYSB8IOKtkOKtkOKtkOKtkOKtkCB8IFZvbGx3ZXJ0aWcsIFByb3RlaW4sIE1pbmVyYWxpZW4gfAp8IEJ1Y2h3ZWl6ZW4gfCDirZDirZDirZDirZDirZAgfCBHbHV0ZW5mcmVpLCBSdXRvc2lkIHwKfCBIaXJzZSB8IOKtkOKtkOKtkOKtkCB8IEdsdXRlbmZyZWksIE1hZ25lc2l1bSB8CnwgVm9sbGtvcm4tUmVpcyAoYmFzbWF0aSwgd2lsZCkgfCDirZDirZDirZDirZAgfCBOaWVkcmlnZXJlciBHSSBhbHMgd2Vpw59lciBSZWlzIHwKfCBMaW5zZW4gJiBIw7xsc2VuZnLDvGNodGUgfCDirZDirZDirZDirZAgfCBQcm90ZWluLCBCYWxsYXN0c3RvZmZlLCBQaHl0b27DpGhyc3RvZmZlIHwKfCBSb2dnZW52b2xsa29ybmJyb3QgfCDirZDirZDirZDirZAgfCBCYWxsYXN0c3RvZmZlLCBuaWVkcmlnZXJlciBHSSB8CgoqKkVpbmdlc2NocsOkbmt0OioqCgp8IExlYmVuc21pdHRlbCB8IEJld2VydHVuZyB8IEJlZ3LDvG5kdW5nIHwKfC0tLS0tLS0tLS0tLS18LS0tLS0tLS0tLS18LS0tLS0tLS0tLS0tfAp8IFdlacOfYnJvdCwgVG9hc3Ricm90IHwg4q2Q4q2QIHwgSG9oZXIgR0ksIHdlbmlnIEJhbGxhc3RzdG9mZmUgfAp8IE51ZGVsbiAod2Vpw58pIHwg4q2Q4q2QIHwgSG9oZXIgR0kg4oaSIFZvbGxrb3JuIGJldm9yenVnZW4gfAp8IEthcnRvZmZlbG4gKGdla29jaHQpIHwg4q2Q4q2QIHwgSG9oZXIgR0kg4oaSIGluIEtvbWJpbmF0aW9uIG1pdCBGZXR0L1Byb3RlaW4gZXNzZW4gfAoKKipWZXJtZWlkZW46KioKCnwgTGViZW5zbWl0dGVsIHwgQmV3ZXJ0dW5nIHwgQmVncsO8bmR1bmcgfAp8LS0tLS0tLS0tLS0tLXwtLS0tLS0tLS0tLXwtLS0tLS0tLS0tLS18CnwgWnVja2VyLCBTw7zDn2lna2VpdGVuIHwg4q2QIHwgU3RhcmsgZW50esO8bmR1bmdzZsO2cmRlcm5kLCBJbnN1bGlucmVzaXN0ZW56IHwKfCBXZWnDn21laGxwcm9kdWt0ZSB8IOKtkCB8IEhvaGVyIEdJLCBOw6RocnN0b2ZmYXJtIHwKfCBNw7xzbGltaXNjaHVuZ2VuIChnZXp1Y2tlcnQpIHwg4q2QIHwgVmVyc3RlY2t0ZXIgWnVja2VyIHwKCi0tLQoKIyMjIDIuNiBGZXR0ZSAmIMOWbGUKCioqS3JpdGlzY2ggZsO8ciBiZWlkZSBFcmtyYW5rdW5nZW46KiogRGFzIHJpY2h0aWdlIEZldHQga2FubiBFbnR6w7xuZHVuZ2VuIHJlZHV6aWVyZW4sIGRhcyBmYWxzY2hlIEZldHQgdmVyc2NobGltbWVydCBzaWUuCgoqKkVtcGZvaGxlbjoqKgoKfCBMZWJlbnNtaXR0ZWwgfCBCZXdlcnR1bmcgfCBCZWdyw7xuZHVuZyB8CnwtLS0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tLXwKfCBPbGl2ZW7DtmwgKGV4dHJhIHZlcmdpbmUpIHwg4q2Q4q2Q4q2Q4q2Q4q2QIHwgT2xlb2NhbnRoYWwgKG5hdMO8cmxpY2hlcyBJYnVwcm9mZW4pLCBQb2x5cGhlbm9sZSB8CnwgTGVpbsO2bCAoa2FsdGdlcHJlc3N0KSB8IOKtkOKtkOKtkOKtkOKtkCB8IEFMQSAoT21lZ2EtMyBWb3JzdHVmZSkgfAp8IEhhbmbDtmwgfCDirZDirZDirZDirZDirZAgfCBHYW1tYS1MaW5vbGVuc8OkdXJlIChHTEEpIHwKfCBXYWxudXNzw7ZsIHwg4q2Q4q2Q4q2Q4q2QIHwgT21lZ2EtMy82IEJhbGFuY2UgfAp8IEF2b2NhZG9zIHwg4q2Q4q2Q4q2Q4q2Q4q2QIHwgRWluZmFjaCB1bmdlc8OkdHRpZ3RlIEZldHRlLCBLYWxpdW0gfAp8IEZldHRlciBGaXNjaCAocy5vLikgfCDirZDirZDirZDirZDirZAgfCBEaXJla3RlIEVQQS9ESEEgfAp8IE9saXZlbiB8IOKtkOKtkOKtkOKtkCB8IFBvbHlwaGVub2xlLCBGZXR0IHwKCioqRWluZ2VzY2hyw6Rua3Q6KioKCnwgTGViZW5zbWl0dGVsIHwgQmV3ZXJ0dW5nIHwgQmVncsO8bmR1bmcgfAp8LS0tLS0tLS0tLS0tLXwtLS0tLS0tLS0tLXwtLS0tLS0tLS0tLS18CnwgS29rb3PDtmwgfCDirZDirZDirZAgfCBNQ1QtRmV0dGUsIGFiZXIgZ2Vzw6R0dGlndCB8CnwgQnV0dGVyIChpbiBNYcOfZW4pIHwg4q2Q4q2Q4q2QIHwgVml0YW1pbiBLMiwgYnV0eXJhdGUgfAoKKipWZXJtZWlkZW46KioKCnwgTGViZW5zbWl0dGVsIHwgQmV3ZXJ0dW5nIHwgQmVncsO8bmR1bmcgfAp8LS0tLS0tLS0tLS0tLXwtLS0tLS0tLS0tLXwtLS0tLS0tLS0tLS18CnwgTWFyZ2FyaW5lIChnZWjDpHJ0ZXRlIEZldHRlKSB8IOKtkCB8IFRyYW5zLUZldHRzw6R1cmVuIHwKfCBTb25uZW5ibHVtZW7DtmwgfCDirZAgfCBIb2hlciBPbWVnYS02IOKGkiBSYXRpbyB2ZXJzY2hpZWJ1bmcgfAp8IERpc3RlbMO2bCB8IOKtkCB8IE9tZWdhLTYgaGVhdnkgfAp8IEZyaXR0aWVyw7ZsZSAod2llZGVydmVyd2VuZGV0KSB8IOKtkCB8IFRyYW5zLUZldHRlLCBBR0UgfAoKLS0tCgojIyMgMi43IE7DvHNzZSAmIFNhbWVuCgoqKkVtcGZvaGxlbjoqKgoKfCBMZWJlbnNtaXR0ZWwgfCBCZXdlcnR1bmcgfCBCZWdyw7xuZHVuZyB8CnwtLS0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tLXwKfCBXYWxuw7xzc2UgfCDirZDirZDirZDirZDirZAgfCBPbWVnYS0zLCBNYWduZXNpdW0gfAp8IE1hbmRlbG4gfCDirZDirZDirZDirZAgfCBWaXRhbWluIEUsIE1hZ25lc2l1bSB8CnwgQ2hpYXNhbWVuIHwg4q2Q4q2Q4q2Q4q2Q4q2QIHwgT21lZ2EtMywgQmFsbGFzdHN0b2ZmZSB8CnwgTGVpbnNhbWVuIChnZXNjaHJvdGV0KSB8IOKtkOKtkOKtkOKtkOKtkCB8IE9tZWdhLTMgKEFMQSksIExpZ25hbmUgfAp8IEvDvHJiaXNrZXJuZSB8IOKtkOKtkOKtkOKtkCB8IFppbmssIE1hZ25lc2l1bSB8CnwgU29ubmVuYmx1bWVua2VybmUgfCDirZDirZDirZDirZAgfCBWaXRhbWluIEUsIFNlbGVuIHwKfCBIYW5mc2FtZW4gfCDirZDirZDirZDirZDirZAgfCBQcm90ZWluLCBHTEEgfAoKKipFaW5nZXNjaHLDpG5rdDoqKgoKfCBMZWJlbnNtaXR0ZWwgfCBCZXdlcnR1bmcgfCBCZWdyw7xuZHVuZyB8CnwtLS0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tLXwKfCBDYXNoZXdzIHwg4q2Q4q2QIHwgSMO2aGVyZXIgS29obGVuaHlkcmF0Z2VoYWx0IHwKfCBQaXN0YXppZW4gfCDirZDirZAgfCBSZWxhdGl2IGhvaGVyIEdJIHwKCi0tLQoKIyMjIDIuOCBHZXfDvHJ6ZSAmIEtyw6R1dGVyIChuYXTDvHJsaWNoZSBFbnR6w7xuZHVuZ3NoZW1tZXIpCgp8IExlYmVuc21pdHRlbCB8IEJld2VydHVuZyB8IEJlZ3LDvG5kdW5nIHwKfC0tLS0tLS0tLS0tLS18LS0tLS0tLS0tLS18LS0tLS0tLS0tLS0tfAp8IEt1cmt1bWEgfCDirZDirZDirZDirZDirZAgfCBDdXJjdW1pbiA9IHN0YXJrIGFudGllbnR6w7xuZGxpY2ggfAp8IEluZ3dlciB8IOKtkOKtkOKtkOKtkOKtkCB8IEdpbmdlcm9sZSwgR0ktU3RhYmlsaXNpZXJ1bmcgfAp8IFppbXQgfCDirZDirZDirZDirZAgfCBJbnN1bGluc2Vuc2l0aXZpdMOkdCB2ZXJiZXNzZXJuIHwKfCBPcmVnYW5vIHwg4q2Q4q2Q4q2Q4q2Q4q2QIHwgQ2FydmFjcm9sLCBBbnRpb3hpZGFudGllbiB8CnwgUm9zbWFyaW4gfCDirZDirZDirZDirZAgfCBSb3NtYXJpbnPDpHVyZSwgRW50esO8bmR1bmdzaGVtbWVuZCB8CnwgVGh5bWlhbiB8IOKtkOKtkOKtkOKtkCB8IFRoeW1vbCwgYW50aW1pa3JvYmllbGwgfAp8IEJvY2tzaG9ybmtsZWUgfCDirZDirZDirZDirZAgfCBJbnN1bGluc2Vuc2l0aXZpdMOkdCB8CnwgU2Nod2FyemVyIFBmZWZmZXIgfCDirZDirZDirZDirZDirZAgfCBQaXBlcmluIHZlcmJlc3NlcnQgQ3VyY3VtaW4tQXVmbmFobWUgfAp8IEtub2JsYXVjaCB8IOKtkOKtkOKtkOKtkOKtkCB8IEFsbGljaW4sIGltbXVubW9kdWxpZXJlbmQgfAp8IFppdHJvbmVuc2FmdCB8IOKtkOKtkOKtkOKtkCB8IFNlbmt0IEdJIHZvbiBNYWhsemVpdGVuIHwKCi0tLQoKIyMgMy4gR2V0csOkbmtlCgp8IEdldHLDpG5rIHwgQmV3ZXJ0dW5nIHwgQmVncsO8bmR1bmcgfAp8LS0tLS0tLS0tfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tLXwKfCBXYXNzZXIgKHN0aWxsKSB8IOKtkOKtkOKtkOKtkOKtkCB8IEJhc2lzIGbDvHIgYWxsZXMgfAp8IEdyw7xuZXIgVGVlIHwg4q2Q4q2Q4q2Q4q2Q4q2QIHwgRUdDRyAoYW50aWVudHrDvG5kbGljaCksIEFudGlveGlkYW50aWVuIHwKfCBLYW1pbGxlbnRlZSB8IOKtkOKtkOKtkOKtkOKtkCB8IEVudHrDvG5kdW5nc2hlbW1lbmQsIGJlcnVoaWdlbmQgfAp8IFBmZWZmZXJtaW56dGVlIHwg4q2Q4q2Q4q2Q4q2QIHwgVmVyZGF1dW5nc2bDtnJkZXJuZCB8CnwgSW5nd2VydGVlIChmcmlzY2gpIHwg4q2Q4q2Q4q2Q4q2Q4q2QIHwgQW50aWVudHrDvG5kbGljaCwgR0ktc3RhYmlsaXNpZXJlbmQgfAp8IEt1cmt1bWEtTGF0dGUgKG9obmUgWnVja2VyKSB8IOKtkOKtkOKtkOKtkCB8IEN1cmN1bWluIGluIEFrdGlvbiB8CnwgU2Nod2FyenRlZSAoaW4gTWHDn2VuKSB8IOKtkOKtkOKtkCB8IFRhbm5pbmUsIGFiZXIgS29mZmVpbmdlaGFsdGUgfAoKKipWZXJtZWlkZW46KioKCnwgR2V0csOkbmsgfCBCZXdlcnR1bmcgfCBCZWdyw7xuZHVuZyB8CnwtLS0tLS0tLS18LS0tLS0tLS0tLS18LS0tLS0tLS0tLS0tfAp8IEFsa29ob2wgfCDirZAgfCBFbnR6w7xuZHVuZ3Nmw7ZyZGVybmQsIExlYmVyYmVsYXN0dW5nIHwKfCBMaW1vbmFkZW4sIENvbGEgfCDirZAgfCBadWNrZXIsIEluc3VsaW5yZXNpc3RlbnogfAp8IEZydWNodHPDpGZ0ZSAoZ2Vzw7zDn3QpIHwg4q2QIHwgS29uemVudHJpZXJ0ZXIgWnVja2VyIHwKfCBFbmVyZ3kgRHJpbmtzIHwg4q2QIHwgS29mZmVpbiArIFp1Y2tlciArIHN5bnRoZXRpc2NoZSBadXPDpHR6ZSB8CnwgU29qYW1pbGNoIChnZXPDvMOfdCkgfCDirZAgfCBadWNrZXIgKyBTb2phaXNvZmxhdm9uZSB8CgotLS0KCiMjIDQuIFNwZXppZWxsZSBMZWJlbnNtaXR0ZWwtS2F0ZWdvcmllbgoKIyMjIDQuMSBHbHV0ZW4gJiBIYXNoaW1vdG8KCioqV2lzc2Vuc2NoYWZ0bGljaGUgTGFnZToqKiAKLSBQYXRpZW50ZW4gbWl0IEhhc2hpbW90byBoYWJlbiBlcmjDtmh0ZSBQcsOkdmFsZW56IGbDvHIgKipaw7ZsaWFraWUqKiAoY2EuIDMtNXggaMO2aGVyIGFscyBOb3JtYWxiZXbDtmxrZXJ1bmcpCi0gQXVjaCBvaG5lIFrDtmxpYWtpZTogRWluZSBnbHV0ZW5mcmVpZSBFcm7DpGhydW5nIGthbm4gYmVpIEhhc2hpbW90by1QYXRpZW50ZW4gZGllIFRQTy1BbnRpa8O2cnBlciBzZW5rZW4KLSAqKk1lY2hhbmlzbXVzOioqIEdsdXRlbiBzdHJ1a3R1cmVsbGUgw4RobmxpY2hrZWl0IG1pdCBTY2hpbGRkcsO8c2VuLUFudGlnZW5lbiAobW9sZWt1bGFyZSBNaW1pa3J5KQoKKipFbXBmZWhsdW5nIGbDvHIgZGFzIFRvb2w6KioKLSBHbHV0ZW4gYWxzICoqbmVnYXRpdmVyIEZha3RvcioqIGltIFNjb3JpbmctQWxnb3JpdGhtdXMKLSBQcm9kdWt0ZSBtaXQgR2x1dGVuIOKGkiBCZXdlcnR1bmcgdW0gMS0yIFN0dWZlbiBoZXJhYnNldHplbgotIEV4cGxpeml0ZSBLZW5uemVpY2hudW5nIGJlaSAiR2x1dGVuZnJlaSItUHJvZHVrdGVuCgojIyMgNC4yIFp1Y2tlciAmIEluc3VsaW5yZXNpc3RlbnoKCioqS3JpdGlzY2ggZsO8ciBQQ09TOioqIFp1Y2tlciB0cmVpYnQgSW5zdWxpbnJlc2lzdGVueiBkaXJla3QgYW4uCgp8IFp1Y2tlcnR5cCB8IEJld2VydHVuZyB8IEFubWVya3VuZyB8CnwtLS0tLS0tLS0tLXwtLS0tLS0tLS0tLXwtLS0tLS0tLS0tLXwKfCBHbHVrb3NlL0ZydWt0b3NlIChpc29saWVydCkgfCDirZAgfCBTdGFyayBpbnN1bGluc3RpbXVsaWVyZW5kIHwKfCBIYXVzaGFsdHN6dWNrZXIgKFNhY2NoYXJvc2UpIHwg4q2QIHwgR2x1a29zZSArIEZydWt0b3NlIHwKfCBNYWlzc2lydXAgKEhGQ1MpIHwg4q2QIHwgTm9jaCBzY2hsaW1tZXIgfAp8IEhvbmlnIHwg4q2Q4q2QIHwgQmVzc2VyIGFscyBadWNrZXIsIGFiZXIgaW1tZXIgbm9jaCBadWNrZXIgfAp8IEVyeXRocml0IHwg4q2Q4q2Q4q2Q4q2Q4q2QIHwgWnVja2VyYWxrb2hvbCwga2VpbiBJbnN1bGlucmVpeiB8CnwgU3RldmlhIHwg4q2Q4q2Q4q2Q4q2Q4q2QIHwgTmF0w7xybGljaCwga2VpbiBLYWxvcmllbiB8CnwgWHlsaXQgfCDirZDirZDirZDirZAgfCBadWNrZXJhbGtvaG9sLCBaYWhuZnJldW5kbGljaCB8CgotLS0KCiMjIDUuIERlciAiQW1wZWwtU2NvcmUiIEFsZ29yaXRobXVzIChQc2V1ZG9jb2RlKQoKYGBgClByb2R1a3QtU2NvcmUgPSBCYXNpcy1TY29yZQogIC0gR2x1dGVuLUZha3RvciAod2VubiBHbHV0ZW4gZW50aGFsdGVuOiAtMSBTdHVmZSkKICAtIExha3Rvc2UtRmFrdG9yICh3ZW5uIExhY3Rvc2UgKyBLYXNlaW46IC0xIFN0dWZlKQogIC0gWnVja2VyLUZha3RvciAod2VubiBadWNrZXIgPjEwZy8xMDBnOiAtMSBTdHVmZSwgPjIwZzogLTIgU3R1ZmVuKQogIC0gVHJhbnMtRmV0dC1GYWt0b3IgKHdlbm4gdHJhbnMtRmV0dGU6IHNvZm9ydCDirZApCiAgLSBCYWxsYXN0c3RvZmYtQm9udXMgKHdlbm4gQmFsbGFzdHN0b2ZmZSA+NWcvMTAwZzogKzEgU3R1ZmUpCiAgLSBPbWVnYS0zLUJvbnVzICh3ZW5uIEVQQS9ESEEgdm9yaGFuZGVuOiArMSBTdHVmZSkKICAtIEFudGlveGlkYW50aWVuLUJvbnVzICh3ZW5uIFZpdGFtaW4gQy9FL1BvbHlwaGVub2xlOiArMSBTdHVmZSkKICAtIExvdy1HSS1Cb251cyAod2VubiBHSSA8NTU6ICsxIFN0dWZlKQpgYGAKCi0tLQoKIyMgNi4gUXVpY2stUmVmZXJlbmNlIExpc3RlbgoKIyMjIPCfn6IgVMOkZ2xpY2ggZXNzZW46Ci0gR3LDvG5lcyBCbGF0dGdlbcO8c2UKLSBCdW50ZXMgR2Vtw7xzZSAoMysgRmFyYmVuL1RhZykKLSBGZXR0ZXIgRmlzY2ggKDItM3gvV29jaGUpCi0gT2xpdmVuw7ZsCi0gQmVlcmVuCi0gTsO8c3NlICYgU2FtZW4KLSBHZXfDvHJ6ZSAoS3Vya3VtYSwgSW5nd2VyLCBLbm9ibGF1Y2gpCgojIyMg8J+UtCBNZWlkZW46Ci0gWnVja2VyICYgU8O8w59pZ2tlaXRlbgotIFdlacOfbWVobAotIFRyYW5zLUZldHRlIChNYXJnYXJpbmUsIEZyaXR0aWVydGVzKQotIFN0YXJrIHByb3plc3NpZXJ0ZSBMZWJlbnNtaXR0ZWwKLSBBbGtvaG9sCi0gRW5lcmd5IERyaW5rcwotIEZydWNodHPDpGZ0ZSAmIExpbW9uYWRlbgoKLS0tCgojIyA3LiBRdWVsbGVuCgoxLiBORFIuZGUgLSBFcm7DpGhydW5nIGJlaSBIYXNoaW1vdG8tVGh5cmVvaWRpdGlzOiBodHRwczovL3d3dy5uZHIuZGUvcmF0Z2ViZXIvZ2VzdW5kaGVpdC9Fcm5hZWhydW5nLWJlaS1IYXNoaW1vdG8tVGh5cmVvaWRpdGlzLWVudHp1ZW5kdW5nc2hlbW1lbmQtZXNzZW4saGFzaGltb3RvMTEwLmh0bWwKMi4gTkRSLmRlIC0gRXJuw6RocnVuZyBiZWkgUENPLVN5bmRyb206IGh0dHBzOi8vd3d3Lm5kci5kZS9yYXRnZWJlci9nZXN1bmRoZWl0L0VybmFlaHJ1bmctYmVpbS1QQ08tU3luZHJvbSxwY29zeW5kcm9tMTA0Lmh0bWwKMy4gQXBvdGhla2VuIFVtc2NoYXUgLSBIYXNoaW1vdG8gdW5kIEVybsOkaHJ1bmc6IGh0dHBzOi8vd3d3LmFwb3RoZWtlbi11bXNjaGF1LmRlL2dlc3VuZC1ibGVpYmVuL2VybmFlaHJ1bmcvaGFzaGltb3RvLXVuZC1lcm5hZWhydW5nLXNvbGx0ZW4tYmV0cm9mZmVuZS1zb2phLW9kZXIta29obC1tZWlkZW4tMTIzOTE4My5odG1sCjQuIERBSyAtIEVybsOkaHJ1bmcgYmVpIEhhc2hpbW90bzogaHR0cHM6Ly93d3cuZGFrLmRlL2Rhay9nZXN1bmRoZWl0L2Vya3Jhbmt1bmdlbi9lcm5hZWhydW5nLWJlaS1oYXNoaW1vdG9fMTQ3NDQwCjUuIHhieXguZGUgLSBIYXNoaW1vdG8gRXJuw6RocnVuZzogaHR0cHM6Ly94Ynl4LmRlL2Jsb2dzL21hZ2F6aW4vaGFzaGltb3RvLWVybmFlaHJ1bmcKNi4gQnJpZ2l0dGUuZGUgLSBIYXNoaW1vdG8gTGViZW5zbWl0dGVsOiBodHRwczovL3d3dy5icmlnaXR0ZS5kZS9nZXN1bmQvZXJuYWVocnVuZy9oYXNoaW1vdG8tZXJuYWVocnVuZy0tZGllc2UtbGViZW5zbWl0dGVsLWhlbGZlbi0tMTE1NjIyODYuaHRtbAo3LiBFdXJvcGUgSVZGIC0gRXJuw6RocnVuZyBiZWkgUENPLVN5bmRyb206IGh0dHBzOi8vZXVyb3BlaXZmLmNvbS9kZS9lcm5hZWhydW5nLWJlaS1wY28tc3luZHJvbS13YXMta2Fubi1tYW4tZXNzZW4tdW5kLWF1Zi13YXMtc29sbHRlLW1hbi12ZXJ6aWNodGVuLwo4LiBOdXRyaXRpb25GYWN0cy5vcmcgLSBBbnRpLUluZmxhbW1hdG9yeSBGb29kczogaHR0cHM6Ly9udXRyaXRpb25mYWN0cy5vcmcvdG9waWNzL2FudGktaW5mbGFtbWF0b3J5Lwo=
+# Lebensmittel-Bewertungssystem: Was essen bei Hashimoto + PCOS?
+
+> **Hinweis:** Dieses Dokument bildet die Grundlage für das Scoring-System des Web-Tools. Alle Empfehlungen basieren auf der in `01_hashimoto_pcos_grundlagen.md` zitierten wissenschaftlichen Literatur.
+
+---
+
+## 1. Bewertungskategorien
+
+Das Tool verwendet ein **5-Stufen-Bewertungssystem** mit Farbcodierung für maximale Visuelle Klarheit:
+
+| Bewertung | Farbe | Bedeutung |
+|-----------|-------|----------|
+| ⭐⭐⭐⭐⭐ **SEHR GUT** | 🟢 Grün | Proaktiv empfohlen, wirkt entzündungshemmend, unterstützt Hormonbalance |
+| ⭐⭐⭐⭐ **GUT** | 🟢 Hellgrün | Regelmäßig empfehlenswert, gute Nährstoffdichte |
+| ⭐⭐⭐ **NEUTRAL** | 🟡 Gelb | In Maßen OK, individuell unterschiedlich verträglich |
+| ⭐⭐ **WENIGER GUT** | 🟠 Orange | Selten oder in kleinen Mengen, potenzielle Probleme |
+| ⭐ **VERMEIDEN** | 🔴 Rot | Problematisch bei Hashimoto/PCOS, Trigger-Lebensmittel |
+
+---
+
+## 2. Lebensmittel-Kategorien im Detail
+
+### 2.1 Gemüse (Bunt & Anti-Entzündlich)
+
+**Empfohlen (SEHR GUT bis GUT):**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Blattgemüse (Spinat, Mangold, Rucola) | ⭐⭐⭐⭐⭐ | Bitterstoffe, Eisen, Magnesium; entzündungshemmend |
+| Brokkoli & Kreuzblütler | ⭐⭐⭐⭐⭐ | Sulforaphan (antientzündlich), Ballaststoffe |
+| Grünkohl (Kale) | ⭐⭐⭐⭐⭐ | Calcium, Vitamin K, Antioxidantien |
+| Süßkartoffeln | ⭐⭐⭐⭐ | Niedriger GI, Vitamin A, Ballaststoffe |
+| Karotten | ⭐⭐⭐⭐ | Beta-Carotin, niedriger GI |
+| Zucchini | ⭐⭐⭐⭐ | Leicht verdaulich, Kalium |
+| Paprika (bunt) | ⭐⭐⭐⭐ | Vitamin C, Antioxidantien |
+| Tomaten | ⭐⭐⭐⭐ | Lycopin (entzündungshemmend) |
+| Gurken | ⭐⭐⭐⭐ | Hydration, niedrige Kalorien |
+| Artischocken | ⭐⭐⭐⭐ | Inulin (Darmgesundheit) |
+
+**Eingeschränkt (NEUTRAL bis WENIGER GUT):**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Rohe Kohlarten (Weißkohl, Rosenkohl) | ⭐⭐ | Goitrogene in großen Mengen roh → bei Hashimoto kochen besser |
+| Spinat (in großen Mengen) | ⭐⭐ | Oxalsäure bindet Eisen → bei Eisenmangel einschränken |
+| Sojabohnen (verarbeitet) | ⭐⭐ | Isoflavone können bei Hashimoto mit autoimmunen Schilddrüsenpatienten interferieren |
+
+**Vermeiden:**
+- Pommes Frites (trans-Fette, hoher GI)
+- Gemüse in Buttersauce (gesättigte Fette)
+
+---
+
+### 2.2 Obst (Moderation & Auswahl)
+
+**Empfohlen:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Beeren (Blaubeeren, Himbeeren, Erdbeeren) | ⭐⭐⭐⭐⭐ | Anthocyane, Antioxidantien, niedriger GI |
+| Äpfel (mit Schale) | ⭐⭐⭐⭐ | Quercetin, Ballaststoffe |
+| Birnen | ⭐⭐⭐⭐ | Ballaststoffe, Kalium |
+| Zitrusfrüchte | ⭐⭐⭐⭐ | Vitamin C, Flavonoide |
+| Granatäpfel | ⭐⭐⭐⭐⭐ | Stark antioxidantisch, Entzündungshemmend |
+| Kirschen (sauer) | ⭐⭐⭐⭐ | Anthocyane, niedriger GI |
+| Kiwi | ⭐⭐⭐⭐ | Vitamin C, Enzyme |
+
+**Eingeschränkt:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Bananen (reif) | ⭐⭐ | Hoher Zucker/GI; grüne Banane besser |
+| Weintrauben | ⭐⭐ | Hoher Zucker/GI |
+| Mangos | ⭐⭐ | Hoher GI, Zucker |
+| Ananas | ⭐⭐ | Hoher Zucker/GI |
+| Wassermelone | ⭐⭐ | Sehr hoher GI |
+| Trockenfrüchte | ⭐ | Konzentrierter Zucker, hoher GI |
+
+---
+
+### 2.3 Proteine & Fleisch
+
+**Empfohlen:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Wildlachs | ⭐⭐⭐⭐⭐ | Omega-3 (EPA/DHA), Protein, Selen |
+| Makrele, Hering (fett) | ⭐⭐⭐⭐⭐ | Omega-3, Vitamin D |
+| Forelle, Saibling | ⭐⭐⭐⭐ | Protein, Omega-3 |
+| Eier (FREILANDBETRIEB) | ⭐⭐⭐⭐ | Protein, Cholin, Vitamin D |
+| Geflügel (Huhn, Pute) | ⭐⭐⭐⭐ | Protein, B-Vitamine |
+| Lamm | ⭐⭐⭐⭐ | Omega-3 (bei Weidehaltung), Zink |
+| Rotes Fleisch (mager, in Maßen) | ⭐⭐⭐ | Eisen, Zink; bei Hashimoto auf Selen-/Jod-Balance achten |
+
+**Eingeschränkt:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Schweinefleisch | ⭐⭐ | Hoher Arachidonsäuregehalt → entzündungsfördernd |
+| Aufschnitt/Wurst | ⭐ | Nitrite, Phosphat, additive; stark prozessiert |
+
+**Vermeiden:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Frittierte Fleischprodukte | ⭐ | Trans-Fette, AGEs, hohe AGE-Last |
+| Stark verarbeitete Fleischwaren | ⭐ | Krebsrisiko (IARC Gruppe 1), Entzündung |
+
+---
+
+### 2.4 Milchprodukte & Alternativen
+
+**Problem:** Viele Hashimoto-Patientinnen haben eine **Laktoseintoleranz** (auch subklinisch). Kasein (Milchprotein) kann bei manchen autoimmunen Patienten Immunreaktionen auslösen.
+
+**Empfohlene Alternativen:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Mandelmilch (ungesüßt) | ⭐⭐⭐⭐ | Calcium, keine Laktose |
+| Kokosmilch | ⭐⭐⭐⭐ | MCT-Fette (Stoffwechsel) |
+| Hafermilch (ungesüßt) | ⭐⭐⭐ | Ballaststoffe, Calcium |
+| Reismilch | ⭐⭐ | Niedrig Fett, aber hoher GI |
+| Sojamilch (bio, fermentiert) | ⭐⭐⭐ | Protein, phytoöstrogene → individuell prüfen |
+
+**Eingeschränkt/Neutral:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Naturjoghurt (griechisch) | ⭐⭐⭐ | Probiotisch, aber Laktose |
+| Hartkäse (laktosearm) | ⭐⭐⭐ | Laktoseärmer durch Reifung |
+| Quark (Magerstufe) | ⭐⭐ | Laktose + Kasein |
+
+**Vermeiden:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Vollmilch (Kuh) | ⭐ | Laktose + A1-Kasein → bei Hashimoto oft problematisch |
+| Fruchtjoghurt (gezuckert) | ⭐ | Zucker + Laktose |
+| Sahne, Rahm | ⭐ | Gesättigte Fette + Laktose |
+
+---
+
+### 2.5 Getreide & Kohlenhydrate
+
+**Prinzip:** Niedriger glykämischer Index, hohe Ballaststoffe
+
+**Empfohlen:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Haferflocken (kernig) | ⭐⭐⭐⭐⭐ | Beta-Glucan ( Cholesterin), niedriger GI |
+| Quinoa | ⭐⭐⭐⭐⭐ | Vollwertig, Protein, Mineralien |
+| Buchweizen | ⭐⭐⭐⭐⭐ | Glutenfrei, Rutosid |
+| Hirse | ⭐⭐⭐⭐ | Glutenfrei, Magnesium |
+| Vollkorn-Reis (basmati, wild) | ⭐⭐⭐⭐ | Niedrigerer GI als weißer Reis |
+| Linsen & Hülsenfrüchte | ⭐⭐⭐⭐ | Protein, Ballaststoffe, Phytonährstoffe |
+| Roggenvollkornbrot | ⭐⭐⭐⭐ | Ballaststoffe, niedrigerer GI |
+
+**Eingeschränkt:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Weißbrot, Toastbrot | ⭐⭐ | Hoher GI, wenig Ballaststoffe |
+| Nudeln (weiß) | ⭐⭐ | Hoher GI → Vollkorn bevorzugen |
+| Kartoffeln (gekocht) | ⭐⭐ | Hoher GI → in Kombination mit Fett/Protein essen |
+
+**Vermeiden:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Zucker, Süßigkeiten | ⭐ | Stark entzündungsfördernd, Insulinresistenz |
+| Weißmehlprodukte | ⭐ | Hoher GI, Nährstoffarm |
+| Müslimischungen (gezuckert) | ⭐ | Versteckter Zucker |
+
+---
+
+### 2.6 Fette & Öle
+
+**Kritisch für beide Erkrankungen:** Das richtige Fett kann Entzündungen reduzieren, das falsche Fett verschlimmert sie.
+
+**Empfohlen:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Olivenöl (extra vergine) | ⭐⭐⭐⭐⭐ | Oleocanthal (natürliches Ibuprofen), Polyphenole |
+| Leinöl (kaltgepresst) | ⭐⭐⭐⭐⭐ | ALA (Omega-3 Vorstufe) |
+| Hanföl | ⭐⭐⭐⭐⭐ | Gamma-Linolensäure (GLA) |
+| Walnussöl | ⭐⭐⭐⭐ | Omega-3/6 Balance |
+| Avocados | ⭐⭐⭐⭐⭐ | Einfach ungesättigte Fette, Kalium |
+| Fetter Fisch (s.o.) | ⭐⭐⭐⭐⭐ | Direkte EPA/DHA |
+| Oliven | ⭐⭐⭐⭐ | Polyphenole, Fett |
+
+**Eingeschränkt:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Kokosöl | ⭐⭐⭐ | MCT-Fette, aber gesättigt |
+| Butter (in Maßen) | ⭐⭐⭐ | Vitamin K2, butyrate |
+
+**Vermeiden:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Margarine (gehärtete Fette) | ⭐ | Trans-Fettsäuren |
+| Sonnenblumenöl | ⭐ | Hoher Omega-6 → Ratio verschiebung |
+| Distelöl | ⭐ | Omega-6 heavy |
+| Frittieröle (wiederverwendet) | ⭐ | Trans-Fette, AGE |
+
+---
+
+### 2.7 Nüsse & Samen
+
+**Empfohlen:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Walnüsse | ⭐⭐⭐⭐⭐ | Omega-3, Magnesium |
+| Mandeln | ⭐⭐⭐⭐ | Vitamin E, Magnesium |
+| Chiasamen | ⭐⭐⭐⭐⭐ | Omega-3, Ballaststoffe |
+| Leinsamen (geschrotet) | ⭐⭐⭐⭐⭐ | Omega-3 (ALA), Lignane |
+| Kürbiskerne | ⭐⭐⭐⭐ | Zink, Magnesium |
+| Sonnenblumenkerne | ⭐⭐⭐⭐ | Vitamin E, Selen |
+| Hanfsamen | ⭐⭐⭐⭐⭐ | Protein, GLA |
+
+**Eingeschränkt:**
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Cashews | ⭐⭐ | Höherer Kohlenhydratgehalt |
+| Pistazien | ⭐⭐ | Relativ hoher GI |
+
+---
+
+### 2.8 Gewürze & Kräuter (natürliche Entzündungshemmer)
+
+| Lebensmittel | Bewertung | Begründung |
+|-------------|-----------|------------|
+| Kurkuma | ⭐⭐⭐⭐⭐ | Curcumin = stark antientzündlich |
+| Ingwer | ⭐⭐⭐⭐⭐ | Gingerole, GI-Stabilisierung |
+| Zimt | ⭐⭐⭐⭐ | Insulinsensitivität verbessern |
+| Oregano | ⭐⭐⭐⭐⭐ | Carvacrol, Antioxidantien |
+| Rosmarin | ⭐⭐⭐⭐ | Rosmarinsäure, Entzündungshemmend |
+| Thymian | ⭐⭐⭐⭐ | Thymol, antimikrobiell |
+| Bockshornklee | ⭐⭐⭐⭐ | Insulinsensitivität |
+| Schwarzer Pfeffer | ⭐⭐⭐⭐⭐ | Piperin verbessert Curcumin-Aufnahme |
+| Knoblauch | ⭐⭐⭐⭐⭐ | Allicin, immunmodulierend |
+| Zitronensaft | ⭐⭐⭐⭐ | Senkt GI von Mahlzeiten |
+
+---
+
+## 3. Getränke
+
+| Getränk | Bewertung | Begründung |
+|---------|-----------|------------|
+| Wasser (still) | ⭐⭐⭐⭐⭐ | Basis für alles |
+| Grüner Tee | ⭐⭐⭐⭐⭐ | EGCG (antientzündlich), Antioxidantien |
+| Kamillentee | ⭐⭐⭐⭐⭐ | Entzündungshemmend, beruhigend |
+| Pfefferminztee | ⭐⭐⭐⭐ | Verdauungsfördernd |
+| Ingwertee (frisch) | ⭐⭐⭐⭐⭐ | Antientzündlich, GI-stabilisierend |
+| Kurkuma-Latte (ohne Zucker) | ⭐⭐⭐⭐ | Curcumin in Aktion |
+| Schwarztee (in Maßen) | ⭐⭐⭐ | Tannine, aber Koffeingehalte |
+
+**Vermeiden:**
+
+| Getränk | Bewertung | Begründung |
+|---------|-----------|------------|
+| Alkohol | ⭐ | Entzündungsfördernd, Leberbelastung |
+| Limonaden, Cola | ⭐ | Zucker, Insulinresistenz |
+| Fruchtsäfte (gesüßt) | ⭐ | Konzentrierter Zucker |
+| Energy Drinks | ⭐ | Koffein + Zucker + synthetische Zusätze |
+| Sojamilch (gesüßt) | ⭐ | Zucker + Sojaisoflavone |
+
+---
+
+## 4. Spezielle Lebensmittel-Kategorien
+
+### 4.1 Gluten & Hashimoto
+
+**Wissenschaftliche Lage:** 
+- Patienten mit Hashimoto haben erhöhte Prävalenz für **Zöliakie** (ca. 3-5x höher als Normalbevölkerung)
+- Auch ohne Zöliakie: Eine glutenfreie Ernährung kann bei Hashimoto-Patienten die TPO-Antikörper senken
+- **Mechanismus:** Gluten strukturelle Ähnlichkeit mit Schilddrüsen-Antigenen (molekulare Mimikry)
+
+**Empfehlung für das Tool:**
+- Gluten als **negativer Faktor** im Scoring-Algorithmus
+- Produkte mit Gluten → Bewertung um 1-2 Stufen herabsetzen
+- Explizite Kennzeichnung bei "Glutenfrei"-Produkten
+
+### 4.2 Zucker & Insulinresistenz
+
+**Kritisch für PCOS:** Zucker treibt Insulinresistenz direkt an.
+
+| Zuckertyp | Bewertung | Anmerkung |
+|-----------|-----------|-----------|
+| Glukose/Fruktose (isoliert) | ⭐ | Stark insulinstimulierend |
+| Haushaltszucker (Saccharose) | ⭐ | Glukose + Fruktose |
+| Maissirup (HFCS) | ⭐ | Noch schlimmer |
+| Honig | ⭐⭐ | Besser als Zucker, aber immer noch Zucker |
+| Erythrit | ⭐⭐⭐⭐⭐ | Zuckeralkohol, kein Insulinreiz |
+| Stevia | ⭐⭐⭐⭐⭐ | Natürlich, kein Kalorien |
+| Xylit | ⭐⭐⭐⭐ | Zuckeralkohol, Zahnfreundlich |
+
+---
+
+## 5. Der "Ampel-Score" Algorithmus (Pseudocode)
+
+```
+Produkt-Score = Basis-Score
+  - Gluten-Faktor (wenn Gluten enthalten: -1 Stufe)
+  - Laktose-Faktor (wenn Lactose + Kasein: -1 Stufe)
+  - Zucker-Faktor (wenn Zucker >10g/100g: -1 Stufe, >20g: -2 Stufen)
+  - Trans-Fett-Faktor (wenn trans-Fette: sofort ⭐)
+  - Ballaststoff-Bonus (wenn Ballaststoffe >5g/100g: +1 Stufe)
+  - Omega-3-Bonus (wenn EPA/DHA vorhanden: +1 Stufe)
+  - Antioxidantien-Bonus (wenn Vitamin C/E/Polyphenole: +1 Stufe)
+  - Low-GI-Bonus (wenn GI <55: +1 Stufe)
+```
+
+---
+
+## 6. Quick-Reference Listen
+
+### 🟢 Täglich essen:
+- Grünes Blattgemüse
+- Buntes Gemüse (3+ Farben/Tag)
+- Fetter Fisch (2-3x/Woche)
+- Olivenöl
+- Beeren
+- Nüsse & Samen
+- Gewürze (Kurkuma, Ingwer, Knoblauch)
+
+### 🔴 Meiden:
+- Zucker & Süßigkeiten
+- Weißmehl
+- Trans-Fette (Margarine, Frittiertes)
+- Stark prozessierte Lebensmittel
+- Alkohol
+- Energy Drinks
+- Fruchtsäfte & Limonaden
+
+---
+
+## 7. Quellen
+
+1. NDR.de - Ernährung bei Hashimoto-Thyreoiditis: https://www.ndr.de/ratgeber/gesundheit/Ernaehrung-bei-Hashimoto-Thyreoiditis-entzuendungshemmend-essen,hashimoto110.html
+2. NDR.de - Ernährung bei PCO-Syndrom: https://www.ndr.de/ratgeber/gesundheit/Ernaehrung-beim-PCO-Syndrom,pcosyndrom104.html
+3. Apotheken Umschau - Hashimoto und Ernährung: https://www.apotheken-umschau.de/gesund-bleiben/ernaehrung/hashimoto-und-ernaehrung-sollten-betroffene-soja-oder-kohl-meiden-1239183.html
+4. DAK - Ernährung bei Hashimoto: https://www.dak.de/dak/gesundheit/erkrankungen/ernaehrung-bei-hashimoto_147440
+5. xbyx.de - Hashimoto Ernährung: https://xbyx.de/blogs/magazin/hashimoto-ernaehrung
+6. Brigitte.de - Hashimoto Lebensmittel: https://www.brigitte.de/gesund/ernaehrung/hashimoto-ernaehrung--diese-lebensmittel-helfen--11562286.html
+7. Europe IVF - Ernährung bei PCO-Syndrom: https://europeivf.com/de/ernaehrung-bei-pco-syndrom-was-kann-man-essen-und-auf-was-sollte-man-verzichten/
+8. NutritionFacts.org - Anti-Inflammatory Foods: https://nutritionfacts.org/topics/anti-inflammatory/
