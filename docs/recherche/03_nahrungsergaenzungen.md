@@ -1,1 +1,278 @@
-IyBOYWhydW5nc2VyZ8Okbnp1bmdzbWl0dGVsOiBNaWtyb27DpGhyc3RvZmZlIGJlaSBIYXNoaW1vdG8gKyBQQ09TCgo+ICoqV2ljaHRpZ2VyIEhpbndlaXM6KiogTmFocnVuZ3NlcmfDpG56dW5nZW4gZXJzZXR6ZW4ga2VpbmUgYXVzZ2V3b2dlbmUgRXJuw6RocnVuZy4gQmVpIEhhc2hpbW90byArIFBDT1Mgc29sbHRlbiBTdXBwbGVtZW50ZSAqKmltbWVyIGluIEFic3ByYWNoZSBtaXQgZGVtIGJlaGFuZGVsbmRlbiBBcnp0KiogZWluZ2Vub21tZW4gd2VyZGVuLCBkYSBlaW5pZ2UgTsOkaHJzdG9mZmUgZGllIFNjaGlsZGRyw7xzZW5mdW5rdGlvbiBkaXJla3QgYmVlaW5mbHVzc2VuIGvDtm5uZW4uCgotLS0KCiMjIDEuIERpZSB3aWNodGlnc3RlbiBNaWtyb27DpGhyc3RvZmZlIGltIMOcYmVyYmxpY2sKCiMjIyAxLjEgU2VsZW4KCioqQmVkZXV0dW5nIGbDvHIgSGFzaGltb3RvOioqCi0gU2VsZW4gaXN0IGVzc2VuemllbGwgZsO8ciBkaWUgU2NoaWxkZHLDvHNlbmhvcm1vbnByb2R1a3Rpb24gKERlam9kYXNlLUVuenltKQotIFRQTy1BbnRpa8O2cnBlciBrw7ZubmVuIGR1cmNoIFNlbGVuLVN1cHBsZW1lbnRpZXJ1bmcgc2lua2VuCi0gU2NoaWxkZHLDvHNlIGVudGjDpGx0IGjDtmNoc3RlIFNlbGVua29uemVudHJhdGlvbiBpbSBLw7ZycGVyCi0gQW50aW94aWRhdGl2ZSBQcm90ZWN0aW9uIChHbHV0YXRoaW9uLVBlcm94aWRhc2UpCgoqKkJlZGV1dHVuZyBmw7xyIFBDT1M6KioKLSBWZXJiZXNzZXJ1bmcgZGVyIEluc3VsaW5zZW5zaXRpdml0w6R0Ci0gUmVkdWt0aW9uIG94aWRhdGl2ZW4gU3RyZXNzZXMKLSBVbnRlcnN0w7x0enVuZyBkZXIgU2NoaWxkZHLDvHNlbmZ1bmt0aW9uIChoeXBvdGh5cmVvdGUgUENPUy1QYXRpZW50aW5uZW4pCgoqKlN0dWRpZW5sYWdlOioqCi0gVmVyc2NoaWVkZW5lIFN0dWRpZW4gemVpZ3RlbiBBYnNpbmtlbiBkZXIgVFBPLUFudGlrw7ZycGVyIHVtIDExLTUwJSB1bnRlciBTZWxlbmdhYmUKLSBNZXRhLUFuYWx5c2VuIHplaWdlbiBtb2RlcmF0ZSBFdmlkZW56IGbDvHIgSGFzaGltb3RvCgoqKkRvc2llcnVuZzoqKgotIDIwMCDCtWcgU2VsZW5vbWV0aGlvbmluL1RhZyAobmljaHQgU2VsZW5pdCkKLSBOaWNodCDDvGJlciA0MDAgwrVnL1RhZyAoUmlzaWtvIFNlbGVub3NlKQotIEVpbm5haG1lOiBNb3JnZW5zIG1pdCBFc3NlbgoKKipMZWJlbnNtaXR0ZWwtUXVlbGxlbjoqKgotIFBhcmFuw7xzc2UgKGNhLiA2OCDCtWcvZyAtIGjDtmNoc3RlIEtvbnplbnRyYXRpb24hKQotIFRodW5maXNjaCwgU2FyZGluZW4KLSBFaWVyCi0gU29ubmVuYmx1bWVua2VybmUKCioqQWNodHVuZzoqKiBCZWkgSGFzaGltb3RvIG1pdCBhbmRlcmVuIEF1dG9pbW11bmVya3Jhbmt1bmdlbiB2b3JzaWNodGlnIGRvc2llcmVuLgoKLS0tCgojIyMgMS4yIFZpdGFtaW4gRAoKKipCZWRldXR1bmcgZsO8ciBIYXNoaW1vdG86KioKLSBWaWVsZSBIYXNoaW1vdG8tUGF0aWVudGVuIGhhYmVuIFZpdGFtaW4tRC1NYW5nZWwKLSBWaXRhbWluIEQgaGF0IGltbXVubW9kdWxpZXJlbmRlIEVpZ2Vuc2NoYWZ0ZW4KLSBOaWVkcmlnZSBTcGllZ2VsIGtvcnJlbGllcmVuIG1pdCBow7ZoZXJlbiBUUE8tQW50aWvDtnJwZXJuCgoqKkJlZGV1dHVuZyBmw7xyIFBDT1M6KioKLSBWaXRhbWluLUQtTWFuZ2VsIHZlcnNjaGxlY2h0ZXJ0IEluc3VsaW5yZXNpc3RlbnoKLSBWZXJiZXNzZXJ1bmcgZGVyIE92YXJpYWxmdW5rdGlvbiBtw7ZnbGljaAotIEVpbmZsdXNzIGF1ZiBaeWtsdXNyZWdlbG3DpMOfaWdrZWl0CgoqKlN0dWRpZW5sYWdlOioqCi0gTmllZHJpZ2VyIFZpdGFtaW4tRC1TcGllZ2VsIGlzdCBSaXNpa29mYWt0b3IgZsO8ciBBdXRvaW1tdW5lcmtyYW5rdW5nZW4KLSBCZWkgUENPUzogU3VwcGxlbWVudGllcnVuZyBrYW5uIG1ldGFib2xpc2NoZSBQYXJhbWV0ZXIgdmVyYmVzc2VybgoKKipEb3NpZXJ1bmc6KioKLSBadW7DpGNoc3QgU3BpZWdlbCBtZXNzZW4gbGFzc2VuICgyNS1PSC1EKQotIFppZWw6IDQwLTYwIG5nL21sIChuaWNodCBudXIgImltIE5vcm1iZXJlaWNoIikKLSBCZWkgTWFuZ2VsOiAyMDAwLTQwMDAgSUUvVGFnIGbDvHIgOC0xMiBXb2NoZW4KLSBFcmhhbHR1bmc6IDEwMDAtMjAwMCBJRS9UYWcKLSBFaW5uYWhtZTogTWl0IGRlbSBncsO2w590ZW4gRXNzZW4gZGVzIFRhZ2VzIChGZXR0IGVyaMO2aHQgQXVmbmFobWUpCgoqKkxlYmVuc21pdHRlbC1RdWVsbGVuOioqCi0gRmV0dGVyIEZpc2NoIChMYWNocywgTWFrcmVsZSkKLSBFaWdlbGIKLSBQaWx6ZSAoVVYtYmVzdHJhaGx0KQotIEFuZ2VyZWljaGVydGUgTGViZW5zbWl0dGVsCgotLS0KCiMjIyAxLjMgWmluawoKKipCZWRldXR1bmcgZsO8ciBIYXNoaW1vdG86KioKLSBaaW5rIGlzdCBmw7xyIGRpZSBTY2hpbGRkcsO8c2VuaG9ybW9uLVN5bnRoZXNlIG5vdHdlbmRpZwotIDUnLURlam9kYXNlIChUNOKGklQzIEtvbnZlcnNpb24pIGlzdCB6aW5rYWJow6RuZ2lnCi0gWmlua21hbmdlbCB2ZXJzY2hsZWNodGVydCBIeXBvdGh5cmVvc2UtU3ltcHRvbWUKCioqQmVkZXV0dW5nIGbDvHIgUENPUzoqKgotIFppbmsgdmVyYmVzc2VydCBJbnN1bGluc2Vuc2l0aXZpdMOkdAotIEhhdCBkaXJla3RlbiBFaW5mbHVzcyBhdWYgQW5kcm9nZW5zdG9mZndlY2hzZWwKLSBXaWNodGlnIGbDvHIgSGFhcmdlc3VuZGhlaXQgKGJlaSBIYWFyYXVzZmFsbCkKCioqRG9zaWVydW5nOioqCi0gMTUtMjUgbWcgWmluay9UYWcKLSBOaWNodCDDvGJlciA0MCBtZy9UYWcgKGthbm4gS3VwZmVyIGJsb2NraWVyZW4pCi0gRWlubmFobWU6IEFiZW5kcywgYXVmIG7DvGNodGVybmVuIE1hZ2VuIG9kZXIgbWl0IGtsZWluZW0gU25hY2sKCioqTGViZW5zbWl0dGVsLVF1ZWxsZW46KioKLSBBdXN0ZXJuIChow7ZjaHN0ZSBLb256ZW50cmF0aW9uKQotIFJpbmRmbGVpc2NoCi0gS8O8cmJpc2tlcm5lCi0gTGluc2VuCgotLS0KCiMjIyAxLjQgTWFnbmVzaXVtCgoqKkJlZGV1dHVuZyBmw7xyIEhhc2hpbW90byArIFBDT1M6KioKLSBNYWduZXNpdW0gd2lyZCBiZWkgw7xiZXIgMzAwIEVuenltcmVha3Rpb25lbiBiZW7DtnRpZ3QKLSBNYW5nZWwgaXN0IGjDpHVmaWcgYmVpIGJlaWRlbiBFcmtyYW5rdW5nZW4KLSBVbnRlcnN0w7x0enQgRW5lcmdpZXN0b2Zmd2VjaHNlbCAoQVRQKQotIFdpcmt0IGVudHNwYW5uZW5kIGF1ZiBNdXNrdWxhdHVyIChLcsOkbXBmZSwgU2NobGFmKQoKKipEb3NpZXJ1bmc6KioKLSAzMDAtNDAwIG1nIE1hZ25lc2l1bS9UYWcKLSBCZXZvcnp1Z3Q6IE1hZ25lc2l1bWNpdHJhdCBvZGVyIE1hZ25lc2l1bWdseWNpbmF0Ci0gRWlubmFobWU6IEFiZW5kcyAodW50ZXJzdMO8dHp0IFNjaGxhZikKCioqTGViZW5zbWl0dGVsLVF1ZWxsZW46KioKLSBEdW5rbGUgU2Nob2tvbGFkZSAoODUlKykKLSBBdm9jYWRvcwotIE7DvHNzZQotIEJsYXR0Z2Vtw7xzZQotIEJhbmFuZW4KCi0tLQoKIyMjIDEuNSBFaXNlbgoKKipCZWRldXR1bmcgZsO8ciBIYXNoaW1vdG86KioKLSBFaXNlbm1hbmdlbCB2ZXJzY2hsZWNodGVydCBTY2hpbGRkcsO8c2VuZnVua3Rpb24KLSBUUE8gYmVuw7Z0aWd0IEVpc2VuIGFscyBLb2Zha3RvcgotIEFuw6RtaWUga2FubiBoeXBvdGh5cmVvdGUgU3ltcHRvbWUgbWFza2llcmVuCgoqKkJlZGV1dHVuZyBmw7xyIFBDT1M6KioKLSBFaXNlbm1hbmdlbCBpc3QgYmVpIHN0YXJrZXIgTWVuc3RydWF0aW9uIGjDpHVmaWcKLSBLYW5uIEZhdGlndWUgdmVyc2NobGltbWVybgotIFdpY2h0aWcgZsO8ciBFbmVyZ2llaGF1c2hhbHQKCioqRG9zaWVydW5nOioqCi0gTnVyIG5hY2ggRWlzZW5tYW5nZWwtRGlhZ25vc2Ugc3VwcGxlbWVudGllcmVuCi0gRmVycml0aW4tWmllbCBiZWkgSGFzaGltb3RvOiA+NTAgbmcvbWwgKG5pY2h0IG51ciAiaW0gTm9ybWJlcmVpY2giKQotIEVpbm5haG1lOiBBdWYgbsO8Y2h0ZXJuZW4gTWFnZW4sIG1pdCBWaXRhbWluIEMga29tYmluaWVyZW4KCioqQWNodHVuZzoqKiDDnGJlcnNjaHVzcyBzY2jDpGRsaWNoIChPeGlkYXRpdmVyIFN0cmVzcykuIE5pZW1hbHMgb2huZSBCbHV0YmlsZCEKCioqTGViZW5zbWl0dGVsLVF1ZWxsZW46KioKLSBSb3RlcyBGbGVpc2NoIChiZXN0ZSBCaW92ZXJmw7xnYmFya2VpdCkKLSBMZWJlcgotIFNwaW5hdCAoUGZsYW56bGljaCwgZ2VyaW5nZXJlIEF1Zm5haG1lKQotIExpbnNlbgoKLS0tCgojIyMgMS42IE9tZWdhLTMtRmV0dHPDpHVyZW4gKEVQQS9ESEEpCgoqKkJlZGV1dHVuZyBmw7xyIEhhc2hpbW90byArIFBDT1M6KioKLSBTdGFyayBlbnR6w7xuZHVuZ3NoZW1tZW5kCi0gVmVyYmVzc2VybiBaZWxsbWVtYnJhbi1GbHVpZGl0w6R0Ci0gUmVkdXppZXJlbiBBdXRvaW1tdW5ha3Rpdml0w6R0Ci0gVW50ZXJzdMO8dHplbiBIZXJ6LUtyZWlzbGF1ZiAoYmVpIFBDT1MgZXJow7ZodGVzIFJpc2lrbykKCioqRG9zaWVydW5nOioqCi0gRVBBICsgREhBIHp1c2FtbWVuOiAxMDAwLTIwMDAgbWcvVGFnCi0gVmVyaMOkbHRuaXMgRVBBIHp1IERIQTogbWluZGVzdGVucyAyOjEgb2RlciBow7ZoZXIgZsO8ciBFbnR6w7xuZHVuZ3NoZW1tdW5nCi0gRWlubmFobWU6IE1pdCBNYWhsemVpdGVuCgoqKkxlYmVuc21pdHRlbC1RdWVsbGVuOioqCi0gV2lsZGxhY2hzIChiZXN0ZSBRdWVsbGUpCi0gTWFrcmVsZQotIFNhcmRpbmVuCi0gTGViZXJ0cmFuCi0gQWxnZW7DtmwgKGbDvHIgVmVnZXRhcmllci9WZWdhbmVyKQoKLS0tCgojIyMgMS43IE15by1Jbm9zaXRvbCAoTXlvLUNoaXJvLUlub3NpdG9sKQoKKipCZWRldXR1bmcgc3BlemllbGwgZsO8ciBQQ09TOioqCi0gTXlvLUlub3NpdG9sIGlzdCBlaW4gSW5zdWxpbi1TZW5zaXRpemVyICh6d2VpdGVyIE1lc3NlbmdlcikKLSBWZXJiZXNzZXJ0IG5hY2h3ZWlzbGljaCBJbnN1bGluc2Vuc2l0aXZpdMOkdCBiZWkgUENPUwotIEthbm4gRWllcnN0b2NrZnVua3Rpb24gdW5kIFp5a2x1cyByZWd1bGllcmVuCi0gUmVkdXppZXJ0IFRlc3Rvc3Rlcm9uc3BpZWdlbAoKKipTdHVkaWVubGFnZToqKgotIEd1dGUgRXZpZGVueiBiZWkgUENPUyAobWVocmVyZSBSQ1RzKQotIE9mdCBrb21iaW5pZXJ0IG1pdCBGb2xzw6R1cmUKCioqRG9zaWVydW5nOioqCi0gMi00IGcgTXlvLUlub3NpdG9sL1RhZwotIEjDpHVmaWcgenVzYW1tZW4gbWl0IDQwMCDCtWcgRm9sc8OkdXJlCgotLS0KCiMjIyAxLjggQi1WaXRhbWluZSAodi5hLiBCMTIsIEZvbHPDpHVyZSkKCioqQmVkZXV0dW5nIGbDvHIgSGFzaGltb3RvOioqCi0gQjEyLU1hbmdlbCBow6R1ZmlnIGJlaSBIYXNoaW1vdG8gKEF1dG9pbW11bmdhc3RyaXRpcyBhbHMgS29tb3JiaWRpdMOkdCkKLSBGb2xzw6R1cmUgd2ljaHRpZyBmw7xyIEhvbW9jeXN0ZWluLVN0b2Zmd2VjaHNlbAoKKipCZWRldXR1bmcgZsO8ciBQQ09TOioqCi0gRm9sc8OkdXJlIHdpY2h0aWcgYmVpIEtpbmRlcnd1bnNjaAotIEIxMi1NYW5nZWwga2FubiBIb21vY3lzdGVpbiBlcmjDtmhlbgotIFVudGVyc3TDvHR6dCBFbmVyZ2llc3RvZmZ3ZWNoc2VsCgoqKkRvc2llcnVuZzoqKgotIEIxMjogNTAwLTEwMDAgwrVnL1RhZyAoYmVpIE1hbmdlbCwgc3VibGluZ3VhbCBiZXZvcnp1Z3QpCi0gRm9sc8OkdXJlOiA0MDAtODAwIMK1Zy9UYWcgKGJlaSBLaW5kZXJ3dW5zY2ggZ2dmLiBtZWhyKQotIEItS29tcGxleCBrYW5uIHNpbm52b2xsIHNlaW4KCi0tLQoKIyMgMi4gU3VwcGxlbWVudGllcnVuZ3MtQWxnb3JpdGhtdXMKCiMjIyBQaGFzZSAxOiBEaWFnbm9zdGlrCjEuICoqQmx1dGJpbGQgZXJzdGVsbGVuKiogbWl0OgogICAtIFZpdGFtaW4gRCAoMjUtT0gtRCkKICAgLSBGZXJyaXRpbiAoRWlzZW4pCiAgIC0gQjEyCiAgIC0gRm9sc8OkdXJlCiAgIC0gU2VsZW4gKGltIFZvbGxibHV0IG9kZXIgU2VydW0pCiAgIC0gWmluawogICAtIE1hZ25lc2l1bQogICAtIFRTSCwgZlQzLCBmVDQsIFRQTy1BaywgVGctQWsKCiMjIyBQaGFzZSAyOiBQcmlvcmlzaWVydW5nCgpgYGAKV0VOTiBWaXRhbWluIEQgPCAzMCBuZy9tbCDihpIgWnVlcnN0IFZpdGFtaW4gRCBhdWbDvGxsZW4KU09OU1QgV0VOTiBGZXJyaXRpbiA8IDUwIOKGkiBFaXNlbiBhdWbDvGxsZW4gKHBhcmFsbGVsIFNlbGVuIG3DtmdsaWNoKQpTT05TVCBXRU5OIFNlbGVuIDwgMTAwIMK1Zy9sIOKGkiBTZWxlbiBzdXBwbGVtZW50aWVyZW4KU09OU1QgV0VOTiBNYWduZXNpdW0tTWFuZ2VsIOKGkiBNYWduZXNpdW0KU09OU1QgV0VOTiBQQ09TIGRvbWluYW50IOKGkiBNeW8tSW5vc2l0b2wgKyBPbWVnYS0zClNPTlNUIOKGkiBFcmhhbHR1bmdzZG9zZW4KYGBgCgojIyMgUGhhc2UgMzogRXJoYWx0dW5nCgp8IFN1cHBsZW1lbnQgfCBFcmhhbHR1bmdzZG9zaXMgfCBGb3JtIHwKfC0tLS0tLS0tLS0tfC0tLS0tLS0tLS0tLS0tLS18LS0tLS0tfAp8IFZpdGFtaW4gRCB8IDEwMDAtMjAwMCBJRSB8IEQzIHwKfCBTZWxlbiB8IDIwMCDCtWcgfCBTZWxlbm9tZXRoaW9uaW4gfAp8IE9tZWdhLTMgfCAxMDAwIG1nIEVQQStESEEgfCBGaXNjaMO2bC9BbGdlbsO2bCB8CnwgTWFnbmVzaXVtIHwgMzAwIG1nIHwgQ2l0cmF0L0dseWNpbmF0IHwKfCBaaW5rIHwgMTUgbWcgfCBDaXRyYXQvUGljb2xpbmF0IHwKfCBCMTIgfCA1MDAgwrVnIHwgTWV0aHlsY29iYWxhbWluIHwKfCBNeW8tSW5vc2l0b2wgKFBDT1MpIHwgMi00IGcgfCBQdWx2ZXIvVGFibGV0dGVuIHwKCi0tLQoKIyMgMy4gSW50ZXJha3Rpb25lbiAmIFZvcnNpY2h0c21hw59uYWhtZW4KCiMjIyBXaWNodGlnZSBXZWNoc2Vsd2lya3VuZ2VuOgoKMS4gKipTZWxlbiArIFZpdGFtaW4gQzoqKiBWaXRhbWluIEMgdmVyYmVzc2VydCBTZWxlbmF1Zm5haG1lCjIuICoqRWlzZW4gKyBWaXRhbWluIEM6KiogVml0YW1pbiBDIHZlcmJlc3NlcnQgRWlzZW5hdWZuYWhtZQozLiAqKlppbmsgKyBLdXBmZXI6KiogWmluayBrYW5uIEt1cGZlciBibG9ja2llcmVuIOKGkiBiZWkgTGFuZ3plaXRlaW5uYWhtZSBLdXBmZXIgenVmw7xocmVuCjQuICoqQ2FsY2l1bSArIEVpc2VuOioqIENhbGNpdW0gaGVtbXQgRWlzZW5hdWZuYWhtZSDihpIgQWJzdGFuZCBoYWx0ZW4KNS4gKipTZWxlbiArIFZpdGFtaW4gRToqKiBTeW5lcmdpZSAoYmVpZGUgYW50aW94aWRhbnRpc2NoKQoKIyMjIEtvbnRyYWluZGlrYXRpb25lbjoKCi0gKipKb2QtU3VwcGxlbWVudGllcnVuZyBiZWkgSGFzaGltb3RvOioqIE51ciBuYWNoIMOkcnp0bGljaGVyIEFub3JkbnVuZyEgVmllbGUgSGFzaGltb3RvLVBhdGllbnRlbiBoYWJlbiBhdXNyZWljaGVuZCBvZGVyIGVyaMO2aHRlIEpvZHZlcnNvcmd1bmcKLSAqKkVpc2VuIGJlaSBJbmZla3Rpb25lbjoqKiBFaXNlbiBrYW5uIEluZmVrdGlvbmVuIHZlcnNjaGxpbW1lcm4KLSAqKlNlbGVuIGJlaSBaw7ZsaWFraWUvU2Fya29pZG9zZToqKiBWb3JzaWNodAoKIyMjIFRpbWluZzoKCmBgYApNb3JnZW5zOiBWaXRhbWluIEQgKG1pdCBGZXR0KSwgQi1Lb21wbGV4Ck1pdHRhZ3M6IFppbmsKTmFjaG1pdHRhZ3M6IFNlbGVuICh3ZW5u5Y2V54usKQpBYmVuZHM6IE1hZ25lc2l1bSwgT21lZ2EtMwpgYGAKCi0tLQoKIyMgNC4gUXVlbGxlbgoKMS4gRHIuIEFtcmVpbiAtIE1pa3JvbsOkaHJzdG9mZmUgYmVpIEhhc2hpbW90bzogaHR0cHM6Ly93d3cuZHItYW1yZWluLmF0L25ldWVzL21pa3JvbmFlaHJzdG9mZmUtdW5kLWhhc2hpbW90by1laXNlbi1qb2Qtdml0YW1pbi1kLXNlbGVuLXppbmsvCjIuIEhhc2hpbW90by1UaHlyZW9pZGl0aXMuZGUgLSBTZWxlbiwgWmluaywgRWlzZW46IGh0dHBzOi8vd3d3Lmhhc2hpbW90by10aHlyZW9pZGl0aXMuZGUvdGhlcmFwaWUvc3B1cmVuZWxlbWVudGUtdW5kLXZpdGFtaW5lCjMuIFZJS3RpbGFicyAtIE5haHJ1bmdzZXJnw6RuenVuZyBiZWkgSGFzaGltb3RvOiBodHRwczovL3d3dy52aWt0aWxhYnMuZGUvYmxvZ3MvbWFnYXppbi9oYXNoaW1vdG8tbmFocnVuZ3NlcmdhZW56dW5nCjQuIE5PUkTCsCBTaG9wIC0gU2VsZW4gVmVyZ2xlaWNoc3N0dWRpZTogaHR0cHM6Ly93d3cubm9yZHNob3AuYXQvZGUvd2lzc2VuL3NjaGlsZGRydWVzZS92ZXJnbGVpY2hzc3R1ZGllLmh0bWwKNS4gVml0YSBCYWxhbmNlIC0gSGFzaGltb3RvIG5hdMO8cmxpY2ggbWl0IFZpdGFtaW5lbjogaHR0cHM6Ly93d3cudml0YW1pbmRvY3Rvci5jb20vZ2VzdW5kLXdlcmRlbi9zdG9mZndlY2hzZWwtaG9ybW9uc3lzdGVtL2hhc2hpbW90bwo2LiBGcmF1ZW5zcGV6aWZpc2NoZSBNZWRpemluIC0gSW50ZWdyYXRpdmUgVGhlcmFwaWUgSGFzaGltb3RvOiBodHRwczovL3d3dy5mcmF1ZW5zcGV6aWZpc2NoZS1tZWRpemluLmRlL2FrdHVlbGxlcy9pbnRlZ3JhdGl2ZS10aGVyYXBpZS1kZXItaGFzaGltb3RvLXRoeXJlb2lkaXRpcy0tLW5hZWhyc3RvZmZlCjcuIFB1cmF6ZWxsIC0gS2luZGVyd3Vuc2NoIGJlaSBIYXNoaW1vdG86IGh0dHBzOi8vcHVyYXplbGwuZGUvYmxvZy9raW5kZXJ3dW5zY2gtYmVpLWhhc2hpbW90by8KOC4gQmFieWJhdWNoYmxvZyAtIEtpbmRlcnd1bnNjaCBWaXRhbWluZTogaHR0cHM6Ly9iYWJ5YmF1Y2hibG9nLmRlL2tpbmRlcnd1bnNjaC12aXRhbWluZS8K
+# Nahrungsergänzungsmittel: Mikronährstoffe bei Hashimoto + PCOS
+
+> **Wichtiger Hinweis:** Nahrungsergänzungen ersetzen keine ausgewogene Ernährung. Bei Hashimoto + PCOS sollten Supplemente **immer in Absprache mit dem behandelnden Arzt** eingenommen werden, da einige Nährstoffe die Schilddrüsenfunktion direkt beeinflussen können.
+
+---
+
+## 1. Die wichtigsten Mikronährstoffe im Überblick
+
+### 1.1 Selen
+
+**Bedeutung für Hashimoto:**
+- Selen ist essenziell für die Schilddrüsenhormonproduktion (Dejodase-Enzym)
+- TPO-Antikörper können durch Selen-Supplementierung sinken
+- Schilddrüse enthält höchste Selenkonzentration im Körper
+- Antioxidative Protection (Glutathion-Peroxidase)
+
+**Bedeutung für PCOS:**
+- Verbesserung der Insulinsensitivität
+- Reduktion oxidativen Stresses
+- Unterstützung der Schilddrüsenfunktion (hypothyreote PCOS-Patientinnen)
+
+**Studienlage:**
+- Verschiedene Studien zeigten Absinken der TPO-Antikörper um 11-50% unter Selengabe
+- Meta-Analysen zeigen moderate Evidenz für Hashimoto
+
+**Dosierung:**
+- 200 µg Selenomethionin/Tag (nicht Selenit)
+- Nicht über 400 µg/Tag (Risiko Selenose)
+- Einnahme: Morgens mit Essen
+
+**Lebensmittel-Quellen:**
+- Paranüsse (ca. 68 µg/g - höchste Konzentration!)
+- Thunfisch, Sardinen
+- Eier
+- Sonnenblumenkerne
+
+**Achtung:** Bei Hashimoto mit anderen Autoimmunerkrankungen vorsichtig dosieren.
+
+---
+
+### 1.2 Vitamin D
+
+**Bedeutung für Hashimoto:**
+- Viele Hashimoto-Patienten haben Vitamin-D-Mangel
+- Vitamin D hat immunmodulierende Eigenschaften
+- Niedrige Spiegel korrelieren mit höheren TPO-Antikörpern
+
+**Bedeutung für PCOS:**
+- Vitamin-D-Mangel verschlechtert Insulinresistenz
+- Verbesserung der Ovarialfunktion möglich
+- Einfluss auf Zyklusregelmäßigkeit
+
+**Studienlage:**
+- Niedriger Vitamin-D-Spiegel ist Risikofaktor für Autoimmunerkrankungen
+- Bei PCOS: Supplementierung kann metabolische Parameter verbessern
+
+**Dosierung:**
+- Zunächst Spiegel messen lassen (25-OH-D)
+- Ziel: 40-60 ng/ml (nicht nur "im Normbereich")
+- Bei Mangel: 2000-4000 IE/Tag für 8-12 Wochen
+- Erhaltung: 1000-2000 IE/Tag
+- Einnahme: Mit dem größten Essen des Tages (Fett erhöht Aufnahme)
+
+**Lebensmittel-Quellen:**
+- Fetter Fisch (Lachs, Makrele)
+- Eigelb
+- Pilze (UV-bestrahlt)
+- Angereicherte Lebensmittel
+
+---
+
+### 1.3 Zink
+
+**Bedeutung für Hashimoto:**
+- Zink ist für die Schilddrüsenhormon-Synthese notwendig
+- 5'-Dejodase (T4→T3 Konversion) ist zinkabhängig
+- Zinkmangel verschlechtert Hypothyreose-Symptome
+
+**Bedeutung für PCOS:**
+- Zink verbessert Insulinsensitivität
+- Hat direkten Einfluss auf Androgenstoffwechsel
+- Wichtig für Haargesundheit (bei Haarausfall)
+
+**Dosierung:**
+- 15-25 mg Zink/Tag
+- Nicht über 40 mg/Tag (kann Kupfer blockieren)
+- Einnahme: Abends, auf nüchternen Magen oder mit kleinem Snack
+
+**Lebensmittel-Quellen:**
+- Austern (höchste Konzentration)
+- Rindfleisch
+- Kürbiskerne
+- Linsen
+
+---
+
+### 1.4 Magnesium
+
+**Bedeutung für Hashimoto + PCOS:**
+- Magnesium wird bei über 300 Enzymreaktionen benötigt
+- Mangel ist häufig bei beiden Erkrankungen
+- Unterstützt Energiestoffwechsel (ATP)
+- Wirkt entspannend auf Muskulatur (Krämpfe, Schlaf)
+
+**Dosierung:**
+- 300-400 mg Magnesium/Tag
+- Bevorzugt: Magnesiumcitrat oder Magnesiumglycinat
+- Einnahme: Abends (unterstützt Schlaf)
+
+**Lebensmittel-Quellen:**
+- Dunkle Schokolade (85%+)
+- Avocados
+- Nüsse
+- Blattgemüse
+- Bananen
+
+---
+
+### 1.5 Eisen
+
+**Bedeutung für Hashimoto:**
+- Eisenmangel verschlechtert Schilddrüsenfunktion
+- TPO benötigt Eisen als Kofaktor
+- Anämie kann hypothyreote Symptome maskieren
+
+**Bedeutung für PCOS:**
+- Eisenmangel ist bei starker Menstruation häufig
+- Kann Fatigue verschlimmern
+- Wichtig für Energiehaushalt
+
+**Dosierung:**
+- Nur nach Eisenmangel-Diagnose supplementieren
+- Ferritin-Ziel bei Hashimoto: >50 ng/ml (nicht nur "im Normbereich")
+- Einnahme: Auf nüchternen Magen, mit Vitamin C kombinieren
+
+**Achtung:** Überschuss schädlich (Oxidativer Stress). Niemals ohne Blutbild!
+
+**Lebensmittel-Quellen:**
+- Rotes Fleisch (beste Bioverfügbarkeit)
+- Leber
+- Spinat (Pflanzlich, geringere Aufnahme)
+- Linsen
+
+---
+
+### 1.6 Omega-3-Fettsäuren (EPA/DHA)
+
+**Bedeutung für Hashimoto + PCOS:**
+- Stark entzündungshemmend
+- Verbessern Zellmembran-Fluidität
+- Reduzieren Autoimmunaktivität
+- Unterstützen Herz-Kreislauf (bei PCOS erhöhtes Risiko)
+
+**Dosierung:**
+- EPA + DHA zusammen: 1000-2000 mg/Tag
+- Verhältnis EPA zu DHA: mindestens 2:1 oder höher für Entzündungshemmung
+- Einnahme: Mit Mahlzeiten
+
+**Lebensmittel-Quellen:**
+- Wildlachs (beste Quelle)
+- Makrele
+- Sardinen
+- Lebertran
+- Algenöl (für Vegetarier/Veganer)
+
+---
+
+### 1.7 Myo-Inositol (Myo-Chiro-Inositol)
+
+**Bedeutung speziell für PCOS:**
+- Myo-Inositol ist ein Insulin-Sensitizer (zweiter Messenger)
+- Verbessert nachweislich Insulinsensitivität bei PCOS
+- Kann Eierstockfunktion und Zyklus regulieren
+- Reduziert Testosteronspiegel
+
+**Studienlage:**
+- Gute Evidenz bei PCOS (mehrere RCTs)
+- Oft kombiniert mit Folsäure
+
+**Dosierung:**
+- 2-4 g Myo-Inositol/Tag
+- Häufig zusammen mit 400 µg Folsäure
+
+---
+
+### 1.8 B-Vitamine (v.a. B12, Folsäure)
+
+**Bedeutung für Hashimoto:**
+- B12-Mangel häufig bei Hashimoto (Autoimmungastritis als Komorbidität)
+- Folsäure wichtig für Homocystein-Stoffwechsel
+
+**Bedeutung für PCOS:**
+- Folsäure wichtig bei Kinderwunsch
+- B12-Mangel kann Homocystein erhöhen
+- Unterstützt Energiestoffwechsel
+
+**Dosierung:**
+- B12: 500-1000 µg/Tag (bei Mangel, sublingual bevorzugt)
+- Folsäure: 400-800 µg/Tag (bei Kinderwunsch ggf. mehr)
+- B-Komplex kann sinnvoll sein
+
+---
+
+## 2. Supplementierungs-Algorithmus
+
+### Phase 1: Diagnostik
+1. **Blutbild erstellen** mit:
+   - Vitamin D (25-OH-D)
+   - Ferritin (Eisen)
+   - B12
+   - Folsäure
+   - Selen (im Vollblut oder Serum)
+   - Zink
+   - Magnesium
+   - TSH, fT3, fT4, TPO-Ak, Tg-Ak
+
+### Phase 2: Priorisierung
+
+```
+WENN Vitamin D < 30 ng/ml → Zuerst Vitamin D aufüllen
+SONST WENN Ferritin < 50 → Eisen aufüllen (parallel Selen möglich)
+SONST WENN Selen < 100 µg/l → Selen supplementieren
+SONST WENN Magnesium-Mangel → Magnesium
+SONST WENN PCOS dominant → Myo-Inositol + Omega-3
+SONST → Erhaltungsdosen
+```
+
+### Phase 3: Erhaltung
+
+| Supplement | Erhaltungsdosis | Form |
+|-----------|----------------|------|
+| Vitamin D | 1000-2000 IE | D3 |
+| Selen | 200 µg | Selenomethionin |
+| Omega-3 | 1000 mg EPA+DHA | Fischöl/Algenöl |
+| Magnesium | 300 mg | Citrat/Glycinat |
+| Zink | 15 mg | Citrat/Picolinat |
+| B12 | 500 µg | Methylcobalamin |
+| Myo-Inositol (PCOS) | 2-4 g | Pulver/Tabletten |
+
+---
+
+## 3. Interaktionen & Vorsichtsmaßnahmen
+
+### Wichtige Wechselwirkungen:
+
+1. **Selen + Vitamin C:** Vitamin C verbessert Selenaufnahme
+2. **Eisen + Vitamin C:** Vitamin C verbessert Eisenaufnahme
+3. **Zink + Kupfer:** Zink kann Kupfer blockieren → bei Langzeiteinnahme Kupfer zuführen
+4. **Calcium + Eisen:** Calcium hemmt Eisenaufnahme → Abstand halten
+5. **Selen + Vitamin E:** Synergie (beide antioxidantisch)
+
+### Kontraindikationen:
+
+- **Jod-Supplementierung bei Hashimoto:** Nur nach ärztlicher Anordnung! Viele Hashimoto-Patienten haben ausreichend oder erhöhte Jodversorgung
+- **Eisen bei Infektionen:** Eisen kann Infektionen verschlimmern
+- **Selen bei Zöliakie/Sarkoidose:** Vorsicht
+
+### Timing:
+
+```
+Morgens: Vitamin D (mit Fett), B-Komplex
+Mittags: Zink
+Nachmittags: Selen (wenn单独)
+Abends: Magnesium, Omega-3
+```
+
+---
+
+## 4. Quellen
+
+1. Dr. Amrein - Mikronährstoffe bei Hashimoto: https://www.dr-amrein.at/neues/mikronaehrstoffe-und-hashimoto-eisen-jod-vitamin-d-selen-zink/
+2. Hashimoto-Thyreoiditis.de - Selen, Zink, Eisen: https://www.hashimoto-thyreoiditis.de/therapie/spurenelemente-und-vitamine
+3. VIKtilabs - Nahrungsergänzung bei Hashimoto: https://www.viktilabs.de/blogs/magazin/hashimoto-nahrungsergaenzung
+4. NORD° Shop - Selen Vergleichsstudie: https://www.nordshop.at/de/wissen/schilddruese/vergleichsstudie.html
+5. Vita Balance - Hashimoto natürlich mit Vitaminen: https://www.vitamindoctor.com/gesund-werden/stoffwechsel-hormonsystem/hashimoto
+6. Frauenspezifische Medizin - Integrative Therapie Hashimoto: https://www.frauenspezifische-medizin.de/aktuelles/integrative-therapie-der-hashimoto-thyreoiditis---naehrstoffe
+7. Purazell - Kinderwunsch bei Hashimoto: https://purazell.de/blog/kinderwunsch-bei-hashimoto/
+8. Babybauchblog - Kinderwunsch Vitamine: https://babybauchblog.de/kinderwunsch-vitamine/
