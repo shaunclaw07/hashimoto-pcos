@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ScanBarcode, Camera, Keyboard, X, AlertCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ScanBarcode, Camera, Keyboard, AlertCircle, Loader2 } from "lucide-react";
 
 export default function ScannerPage() {
+  const router = useRouter();
   const [scanMode, setScanMode] = useState<"camera" | "manual">("manual");
   const [barcode, setBarcode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -14,16 +16,14 @@ export default function ScannerPage() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Check camera availability
     async function checkCamera() {
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const hasVideoDevice = devices.some((d) => d.kind === "videoinput");
         setHasCamera(hasVideoDevice);
-        
+
         if (hasVideoDevice) {
           setScanMode("camera");
-          // Request permission
           try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
             setCameraPermission("granted");
@@ -43,7 +43,6 @@ export default function ScannerPage() {
     checkCamera();
 
     return () => {
-      // Cleanup camera stream
       if (videoRef.current?.srcObject) {
         const stream = videoRef.current.srcObject as MediaStream;
         stream.getTracks().forEach((track) => track.stop());
@@ -51,28 +50,41 @@ export default function ScannerPage() {
     };
   }, []);
 
-  const handleManualSearch = async () => {
-    if (!barcode.trim()) return;
-    
+  function isValidEan13(code: string): boolean {
+    return /^\d{13}$/.test(code);
+  }
+
+  async function handleSearch(targetBarcode: string) {
+    if (!targetBarcode.trim()) return;
+    if (!isValidEan13(targetBarcode)) {
+      setError("Bitte gib einen gültigen 13-stelligen Barcode ein.");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
-      const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
+      const response = await fetch(`https://world.openfoodfacts.org/api/v0/product/${targetBarcode}.json`);
       const data = await response.json();
-      
+
       if (data.status === 0) {
         setError("Produkt nicht gefunden. Bitte überprüfe den Barcode.");
       } else {
-        // Navigate to result page - for now just show success
-        alert(`Produkt gefunden: ${data.product.product_name || "Unbekannt"}`);
+        router.push(`/result/${targetBarcode}`);
+        return;
       }
-    } catch (e) {
+    } catch {
       setError("Fehler bei der Suche. Bitte erneut versuchen.");
     } finally {
       setIsLoading(false);
     }
-  };
+  }
+
+  function handleManualSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    handleSearch(barcode);
+  }
 
   return (
     <div className="min-h-screen px-4 py-6">
@@ -112,12 +124,12 @@ export default function ScannerPage() {
             <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 p-4 text-destructive">
               <AlertCircle className="h-5 w-5" />
               <p className="text-sm">
-                Kamera-Zugriff verweigert. Bitte erlaube den Zugriff in den Browser-Einstellungen 
+                Kamera-Zugriff verweigert. Bitte erlaube den Zugriff in den Browser-Einstellungen
                 oder nutze die manuelle Eingabe.
               </p>
             </div>
           )}
-          
+
           <div className="relative aspect-square overflow-hidden rounded-xl bg-black">
             <video
               ref={videoRef}
@@ -126,7 +138,6 @@ export default function ScannerPage() {
               muted
               className="h-full w-full object-cover"
             />
-            {/* Scan overlay */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="h-48 w-64 rounded-lg border-2 border-primary bg-primary/5" />
             </div>
@@ -134,34 +145,74 @@ export default function ScannerPage() {
               Barcode in den Rahmen halten
             </div>
           </div>
-        </div>
-      )}
 
-      {/* Manual Input */}
-      {scanMode === "manual" && (
-        <div className="mb-6 space-y-4">
-          <div>
-            <label className="mb-2 block text-sm font-medium">
-              Barcode eingeben
-            </label>
+          {/* Manual fallback in camera mode */}
+          <form onSubmit={handleManualSubmit} className="mt-4 space-y-3">
             <input
               ref={inputRef}
               type="text"
               value={barcode}
               onChange={(e) => setBarcode(e.target.value.replace(/\D/g, ""))}
+              placeholder="Alternativ: Barcode hier eingeben"
+              className="w-full rounded-lg border bg-background px-4 py-3 text-lg tracking-wider"
+              maxLength={13}
+            />
+            <button
+              type="submit"
+              disabled={!barcode.trim() || isLoading}
+              className="w-full rounded-lg bg-primary py-4 text-lg font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Suche...
+                </>
+              ) : (
+                <>
+                  <ScanBarcode className="h-5 w-5" />
+                  Produkt suchen
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      )}
+
+      {/* Manual Input */}
+      {scanMode === "manual" && (
+        <form onSubmit={handleManualSubmit} className="mb-6 space-y-4">
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              Barcode eingeben
+            </label>
+            <input
+              type="text"
+              value={barcode}
+              onChange={(e) => setBarcode(e.target.value.replace(/\D/g, ""))}
               placeholder="z.B. 7622210449283"
               className="w-full rounded-lg border bg-background px-4 py-3 text-lg tracking-wider"
+              maxLength={13}
             />
           </div>
-          
+
           <button
-            onClick={handleManualSearch}
+            type="submit"
             disabled={!barcode.trim() || isLoading}
-            className="w-full rounded-lg bg-primary py-4 text-lg font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            className="w-full rounded-lg bg-primary py-4 text-lg font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {isLoading ? "Suche..." : "Suchen"}
+            {isLoading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Suche...
+              </>
+            ) : (
+              <>
+                <ScanBarcode className="h-5 w-5" />
+                Produkt suchen
+              </>
+            )}
           </button>
-        </div>
+        </form>
       )}
 
       {/* Error */}
