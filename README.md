@@ -93,6 +93,41 @@ npm run build
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — System-Architektur, Scoring-Algorithmus, Datenfluss
 - [docs/](./docs/) — Wissenschaftliche Grundlagen
 
+---
+
+## Deployment
+
+### Docker
+
+```bash
+# Mit Docker Compose starten
+docker-compose up -d
+
+# Container-Logs anzeigen
+docker-compose logs -f
+
+# Produktions-Build
+docker build -t hashimoto-pcos .
+docker run -p 3000:3000 hashimoto-pcos
+```
+
+### Kubernetes
+
+```bash
+# Deployment anwenden
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/hpa.yaml
+
+# Status prüfen
+kubectl get pods -l app=hashimoto-pcos
+kubectl get hpa hashimoto-pcos-hpa
+```
+
+**Voraussetzungen:**
+- K3s oder Kubernetes-Cluster
+- NGINX Ingress Controller
+- ghcr.io/shaunclaw07/hashimoto-pcos Docker-Image
+
 ## Mitwirken
 
 Dieses Projekt ist Open Source. Beiträge willkommen!
