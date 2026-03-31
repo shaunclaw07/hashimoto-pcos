@@ -69,9 +69,42 @@ Die Recherche basiert auf folgenden Quellen:
 
 ---
 
+## Quick Start (Entwickler)
+
+```bash
+# Repository klonen
+git clone https://github.com/shaunclaw07/hashimoto-pcos.git
+cd hashimoto-pcos
+
+# Dependencies installieren
+npm install
+
+# Development-Server starten
+npm run dev
+
+# Tests ausführen
+npm run test:run
+npm run lint
+npm run build
+```
+
+**Wichtige Docs für Entwickler:**
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — Mitwirkungs-Guide, Branching, Coding-Standards
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — System-Architektur, Scoring-Algorithmus, Datenfluss
+- [docs/](./docs/) — Wissenschaftliche Grundlagen
+
 ## Mitwirken
 
 Dieses Projekt ist Open Source. Beiträge willkommen!
+
+### Issue-Templates
+
+- **[Feature Request](.github/ISSUE_TEMPLATE/feature_request.md)** — Neues Feature vorschlagen
+- **[Bug Report](.github/ISSUE_TEMPLATE/bug_report.md)** — Fehler melden
+
+### Pull Request Template
+
+Pull Requests sollten [.github/pull_request_template.md](.github/pull_request_template.md) verwenden.
 
 ---
 
