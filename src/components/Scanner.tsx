@@ -42,7 +42,6 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
     Quagga.init(
       {
         inputStream: {
-          name: "Live",
           type: "LiveStream",
           target: scannerRef.current,
           constraints: {
@@ -108,7 +107,6 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
     Quagga.init(
       {
         inputStream: {
-          name: "Live",
           type: "LiveStream",
           target: scannerRef.current,
           constraints: {
@@ -140,14 +138,14 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
     <div className="relative">
       {/* Permission denied state */}
       {hasPermission === "denied" && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-xl bg-black/80 text-white">
-          <CameraOff className="h-12 w-12 opacity-50" />
-          <p className="text-center px-4 text-sm">{error || "Kamera-Zugriff verweigert"}</p>
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-2xl bg-background-warm text-foreground">
+          <CameraOff className="h-14 w-14 text-muted-foreground" />
+          <p className="text-center px-6 text-base">{error || "Kamera-Zugriff verweigert"}</p>
           <button
             onClick={() => setCameraFacing((f) => (f === "environment" ? "user" : "environment"))}
-            className="flex items-center gap-2 rounded-lg bg-white/20 px-4 py-2 text-sm font-medium hover:bg-white/30"
+            className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-base font-medium text-primary-foreground hover:bg-primary-600 active:scale-95 transition-all touch-target"
           >
-            <SwitchCamera className="h-4 w-4" />
+            <SwitchCamera className="h-5 w-5" />
             Kamera wechseln
           </button>
         </div>
@@ -156,29 +154,29 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
       {/* Scanner viewport */}
       <div
         ref={scannerRef}
-        className="relative aspect-square overflow-hidden rounded-xl bg-black"
+        className="relative aspect-square overflow-hidden rounded-2xl bg-background-warm shadow-card"
       >
         {/* Scan overlay */}
         {hasPermission === "granted" && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
             <div className="relative">
-              {/* Corner brackets */}
-              <div className="absolute -top-2 -left-2 h-8 w-8 border-t-4 border-l-4 border-primary rounded-tl-lg" />
-              <div className="absolute -top-2 -right-2 h-8 w-8 border-t-4 border-r-4 border-primary rounded-tr-lg" />
-              <div className="absolute -bottom-2 -left-2 h-8 w-8 border-b-4 border-l-4 border-primary rounded-bl-lg" />
-              <div className="absolute -bottom-2 -right-2 h-8 w-8 border-b-4 border-r-4 border-primary rounded-br-lg" />
-              <div className="h-48 w-64 rounded-lg border-2 border-primary bg-primary/5" />
+              {/* Corner brackets - warm lavender color */}
+              <div className="absolute -top-2 -left-2 h-10 w-10 border-t-4 border-l-4 border-primary rounded-tl-xl" />
+              <div className="absolute -top-2 -right-2 h-10 w-10 border-t-4 border-r-4 border-primary rounded-tr-xl" />
+              <div className="absolute -bottom-2 -left-2 h-10 w-10 border-b-4 border-l-4 border-primary rounded-bl-xl" />
+              <div className="absolute -bottom-2 -right-2 h-10 w-10 border-b-4 border-r-4 border-primary rounded-br-xl" />
+              <div className="h-52 w-72 rounded-2xl border-2 border-primary/30 bg-primary/5" />
               {/* Scanning line animation */}
-              <div className="absolute inset-x-0 top-0 h-0.5 bg-primary/80 animate-pulse" />
+              <div className="absolute inset-x-0 top-0 h-0.5 bg-primary/60 animate-pulse" />
             </div>
           </div>
         )}
 
         {/* Loading state */}
         {hasPermission === "pending" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white">
-            <Loader2 className="h-10 w-10 animate-spin" />
-            <p className="text-sm">Kamera wird gestartet...</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background-warm">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="text-base text-muted-foreground">Kamera wird gestartet...</p>
           </div>
         )}
       </div>
@@ -186,24 +184,25 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
       {/* Bottom info bar */}
       {hasPermission === "granted" && (
         <div className="absolute bottom-4 left-0 right-0 z-10 flex items-center justify-between px-4">
-          <span className="rounded-full bg-black/60 px-3 py-1 text-xs text-white">
+          <span className="rounded-full bg-background/80 backdrop-blur px-4 py-2 text-sm text-foreground font-medium">
             EAN-13, UPC-A
           </span>
           <button
             onClick={() =>
               setCameraFacing((f) => (f === "environment" ? "user" : "environment"))
             }
-            className="rounded-full bg-black/60 p-2 text-white hover:bg-black/80 transition-colors"
+            className="rounded-full bg-background/80 backdrop-blur p-3 text-foreground hover:bg-background active:scale-95 transition-all shadow-soft touch-target"
             title="Kamera wechseln"
+            aria-label="Kamera wechseln"
           >
-            <SwitchCamera className="h-5 w-5" />
+            <SwitchCamera className="h-6 w-6" />
           </button>
         </div>
       )}
 
       {/* Hint text */}
       {hasPermission === "granted" && (
-        <p className="mt-3 text-center text-sm text-muted-foreground">
+        <p className="mt-4 text-center text-base text-muted-foreground">
           Barcode in den Rahmen halten
         </p>
       )}

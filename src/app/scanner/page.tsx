@@ -52,54 +52,54 @@ export default function ScannerPage() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-6">
-      <h1 className="mb-6 text-2xl font-bold">Scanner</h1>
+    <div className="min-h-screen px-5 py-8">
+      <h1 className="mb-8 text-3xl font-bold text-foreground">Scanner</h1>
 
       {/* Mode Toggle */}
-      <div className="mb-6 flex gap-2 rounded-lg bg-muted p-1">
+      <div className="mb-8 flex gap-2 rounded-xl bg-background-warm p-1.5">
         <button
           onClick={() => setScanMode("camera")}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+          className={`flex flex-1 items-center justify-center gap-2.5 rounded-lg px-5 py-3.5 text-base font-medium transition-all touch-target ${
             scanMode === "camera"
-              ? "bg-background shadow-sm"
+              ? "bg-primary text-primary-foreground shadow-soft"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Camera className="h-4 w-4" />
+          <Camera className="h-5 w-5" />
           Kamera
         </button>
         <button
           onClick={() => setScanMode("manual")}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
+          className={`flex flex-1 items-center justify-center gap-2.5 rounded-lg px-5 py-3.5 text-base font-medium transition-all touch-target ${
             scanMode === "manual"
-              ? "bg-background shadow-sm"
+              ? "bg-primary text-primary-foreground shadow-soft"
               : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Keyboard className="h-4 w-4" />
+          <Keyboard className="h-5 w-5" />
           Manuell
         </button>
       </div>
 
       {/* Camera View with QuaggaJS */}
       {scanMode === "camera" && (
-        <div className="mb-6 space-y-4">
+        <div className="mb-8 space-y-5">
           <Scanner
             onDetected={handleBarcodeDetected}
             onError={(err) => setScannerError(err)}
           />
 
           {scannerError && (
-            <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-4 text-destructive text-sm">
-              <AlertCircle className="h-4 w-4 shrink-0" />
+            <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700 text-base">
+              <AlertCircle className="h-5 w-5 shrink-0" />
               {scannerError}
             </div>
           )}
 
           {/* Manual fallback in camera mode */}
-          <div className="relative">
+          <div className="relative py-3">
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded">
+              <span className="text-sm text-muted-foreground bg-background/80 px-3 py-1.5 rounded-full">
                 Oder Barcode manuell eingeben:
               </span>
             </div>
@@ -110,7 +110,7 @@ export default function ScannerPage() {
               value={barcode}
               onChange={(e) => setBarcode(e.target.value.replace(/\D/g, ""))}
               placeholder="Barcode hier eingeben..."
-              className="w-full rounded-lg border bg-background px-4 py-3 text-lg tracking-wider"
+              className="w-full rounded-xl border border-border bg-background px-5 py-4 text-lg tracking-wider text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
               maxLength={13}
             />
           </form>
@@ -119,9 +119,9 @@ export default function ScannerPage() {
 
       {/* Manual Input */}
       {scanMode === "manual" && (
-        <form onSubmit={handleManualSubmit} className="mb-6 space-y-4">
+        <form onSubmit={handleManualSubmit} className="mb-8 space-y-5">
           <div>
-            <label className="mb-2 block text-sm font-medium">
+            <label className="mb-3 block text-base font-medium text-foreground">
               Barcode eingeben
             </label>
             <input
@@ -129,7 +129,7 @@ export default function ScannerPage() {
               value={barcode}
               onChange={(e) => setBarcode(e.target.value.replace(/\D/g, ""))}
               placeholder="z.B. 7622210449283"
-              className="w-full rounded-lg border bg-background px-4 py-3 text-lg tracking-wider"
+              className="w-full rounded-xl border border-border bg-background px-5 py-4 text-lg tracking-wider text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
               maxLength={13}
             />
           </div>
@@ -137,7 +137,7 @@ export default function ScannerPage() {
           <button
             type="submit"
             disabled={!barcode.trim() || isLoading}
-            className="w-full rounded-lg bg-primary py-4 text-lg font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full rounded-xl bg-primary py-4.5 text-lg font-semibold text-primary-foreground hover:bg-primary-600 disabled:opacity-50 flex items-center justify-center gap-2.5 touch-target transition-all shadow-soft hover:shadow-card active:scale-[0.98]"
           >
             {isLoading ? (
               <>
@@ -153,30 +153,30 @@ export default function ScannerPage() {
 
       {/* Error */}
       {error && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 p-4 text-destructive">
-          <AlertCircle className="h-5 w-5" />
-          <p className="text-sm">{error}</p>
+        <div className="mb-6 flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700">
+          <AlertCircle className="h-5 w-5 shrink-0" />
+          <p className="text-base">{error}</p>
         </div>
       )}
 
       {/* Info */}
-      <div className="rounded-xl border bg-card p-4 text-card-foreground">
-        <h3 className="mb-2 font-semibold">So scannst du Produkte</h3>
-        <ol className="space-y-2 text-sm text-muted-foreground">
-          <li className="flex gap-2">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+      <div className="card-warm p-6">
+        <h3 className="mb-4 text-lg font-semibold text-foreground">So scannst du Produkte</h3>
+        <ol className="space-y-4 text-base text-muted-foreground">
+          <li className="flex gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
               1
             </span>
             Halte den Barcode vor die Kamera oder gib die Nummer manuell ein
           </li>
-          <li className="flex gap-2">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+          <li className="flex gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
               2
             </span>
             Wir suchen das Produkt in unserer Datenbank
           </li>
-          <li className="flex gap-2">
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
+          <li className="flex gap-3">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
               3
             </span>
             Erhalte sofort die Bewertung für Hashimoto & PCOS

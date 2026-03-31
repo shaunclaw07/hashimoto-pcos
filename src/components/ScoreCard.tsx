@@ -13,20 +13,20 @@ interface ScoreCardProps {
 }
 
 const SCORE_CONFIG = {
-  "SEHR GUT": { color: "#22c55e", bgColor: "bg-green-100", textColor: "text-green-800", stars: 5 },
-  "GUT": { color: "#84cc16", bgColor: "bg-lime-100", textColor: "text-lime-800", stars: 4 },
-  "NEUTRAL": { color: "#eab308", bgColor: "bg-yellow-100", textColor: "text-yellow-800", stars: 3 },
-  "WENIGER GUT": { color: "#f97316", bgColor: "bg-orange-100", textColor: "text-orange-800", stars: 2 },
-  "VERMEIDEN": { color: "#ef4444", bgColor: "bg-red-100", textColor: "text-red-800", stars: 1 },
+  "SEHR GUT": { color: "#22c55e", bgColor: "bg-green-50", textColor: "text-green-700", stars: 5, borderColor: "border-green-200" },
+  "GUT": { color: "#84cc16", bgColor: "bg-lime-50", textColor: "text-lime-700", stars: 4, borderColor: "border-lime-200" },
+  "NEUTRAL": { color: "#eab308", bgColor: "bg-yellow-50", textColor: "text-yellow-700", stars: 3, borderColor: "border-yellow-200" },
+  "WENIGER GUT": { color: "#f97316", bgColor: "bg-orange-50", textColor: "text-orange-700", stars: 2, borderColor: "border-orange-200" },
+  "VERMEIDEN": { color: "#ef4444", bgColor: "bg-red-50", textColor: "text-red-700", stars: 1, borderColor: "border-red-200" },
 } as const;
 
 function StarRating({ stars, color }: { stars: number; color: string }) {
   return (
-    <div className="flex gap-1">
+    <div className="flex gap-1.5">
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
-          className={`h-6 w-6 ${i < stars ? "fill-current" : "text-gray-300"}`}
+          className={`h-7 w-7 ${i < stars ? "fill-current" : "text-gray-300"}`}
           style={{ color: i < stars ? color : undefined }}
         />
       ))}
@@ -39,41 +39,41 @@ export function ScoreCard({ product, scoreResult, onRescan, onSave, saved }: Sco
   const nutriments = product.nutriments || {};
 
   return (
-    <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+    <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
       {/* Product Header */}
-      <div className="flex gap-4 p-4">
+      <div className="flex gap-4 p-5">
         {product.image_url || product.image_front_url ? (
           <img
             src={product.image_front_url || product.image_url || ""}
             alt={product.product_name || "Produkt"}
-            className="h-24 w-24 shrink-0 rounded-lg object-contain bg-white"
+            className="h-28 w-28 shrink-0 rounded-xl object-contain bg-background-warm p-2"
           />
         ) : (
-          <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg bg-muted">
-            <span className="text-4xl">🍽️</span>
+          <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-xl bg-background-warm">
+            <span className="text-5xl">🍽️</span>
           </div>
         )}
-        <div className="flex flex-col justify-center min-w-0">
-          <h2 className="font-bold text-lg leading-tight truncate">
+        <div className="flex flex-col justify-center min-w-0 flex-1">
+          <h2 className="font-bold text-xl leading-tight truncate text-foreground">
             {product.product_name || "Unbekanntes Produkt"}
           </h2>
           {product.brands && (
-            <p className="text-sm text-muted-foreground truncate">{product.brands}</p>
+            <p className="text-base text-muted-foreground truncate mt-1">{product.brands}</p>
           )}
         </div>
       </div>
 
       {/* Score Badge */}
-      <div className={`${config.bgColor} px-4 py-6 text-center`}>
+      <div className={`${config.bgColor} ${config.borderColor} border-t px-5 py-8 text-center`}>
         <StarRating stars={config.stars} color={config.color} />
-        <div className="mt-2 flex items-center justify-center gap-2">
+        <div className="mt-3 flex items-center justify-center gap-3">
           <span
-            className={`text-2xl font-bold ${config.textColor}`}
+            className={`text-3xl font-bold ${config.textColor}`}
             style={{ color: config.color }}
           >
             {scoreResult.score.toFixed(1)}
           </span>
-          <span className={`text-lg font-semibold ${config.textColor}`}>
+          <span className={`text-xl font-semibold ${config.textColor}`}>
             {scoreResult.label}
           </span>
         </div>
@@ -81,17 +81,17 @@ export function ScoreCard({ product, scoreResult, onRescan, onSave, saved }: Sco
 
       {/* Bonus/Malus Breakdown */}
       {scoreResult.breakdown.length > 0 && (
-        <div className="border-t px-4 py-4">
-          <h3 className="mb-3 text-sm font-semibold">Bewertungsgründe</h3>
-          <div className="space-y-2">
+        <div className="border-t border-border px-5 py-5">
+          <h3 className="mb-4 text-base font-semibold text-foreground">Bewertungsgründe</h3>
+          <div className="space-y-3">
             {scoreResult.breakdown.map((item, i) => (
-              <div key={i} className="flex items-center gap-2 text-sm">
+              <div key={i} className="flex items-center gap-3 text-base">
                 <span className={item.points >= 0 ? "text-green-600" : "text-red-500"}>
-                  {item.points >= 0 ? <Check className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+                  {item.points >= 0 ? <Check className="h-5 w-5" /> : <AlertTriangle className="h-5 w-5" />}
                 </span>
-                <span className="flex-1">{item.reason}</span>
+                <span className="flex-1 text-foreground">{item.reason}</span>
                 <span
-                  className={`font-medium ${
+                  className={`font-semibold ${
                     item.points >= 0 ? "text-green-600" : "text-red-500"
                   }`}
                 >
@@ -105,9 +105,9 @@ export function ScoreCard({ product, scoreResult, onRescan, onSave, saved }: Sco
       )}
 
       {/* Nutritional Info */}
-      <div className="border-t px-4 py-4">
-        <h3 className="mb-3 text-sm font-semibold">Nährwerte (pro 100g)</h3>
-        <div className="grid grid-cols-2 gap-2 text-sm">
+      <div className="border-t border-border px-5 py-5">
+        <h3 className="mb-4 text-base font-semibold text-foreground">Nährwerte (pro 100g)</h3>
+        <div className="grid grid-cols-2 gap-3 text-base">
           <NutrientRow
             label="Energie"
             value={nutriments["energy-kcal_100g"]}
@@ -127,25 +127,25 @@ export function ScoreCard({ product, scoreResult, onRescan, onSave, saved }: Sco
       </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-3 border-t p-4">
+      <div className="flex gap-3 border-t border-border p-5">
         <button
           onClick={onRescan}
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg border bg-background px-4 py-3 font-medium transition-colors hover:bg-accent"
+          className="flex flex-1 items-center justify-center gap-2.5 rounded-xl border border-border bg-background px-5 py-4 text-base font-medium text-foreground transition-all hover:bg-muted active:scale-[0.98] touch-target"
         >
-          <RotateCcw className="h-4 w-4" />
+          <RotateCcw className="h-5 w-5" />
           Erneut scannen
         </button>
         {onSave && (
           <button
             onClick={onSave}
             disabled={saved}
-            className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-3 font-medium transition-colors ${
+            className={`flex flex-1 items-center justify-center gap-2.5 rounded-xl px-5 py-4 text-base font-medium transition-all touch-target ${
               saved
-                ? "bg-green-100 text-green-800 cursor-default"
-                : "bg-primary text-primary-foreground hover:bg-primary/90"
+                ? "bg-green-100 border border-green-200 text-green-700 cursor-default"
+                : "bg-primary text-primary-foreground hover:bg-primary-600 active:scale-[0.98]"
             }`}
           >
-            <Save className="h-4 w-4" />
+            <Save className="h-5 w-5" />
             {saved ? "Gespeichert" : "Speichern"}
           </button>
         )}
@@ -173,8 +173,8 @@ function NutrientRow({
   }
   return (
     <div className="flex justify-between">
-      <span>{label}</span>
-      <span className="font-medium">
+      <span className="text-foreground">{label}</span>
+      <span className="font-semibold text-foreground">
         {value.toFixed(1)} {unit}
       </span>
     </div>

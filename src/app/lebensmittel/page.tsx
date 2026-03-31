@@ -143,24 +143,24 @@ export default function LebensmittelPage() {
   }
 
   return (
-    <div className="min-h-screen px-4 py-6">
-      <h1 className="mb-6 text-2xl font-bold">Lebensmittel</h1>
+    <div className="min-h-screen px-5 py-8">
+      <h1 className="mb-8 text-3xl font-bold text-foreground">Lebensmittel</h1>
 
       {/* Search Form */}
-      <form onSubmit={handleSearch} className="mb-4 space-y-3">
+      <form onSubmit={handleSearch} className="mb-6 space-y-4">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Suchen..."
-            className="w-full rounded-lg border bg-background py-3 pl-10 pr-4"
+            className="w-full rounded-xl border border-border bg-background py-4 pl-11 pr-4 text-base text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
           />
         </div>
 
-        {/* Category Filters */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        {/* Category Filters - Touch-friendly scrollable */}
+        <div className="flex gap-2.5 overflow-x-auto pb-3 scrollbar-hide">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.key}
@@ -169,10 +169,10 @@ export default function LebensmittelPage() {
                 setCategory(cat.key);
                 if (searched) handleSearch(undefined, 1);
               }}
-              className={`shrink-0 rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+              className={`shrink-0 rounded-full border px-5 py-2.5 text-base font-medium transition-all touch-target ${
                 category === cat.key
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "hover:bg-accent"
+                  ? "border-primary bg-primary text-primary-foreground shadow-soft"
+                  : "border-border text-foreground hover:bg-muted active:scale-95"
               }`}
             >
               {cat.label}
@@ -180,20 +180,20 @@ export default function LebensmittelPage() {
           ))}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-3">
           <button
             type="submit"
             disabled={!query.trim() || isLoading}
-            className="flex-1 rounded-lg bg-primary py-3 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-2"
+            className="flex-1 rounded-xl bg-primary py-4 text-base font-semibold text-primary-foreground hover:bg-primary-600 disabled:opacity-50 flex items-center justify-center gap-2.5 touch-target transition-all shadow-soft hover:shadow-card active:scale-[0.98]"
           >
             {isLoading ? (
               <>
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin" />
                 Suche...
               </>
             ) : (
               <>
-                <Search className="h-4 w-4" />
+                <Search className="h-5 w-5" />
                 Suchen
               </>
             )}
@@ -202,7 +202,7 @@ export default function LebensmittelPage() {
             <button
               type="button"
               onClick={handleReset}
-              className="rounded-lg border px-4 py-3 font-medium hover:bg-accent"
+              className="rounded-xl border border-border bg-background px-5 py-4 font-medium text-foreground hover:bg-muted touch-target transition-all active:scale-[0.98]"
             >
               Zurücksetzen
             </button>
@@ -212,13 +212,13 @@ export default function LebensmittelPage() {
 
       {/* Results Count */}
       {searched && !isLoading && totalCount > 0 && (
-        <p className="mb-4 text-sm text-muted-foreground">
+        <p className="mb-5 text-base text-muted-foreground">
           {totalCount.toLocaleString("de-DE")} Ergebnisse gefunden
         </p>
       )}
 
       {/* Results List */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {results.map((product, index) => (
           <div
             key={product.barcode || index}
@@ -231,20 +231,20 @@ export default function LebensmittelPage() {
 
       {/* Loading More */}
       {isLoading && page > 1 && (
-        <div className="flex items-center justify-center py-8 gap-2 text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          <span>Mehr wird geladen...</span>
+        <div className="flex items-center justify-center py-10 gap-3 text-muted-foreground">
+          <Loader2 className="h-6 w-6 animate-spin" />
+          <span className="text-base">Mehr wird geladen...</span>
         </div>
       )}
 
       {/* Empty State - Not searched yet */}
       {!searched && !isLoading && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="mb-4 rounded-full bg-muted p-4">
-            <Search className="h-8 w-8 text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="mb-5 rounded-full bg-background-warm p-5">
+            <Search className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h3 className="mb-2 font-semibold">Lebensmittel suchen</h3>
-          <p className="text-sm text-muted-foreground max-w-xs">
+          <h3 className="mb-3 text-xl font-semibold text-foreground">Lebensmittel suchen</h3>
+          <p className="text-base text-muted-foreground max-w-xs leading-relaxed">
             Gib einen Suchbegriff ein oder wähle eine Kategorie, um Produkte zu finden.
           </p>
         </div>
@@ -252,12 +252,12 @@ export default function LebensmittelPage() {
 
       {/* Empty State - No results */}
       {searched && !isLoading && results.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="mb-4 rounded-full bg-muted p-4">
-            <PackageX className="h-8 w-8 text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <div className="mb-5 rounded-full bg-background-warm p-5">
+            <PackageX className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h3 className="mb-2 font-semibold">Keine Ergebnisse gefunden</h3>
-          <p className="text-sm text-muted-foreground max-w-xs">
+          <h3 className="mb-3 text-xl font-semibold text-foreground">Keine Ergebnisse gefunden</h3>
+          <p className="text-base text-muted-foreground max-w-xs leading-relaxed">
             Versuche einen anderen Suchbegriff oder eine andere Kategorie.
           </p>
         </div>
@@ -267,19 +267,11 @@ export default function LebensmittelPage() {
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 4.5) return "bg-green-500";
-  if (score >= 3.5) return "bg-lime-500";
-  if (score >= 2.5) return "bg-yellow-500";
-  if (score >= 1.5) return "bg-orange-500";
-  return "bg-red-500";
-}
-
-function getScoreEmoji(label: string): string {
-  if (label === "SEHR GUT") return "🟢";
-  if (label === "GUT") return "🟢";
-  if (label === "NEUTRAL") return "🟡";
-  if (label === "WENIGER GUT") return "🟠";
-  return "🔴";
+  if (score >= 4.5) return "bg-score-sehr_gut";
+  if (score >= 3.5) return "bg-score-gut";
+  if (score >= 2.5) return "bg-score-neutral";
+  if (score >= 1.5) return "bg-score-weniger_gut";
+  return "bg-score-vermeiden";
 }
 
 function ProductCard({ product }: { product: SearchProduct }) {
@@ -290,35 +282,33 @@ function ProductCard({ product }: { product: SearchProduct }) {
   return (
     <Link
       href={product.barcode ? `/result/${product.barcode}` : "#"}
-      className="block rounded-xl border bg-card p-4 shadow-sm transition-colors hover:bg-accent"
+      className="card-warm p-4 flex gap-4 transition-all hover:shadow-card active:scale-[0.99]"
     >
-      <div className="flex gap-3">
-        {product.image_url ? (
-          <img
-            src={product.image_url}
-            alt={product.name}
-            className="h-16 w-16 shrink-0 rounded-lg object-contain bg-white"
-          />
-        ) : (
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-muted">
-            <span className="text-2xl">🍽️</span>
-          </div>
-        )}
-        <div className="flex flex-col justify-center min-w-0 flex-1">
-          <p className="font-semibold truncate">{product.name}</p>
-          {product.brand && (
-            <p className="text-sm text-muted-foreground truncate">{product.brand}</p>
-          )}
+      {product.image_url ? (
+        <img
+          src={product.image_url}
+          alt={product.name}
+          className="h-20 w-20 shrink-0 rounded-xl object-contain bg-background-warm p-1.5"
+        />
+      ) : (
+        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-background-warm">
+          <span className="text-3xl">🍽️</span>
         </div>
-        {scoreResult && (
-          <div className="flex flex-col items-end justify-center gap-1">
-            <div className={`h-8 w-8 rounded-full ${getScoreColor(score)} flex items-center justify-center text-white text-xs font-bold`}>
-              {score.toFixed(1)}
-            </div>
-            <span className="text-xs">{getScoreEmoji(label)}</span>
-          </div>
+      )}
+      <div className="flex flex-col justify-center min-w-0 flex-1">
+        <p className="font-semibold text-lg truncate text-foreground">{product.name}</p>
+        {product.brand && (
+          <p className="text-base text-muted-foreground truncate mt-0.5">{product.brand}</p>
         )}
       </div>
+      {scoreResult && (
+        <div className="flex flex-col items-end justify-center gap-1.5">
+          <div className={`h-10 w-10 rounded-full ${getScoreColor(score)} flex items-center justify-center text-white text-sm font-bold shadow-soft`}>
+            {score.toFixed(1)}
+          </div>
+          <span className="text-xs text-muted-foreground font-medium">{label}</span>
+        </div>
+      )}
     </Link>
   );
 }
