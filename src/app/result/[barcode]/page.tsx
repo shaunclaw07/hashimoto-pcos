@@ -89,27 +89,29 @@ export default function ResultPage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-muted-foreground">Produkt wird geladen...</p>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-5 px-5">
+        <Loader2 className="h-14 w-14 animate-spin text-primary" />
+        <p className="text-lg text-muted-foreground">Produkt wird geladen...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen px-4 py-6">
-        <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-4 text-destructive mb-6">
+      <div className="min-h-screen px-5 py-8">
+        <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700 mb-6">
           <AlertCircle className="h-5 w-5 shrink-0" />
-          <p className="text-sm">{error}</p>
+          <p className="text-base">{error}</p>
         </div>
 
-        <div className="rounded-xl border bg-card p-4">
-          <div className="flex items-center gap-3 mb-4">
-            <PackageX className="h-8 w-8 text-muted-foreground" />
+        <div className="card-warm p-5">
+          <div className="flex items-center gap-4 mb-5">
+            <div className="rounded-xl bg-background-warm p-4">
+              <PackageX className="h-10 w-10 text-muted-foreground" />
+            </div>
             <div>
-              <p className="font-medium">Barcode: {barcode}</p>
-              <p className="text-sm text-muted-foreground">Dieses Produkt ist nicht in unserer Datenbank.</p>
+              <p className="font-semibold text-lg text-foreground">Barcode: {barcode}</p>
+              <p className="text-base text-muted-foreground">Dieses Produkt ist nicht in unserer Datenbank.</p>
             </div>
           </div>
         </div>
@@ -117,7 +119,7 @@ export default function ResultPage() {
         <div className="mt-6 flex gap-3">
           <Link
             href="/scanner"
-            className="flex-1 rounded-lg bg-primary py-3 text-center font-medium text-primary-foreground"
+            className="flex-1 rounded-xl bg-primary py-4 text-center font-semibold text-primary-foreground touch-target transition-all hover:bg-primary-600 active:scale-[0.98] shadow-soft"
           >
             Zurück zum Scanner
           </Link>
@@ -129,7 +131,7 @@ export default function ResultPage() {
   if (!product || !scoreResult) return null;
 
   return (
-    <div className="min-h-screen px-4 py-6">
+    <div className="min-h-screen px-5 py-8">
       <ScoreCard
         product={product}
         scoreResult={scoreResult}
