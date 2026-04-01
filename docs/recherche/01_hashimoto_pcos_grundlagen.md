@@ -183,3 +183,5 @@ Die aktuelle Studienlage zeigt, dass bestimmte Ernährungsumstellungen bei beide
 - → Siehe `02_lebensmittel_bewertung.md` für das Lebensmittel-Scoring-System
 - → Siehe `03_nahrungsergaenzungen.md` für Mikronährstoff-Details
 - → Siehe `04_produkt_scan_api.md` für die OpenFoodFacts-Integration
+- → Siehe `05_deep_research_scientific_papers.md` für die vollständige wissenschaftliche Literatur analyse (Deep Research)
+- → Siehe `06_deep_research_nutrition_intersection.md` für die positive Schnittmenge der Ernährung (Deep Research)
