@@ -11,7 +11,7 @@ Dieses Projekt hilft Frauen, die sowohl an Hashimoto als auch an PCOS leiden, di
 ### Kernfeatures
 
 - 📷 **Barcode-Scanner** - Produkte scannen und sofort Bewertung erhalten
-- 🔍 **Lebensmittel-Datenbank** - Suche nach einzelnen Lebensmitteln
+- 🔍 **Lebensmittel-Datenbank** - Suche nach einzelnen Lebensmitteln (462k+ DACH-Produkte lokal)
 - 📊 **Nährstoff-Analyse** - Detaillierte Aufschlüsselung pro Produkt
 - 🎓 **Wissenschaftlich fundiert** - Alle Empfehlungen basieren auf aktueller Studienlage
 - 👩‍💻 **DAU-freundlich** - Keine medizinischen Vorkenntnisse nötig
@@ -118,6 +118,8 @@ npm run build
 ```
 
 > **Hinweis:** Ohne `data/products.db` fällt die App automatisch auf die OpenFoodFacts-API zurück. Die lokale DB ist optional, wird aber für zuverlässige Performance empfohlen.
+>
+> Fehlende Nährwerte werden beim ersten Abruf eines Produkts automatisch von der OFf-API nachgeladen und dauerhaft in der lokalen DB gespeichert — die DB vervollständigt sich selbst mit der Nutzung.
 
 **Wichtige Docs für Entwickler:**
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — Mitwirkungs-Guide, Branching, Coding-Standards

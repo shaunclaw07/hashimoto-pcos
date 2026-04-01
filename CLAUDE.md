@@ -76,7 +76,7 @@ Browser
 | `src/components/ScoreCard.tsx` | Displays score badge, star rating, nutrition breakdown, action buttons |
 | `src/components/bottom-nav.tsx` | Fixed bottom navigation (3 routes) |
 | `src/components/theme-provider.tsx` | next-themes wrapper (light/dark/system) |
-| `src/lib/db.ts` | SQLite singleton (`getDb()`), `DbProductRow` type, `rowToProduct()` mapper |
+| `src/lib/db.ts` | SQLite singleton (`getDb()`), `DbProductRow` type, `rowToProduct()` mapper, `updateNutriments()` cache writer |
 | `src/lib/openfoodfacts.ts` | OFf API fallback client — `fetchProduct()`, types, barcode validation |
 | `src/lib/scoring.ts` | Core scoring algorithm — pure function `calculateScore(product)` |
 | `src/lib/utils.ts` | `cn()` — clsx + tailwind-merge |
@@ -133,9 +133,11 @@ Tailwind custom colors for labels: `score.sehr_gut`, `score.gut`, `score.neutral
 - **File:** `data/products.db` (gitignored — build with `npm run db:build`)
 - **Source:** OpenFoodFacts global CSV export (`en.openfoodfacts.org.products.csv`)
 - **Filter:** Only DACH products (`countries_tags` contains `en:germany`, `en:austria`, or `en:switzerland`) with valid EAN-13 barcodes
-- **Size:** ~260 MB, ~462k products
+- **Size:** ~260 MB, ~462k products (~10% have nutriment data in the CSV)
 - **Search:** SQLite FTS5 virtual table (`products_fts`) for fast full-text search on product name and brand
 - **Build time:** ~5–10 minutes for the full CSV (~4.4M rows)
+
+**Nutriment enrichment:** When a product is found locally but has no nutriment data, the barcode route fetches nutriments from the OFf API and writes them back to the local DB (`UPDATE products SET nutriments = ?`). The DB grows more complete over time with each unique product lookup.
 
 To rebuild after a fresh CSV download:
 ```bash
