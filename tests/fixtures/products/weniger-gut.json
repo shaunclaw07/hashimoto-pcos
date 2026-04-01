@@ -1,0 +1,18 @@
+{
+  "barcode": "0009000837100",
+  "product_name": "Schafsalami",
+  "brands": "Finkhof",
+  "image_url": "https://images.openfoodfacts.org/images/products/000/900/083/7100/front_de.4.200.jpg",
+  "nutriscore_grade": "unknown",
+  "additives": [],
+  "nutriments": {
+    "energy-kcal_100g": 324,
+    "sugars_100g": 0.5,
+    "fat_100g": 22.6,
+    "saturated-fat_100g": 10.5,
+    "fiber_100g": null,
+    "proteins_100g": 29,
+    "salt_100g": 5.2,
+    "sodium_100g": 2.08
+  }
+}

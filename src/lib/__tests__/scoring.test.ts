@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { calculateScore, type ScoreResult } from '../scoring';
 import type { OpenFoodFactsProduct } from '../openfoodfacts';
+import sehrGut from '../../../tests/fixtures/products/sehr-gut.json';
+import gut from '../../../tests/fixtures/products/gut.json';
+import neutral from '../../../tests/fixtures/products/neutral.json';
+import wenigerGut from '../../../tests/fixtures/products/weniger-gut.json';
+import vermeiden from '../../../tests/fixtures/products/vermeiden.json';
 
 describe('calculateScore', () => {
   describe('Olivenöl', () => {
@@ -553,6 +558,39 @@ describe('calculateScore', () => {
       const result = calculateScore(product);
 
       expect(result.label).toBe('VERMEIDEN');
+    });
+  });
+
+  describe('Fixture-Produkte (aus products.db)', () => {
+    it('Green Lentils → SEHR GUT', () => {
+      const result = calculateScore(sehrGut as OpenFoodFactsProduct);
+      expect(result.label).toBe('SEHR GUT');
+      expect(result.score).toBeGreaterThanOrEqual(4.5);
+    });
+
+    it('100% Whole Wheat Bagels → GUT', () => {
+      const result = calculateScore(gut as OpenFoodFactsProduct);
+      expect(result.label).toBe('GUT');
+      expect(result.score).toBeGreaterThanOrEqual(3.5);
+    });
+
+    it('Designer Whey Protein Vanilla → NEUTRAL', () => {
+      const result = calculateScore(neutral as OpenFoodFactsProduct);
+      expect(result.label).toBe('NEUTRAL');
+      expect(result.score).toBeGreaterThanOrEqual(2.5);
+    });
+
+    it('Schafsalami → WENIGER GUT', () => {
+      const result = calculateScore(wenigerGut as OpenFoodFactsProduct);
+      expect(result.label).toBe('WENIGER GUT');
+      expect(result.score).toBeGreaterThanOrEqual(1.5);
+      expect(result.score).toBeLessThan(2.5);
+    });
+
+    it('Hazelnut Spread with Cocoa → VERMEIDEN', () => {
+      const result = calculateScore(vermeiden as OpenFoodFactsProduct);
+      expect(result.label).toBe('VERMEIDEN');
+      expect(result.score).toBeLessThan(1.5);
     });
   });
 

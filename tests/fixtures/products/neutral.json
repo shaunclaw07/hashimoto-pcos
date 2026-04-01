@@ -1,0 +1,27 @@
+{
+  "barcode": "0000683442920",
+  "product_name": "Designer Whey Protein Vanilla",
+  "brands": "ESN",
+  "image_url": "https://images.openfoodfacts.org/images/products/000/068/344/2920/front_en.3.200.jpg",
+  "nutriscore_grade": "not-applicable",
+  "ingredients_text": "Whey protein blend (ultrafiltered whey protein concentrate, cross-flow mi - (carrageenan), salt, sweeteners (acesulfame potassium, sodium cyclamate, sodium sac - crofiltered whey protein isolate), flavors, emulsifier (sunflower lecithin), thickening agent char'ne, sucralose), sunflower oil",
+  "additives": [
+    "en:e322",
+    "en:e322i",
+    "en:e407",
+    "en:e950",
+    "en:e952",
+    "en:e955"
+  ],
+  "nutriments": {
+    "energy-kcal_100g": 377,
+    "sugars_100g": 5.2,
+    "fat_100g": 4.7,
+    "saturated-fat_100g": 2.5,
+    "fiber_100g": null,
+    "proteins_100g": 78,
+    "salt_100g": 0.7,
+    "sodium_100g": 0.511
+  },
+  "categories": "Dietary supplements, Bodybuilding supplements, Protein powders"
+}

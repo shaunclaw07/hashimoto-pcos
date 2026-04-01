@@ -1,0 +1,18 @@
+{
+  "barcode": "0058504211064",
+  "product_name": "Green lentils",
+  "brands": "Clic",
+  "image_url": "https://images.openfoodfacts.org/images/products/005/850/421/1064/front_en.3.200.jpg",
+  "nutriscore_grade": "unknown",
+  "additives": [],
+  "nutriments": {
+    "energy-kcal_100g": 315,
+    "sugars_100g": 1.5,
+    "fat_100g": 1,
+    "saturated-fat_100g": null,
+    "fiber_100g": 20,
+    "proteins_100g": 26,
+    "salt_100g": null,
+    "sodium_100g": null
+  }
+}

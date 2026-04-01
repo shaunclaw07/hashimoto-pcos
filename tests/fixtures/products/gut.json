@@ -1,0 +1,23 @@
+{
+  "barcode": "0011110009234",
+  "product_name": "100% Whole Wheat Bagels",
+  "brands": "Kroger",
+  "image_url": "https://images.openfoodfacts.org/images/products/001/111/000/9234/front_en.20.200.jpg",
+  "nutriscore_grade": "a",
+  "ingredients_text": "WHOLE WHEAT FLOUR, WATER, WHEAT BRAN, YEAST, SUGAR, ENZYMES, WHEAT GERM, SALT, MALT, WHITE VINEGAR, MOLASSES, CALCIUM PROPIONATE, SOYBEAN OIL, CORN MEAL.",
+  "allergens": "en:gluten",
+  "additives": [
+    "en:e282"
+  ],
+  "nutriments": {
+    "energy-kcal_100g": 247.280430733817,
+    "sugars_100g": 3.91692640904018,
+    "fat_100g": 1.66112984793527,
+    "saturated-fat_100g": 0.299779314313617,
+    "fiber_100g": 9.95848772321429,
+    "proteins_100g": 9.50521937779018,
+    "salt_100g": 0.463839911411832,
+    "sodium_100g": 0.173214021135603
+  },
+  "categories": "Plant-based foods and beverages, Plant-based foods, Cereals and potatoes, Breads, Special breads, Bagel breads"
+}

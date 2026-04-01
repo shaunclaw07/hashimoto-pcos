@@ -1,0 +1,22 @@
+{
+  "barcode": "0009800895007",
+  "product_name": "hazelnut spread with cocoa",
+  "brands": "nutella",
+  "image_url": "https://images.openfoodfacts.org/images/products/000/980/089/5007/front_en.77.200.jpg",
+  "nutriscore_grade": "e",
+  "ingredients_text": "sugar, palm oil, hazelnuts, skim milk, cocoa, lecithin as emulsifier (soy), vanillin: an artificial flavor,",
+  "allergens": "en:milk,en:nuts,en:soybeans",
+  "additives": [],
+  "nutriments": {
+    "energy-kcal_100g": 540.540540540541,
+    "sugars_100g": 56.8,
+    "fat_100g": 29.7,
+    "saturated-fat_100g": 10.8,
+    "fiber_100g": 2.7,
+    "proteins_100g": 5.41,
+    "salt_100g": 0.1,
+    "sodium_100g": 0.04
+  },
+  "categories": "Plant-based foods and beverages, Plant-based foods, Breakfasts, Fats, Spreads, Sweet spreads, Vegetable fats, fr:Pâtes à tartiner, Hazelnut spreads, Chocolate spreads, Cocoa and hazelnuts spreads",
+  "labels": "No gluten"
+}
