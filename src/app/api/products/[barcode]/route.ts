@@ -4,9 +4,9 @@ import { fetchProduct, isValidEan13 } from '@/lib/openfoodfacts';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { barcode: string } }
+  { params }: { params: Promise<{ barcode: string }> }
 ) {
-  const { barcode } = params;
+  const { barcode } = await params;
 
   if (!isValidEan13(barcode)) {
     return NextResponse.json(
