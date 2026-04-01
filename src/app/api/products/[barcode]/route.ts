@@ -22,7 +22,19 @@ export async function GET(
       .get(barcode) as DbProductRow | undefined;
 
     if (row) {
-      return NextResponse.json({ success: true, product: rowToProduct(row) });
+      const product = rowToProduct(row);
+      const hasNutriments = product.nutriments &&
+        Object.values(product.nutriments).some(v => v !== null && v !== undefined);
+
+      if (!hasNutriments) {
+        // Local product has no nutriment data — enrich from OFf API
+        const offResult = await fetchProduct(barcode);
+        if (offResult.success && offResult.product.nutriments) {
+          product.nutriments = offResult.product.nutriments;
+        }
+      }
+
+      return NextResponse.json({ success: true, product });
     }
   } catch {
     // DB not available — fall through to API
