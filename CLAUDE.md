@@ -21,6 +21,8 @@ npm start           # Run production build
 npm run lint        # ESLint (next lint)
 npm run test        # Vitest in watch mode
 npm run test:run    # Vitest single run (use in CI / before commits)
+npm run test:e2e    # Playwright E2E tests (auto-starts dev server)
+npm run test:e2e:ui # Playwright E2E with interactive UI
 ```
 
 Docker:
@@ -68,9 +70,12 @@ Browser
 | `src/lib/utils.ts` | `cn()` — clsx + tailwind-merge |
 | `src/lib/__tests__/scoring.test.ts` | 47 scoring tests (real products + edge cases) |
 | `src/lib/__tests__/openfoodfacts.test.ts` | 12 API client tests (validation, fetch, errors) |
+| `e2e/*.spec.ts` | Playwright E2E tests (9 specs, 40+ tests) |
+| `playwright.config.ts` | Playwright config — mobile viewport, auto dev-server |
 | `docs/recherche/` | Scientific research in German (4 files) |
 | `k8s/` | Kubernetes deployment + HPA manifests |
 | `.github/workflows/docker.yml` | CI: build + push to `ghcr.io/shaunclaw07/hashimoto-pcos` |
+| `.github/workflows/ci.yml` | CI: lint + build + vitest + playwright E2E + artifact |
 
 ---
 
@@ -150,15 +155,37 @@ Always pattern-match on `result.success` before accessing `result.product`.
 
 ## Testing
 
+### Unit Tests (Vitest)
 - **Framework:** Vitest 2.x + jsdom (browser DOM simulation)
 - **Location:** `src/lib/__tests__/*.test.ts`
-- **What's tested:** Scoring algorithm and OpenFoodFacts API client (pure logic — no component tests yet)
+- **What's tested:** Scoring algorithm and OpenFoodFacts API client (pure logic)
 - **Mocking:** `vi.fn()` for `fetch`; no real network calls in tests
+
+### E2E Tests (Playwright)
+- **Framework:** Playwright 1.x (`@playwright/test`)
+- **Location:** `e2e/*.spec.ts` (9 spec files, 40+ tests)
+- **Viewport:** Mobile-first (Pixel 5 / 375×812)
+- **Dev server:** Auto-started by `playwright.config.ts` webServer
+- **External API:** Tests use real OpenFoodFacts API (no mocking)
+
+**Test coverage:**
+| Spec | Area |
+|------|------|
+| `navigation.spec.ts` | Routing, BottomNav |
+| `homepage.spec.ts` | Hero, Feature cards, Score legend |
+| `scanner.spec.ts` | Camera/manual toggle, EAN validation, barcode submission |
+| `search.spec.ts` | Search, category filters, infinite scroll, empty states |
+| `result-page.spec.ts` | Loading, error, product display, score, save/unsave |
+| `scorecard.spec.ts` | Score rendering, save toggle |
+| `bottom-nav.spec.ts` | Nav items, active highlighting |
+| `theme.spec.ts` | Dark mode (system-only; tests skipped — no UI toggle) |
+| `localstorage.spec.ts` | Save/remove/persist products |
 
 Write tests before implementation (TDD). All lib code must have full test coverage.
 
 ```bash
-npm run test:run   # Must pass before creating a PR
+npm run test:run   # Vitest — must pass before creating a PR
+npm run test:e2e   # Playwright E2E — auto-starts dev server
 ```
 
 ---

@@ -21,16 +21,25 @@ Dieses Projekt hilft Frauen, die sowohl an Hashimoto als auch an PCOS leiden, di
 ## Projektstruktur
 
 ```
-hashimoto-pcos-ernaehrung/
-├── docs/
-│   ├── recherche/          # Wissenschaftliche Grundlagen
-│   │   ├── 01_hashimoto_pcos_grundlagen.md
-│   │   ├── 02_lebensmittel_bewertung.md
-│   │   ├── 03_nahrungsergaenzungen.md
-│   │   └── 04_produkt_scan_api.md
-│   └──ernaehrung/          # Ernährungsratgeber
-├── src/                    # Quellcode (in Planung)
-└── data/                   # Datendateien
+hashimoto-pcos/
+├── src/
+│   ├── app/                    # Next.js 14 App Router Seiten
+│   │   ├── page.tsx            # Landing Page
+│   │   ├── scanner/page.tsx    # Barcode-Scanner
+│   │   ├── lebensmittel/       # Produktsuche
+│   │   └── result/[barcode]/   # Produktdetail + Score
+│   ├── components/              # React Components
+│   │   ├── Scanner.tsx         # QuaggaJS2 Barcode-Scanner
+│   │   ├── ScoreCard.tsx      # Bewertungsanzeige
+│   │   └── bottom-nav.tsx     # Navigation
+│   └── lib/
+│       ├── openfoodfacts.ts   # OpenFoodFacts API-Client
+│       ├── scoring.ts          # Bewertungsalgorithmus
+│       └── utils.ts            # Helfer (cn())
+├── e2e/                        # Playwright E2E Tests (9 Specs)
+├── docs/recherche/             # Wissenschaftliche Grundlagen
+├── k8s/                        # Kubernetes Manifests
+└── .github/workflows/          # CI/CD Pipelines
 ```
 
 ---
@@ -63,9 +72,9 @@ Die Recherche basiert auf folgenden Quellen:
 | Phase | Status |
 |-------|--------|
 | Recherche | ✅ Abgeschlossen |
-| Architektur-Design | 🔄 In Planung |
-| MVP-Entwicklung | ⏳ Geplant |
-| Beta-Release | ⏳ Geplant |
+| MVP-Entwicklung | ✅ Abgeschlossen |
+| E2E-Tests | ✅ Abgeschlossen |
+| Beta-Release | 🔄 In Planung |
 
 ---
 
@@ -83,7 +92,11 @@ npm install
 npm run dev
 
 # Tests ausführen
-npm run test:run
+npm run test:run       # Vitest Unit-Tests
+npm run test:e2e       # Playwright E2E-Tests (Dev-Server wird auto-gestartet)
+npm run test:e2e:ui    # Playwright mit interaktiver UI
+
+# Qualitäts-Checks
 npm run lint
 npm run build
 ```
@@ -91,6 +104,7 @@ npm run build
 **Wichtige Docs für Entwickler:**
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — Mitwirkungs-Guide, Branching, Coding-Standards
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — System-Architektur, Scoring-Algorithmus, Datenfluss
+- [CLAUDE.md](./CLAUDE.md) — Vollständiger Projekt-Kontext für AI-Assistenten
 - [docs/](./docs/) — Wissenschaftliche Grundlagen
 
 ---
