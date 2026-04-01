@@ -22,9 +22,15 @@ let _db: Database.Database | null = null;
 export function getDb(): Database.Database {
   if (!_db) {
     const dbPath = path.join(process.cwd(), 'data', 'products.db');
-    _db = new Database(dbPath, { readonly: true });
+    _db = new Database(dbPath);
   }
   return _db;
+}
+
+export function updateNutriments(barcode: string, nutriments: OpenFoodFactsProduct['nutriments']): void {
+  getDb()
+    .prepare('UPDATE products SET nutriments = ? WHERE barcode = ?')
+    .run(JSON.stringify(nutriments), barcode);
 }
 
 export function rowToProduct(row: DbProductRow): OpenFoodFactsProduct {

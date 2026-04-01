@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getDb, rowToProduct, DbProductRow } from '@/lib/db';
+import { getDb, rowToProduct, updateNutriments, DbProductRow } from '@/lib/db';
 import { fetchProduct, isValidEan13 } from '@/lib/openfoodfacts';
 
 export async function GET(
@@ -27,10 +27,15 @@ export async function GET(
         Object.values(product.nutriments).some(v => v !== null && v !== undefined);
 
       if (!hasNutriments) {
-        // Local product has no nutriment data — enrich from OFf API
+        // Local product has no nutriment data — enrich from OFf API and cache
         const offResult = await fetchProduct(barcode);
         if (offResult.success && offResult.product.nutriments) {
           product.nutriments = offResult.product.nutriments;
+          try {
+            updateNutriments(barcode, offResult.product.nutriments);
+          } catch {
+            // Cache update is best-effort — don't fail the request
+          }
         }
       }
 
