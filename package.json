@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:clean": "rm -rf .next && next dev",
+    "db:build": "node scripts/build-db.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -15,6 +16,7 @@
   },
   "dependencies": {
     "@ericblade/quagga2": "^1.12.1",
+    "better-sqlite3": "^12.8.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.441.0",
@@ -26,11 +28,13 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.59.0",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.5.4",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
+    "csv-parse": "^6.2.1",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.15",
     "jsdom": "^29.0.1",
