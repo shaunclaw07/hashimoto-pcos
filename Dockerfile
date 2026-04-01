@@ -1,6 +1,8 @@
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
 WORKDIR /app
+# better-sqlite3 requires native compilation tools
+RUN apk add --no-cache python3 make g++
 COPY package*.json ./
 RUN npm ci
 
@@ -24,6 +26,9 @@ USER nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+
+# Copy local product database (build with: npm run db:build)
+COPY --from=builder --chown=nextjs:nodejs /app/data/products.db ./data/products.db
 
 EXPOSE 3000
 ENV PORT=3000

@@ -1,6 +1,7 @@
 version: '3.8'
 services:
   app:
+    # NOTE: Run 'npm run db:build' before building the image
     build: .
     ports:
       - "3000:3000"
