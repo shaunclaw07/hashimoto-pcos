@@ -21,7 +21,12 @@ test.describe('Ergebnisseite (/result/[barcode])', () => {
 
   test('score_badge_with_stars_displayed', async ({ page }) => {
     await page.goto(`/result/${VALID_BARCODE}`);
-    await expect(page.locator('.fill-current')).toBeVisible({ timeout: 20000 });
+    // Check for score label text instead of fragile CSS class
+    await expect(
+      page.getByText(/sehr gut|gut|neutral|weniger gut|vermeiden/i)
+    ).toBeVisible({ timeout: 20000 });
+    // Also verify star icons are rendered (5 stars in the rating)
+    await expect(page.locator('.fill-current')).toHaveCount(5, { timeout: 20000 });
   });
 
   test('score_breakdown_shows_bonus_malus', async ({ page }) => {

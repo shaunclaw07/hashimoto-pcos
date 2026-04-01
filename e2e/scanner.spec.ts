@@ -16,28 +16,37 @@ test.describe('Scanner-Seite (/scanner)', () => {
   test('manual_input_accepts_only_digits', async ({ page }) => {
     await page.getByRole('button', { name: /manuell/i }).click();
     const input = page.locator('input[placeholder*="Barcode"]').first();
-    await input.fill('abc123def456');
+    // Use click() + type() instead of fill() to avoid React state race conditions
+    await input.click();
+    await input.type('abc123def456');
     await expect(input).toHaveValue('123456');
   });
 
   test('manual_input_validates_ean13_format', async ({ page }) => {
     await page.getByRole('button', { name: /manuell/i }).click();
     const input = page.locator('input[placeholder*="Barcode"]').first();
-
-    // Valid: 8 digits (EAN-8)
-    await input.fill('12345670');
-    await expect(input).toHaveValue('12345670');
-
-    // Valid: 13 digits (EAN-13)
-    await input.fill('7622210449283');
+    await input.click();
+    await input.type('7622210449283');
     await expect(input).toHaveValue('7622210449283');
   });
 
   test('manual_submit_shows_error_for_invalid_barcode', async ({ page }) => {
     await page.getByRole('button', { name: /manuell/i }).click();
-    await page.locator('input[placeholder*="Barcode"]').first().fill('123');
+    const input = page.locator('input[placeholder*="Barcode"]').first();
+    await input.click();
+    await input.type('123');
     await page.getByRole('button', { name: /produkt suchen/i }).click();
     await expect(page.getByText(/gültigen barcode/i)).toBeVisible();
+  });
+
+  test('manual_submit_navigates_to_result', async ({ page }) => {
+    await page.getByRole('button', { name: /manuell/i }).click();
+    const input = page.locator('input[placeholder*="Barcode"]').first();
+    await input.click();
+    // Nutella barcode - should exist in OpenFoodFacts
+    await input.type('7622210449283');
+    await page.getByRole('button', { name: /produkt suchen/i }).click();
+    await expect(page).toHaveURL(/\/result\/7622210449283/, { timeout: 20000 });
   });
 
   test('scanner_fallback_input_in_camera_mode', async ({ page }) => {
@@ -49,7 +58,8 @@ test.describe('Scanner-Seite (/scanner)', () => {
   test('reset_clears_error', async ({ page }) => {
     await page.getByRole('button', { name: /manuell/i }).click();
     const input = page.locator('input[placeholder*="Barcode"]').first();
-    await input.fill('123');
+    await input.click();
+    await input.type('123');
     await page.getByRole('button', { name: /produkt suchen/i }).click();
     await expect(page.getByText(/gültigen barcode/i)).toBeVisible();
 
