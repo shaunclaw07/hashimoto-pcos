@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { Search, Loader2, PackageX } from "lucide-react";
+import { Search, Loader2, PackageX, ServerCrash } from "lucide-react";
 import { calculateScore, ScoreResult } from "@/lib/scoring";
 import Link from "next/link";
 
@@ -30,7 +30,7 @@ interface SearchResult {
   page: number;
 }
 
-const SEARCH_URL = "https://de.openfoodfacts.org/cgi/search.pl";
+const SEARCH_URL = "/api/openfoodfacts/search";
 
 async function searchProducts(
   query: string,
@@ -54,6 +54,11 @@ async function searchProducts(
   }
 
   const response = await fetch(`${SEARCH_URL}?${params}`);
+
+  if (response.status === 503) {
+    throw new Error("SERVER_BUSY");
+  }
+
   const data = await response.json();
 
   const products: SearchProduct[] = (data.products || []).map(
@@ -88,6 +93,7 @@ export default function LebensmittelPage() {
   const [results, setResults] = useState<SearchProduct[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [serverBusy, setServerBusy] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
@@ -99,6 +105,7 @@ export default function LebensmittelPage() {
 
     setIsLoading(true);
     setSearched(true);
+    setServerBusy(false);
     setPage(newPage);
 
     try {
@@ -110,8 +117,12 @@ export default function LebensmittelPage() {
       }
       setHasMore(result.products.length === 20);
       setTotalCount(result.count);
-    } catch {
-      setResults([]);
+    } catch (err) {
+      const isServerBusy =
+        (err instanceof Error && err.message === "SERVER_BUSY") ||
+        (err instanceof TypeError && err.message.includes("fetch"));
+      if (isServerBusy) setServerBusy(true);
+      if (newPage === 1) setResults([]);
     } finally {
       setIsLoading(false);
     }
@@ -140,6 +151,7 @@ export default function LebensmittelPage() {
     setPage(1);
     setHasMore(false);
     setTotalCount(0);
+    setServerBusy(false);
   }
 
   return (
@@ -209,6 +221,19 @@ export default function LebensmittelPage() {
           )}
         </div>
       </form>
+
+      {/* Server Busy Banner */}
+      {serverBusy && (
+        <div className="mb-5 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300">
+          <ServerCrash className="mt-0.5 h-5 w-5 shrink-0" />
+          <div>
+            <p className="font-semibold text-sm">Server momentan überlastet</p>
+            <p className="text-sm leading-relaxed">
+              OpenFoodFacts ist gerade nicht erreichbar (503). Bitte versuche es in wenigen Sekunden erneut.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Results Count */}
       {searched && !isLoading && totalCount > 0 && (

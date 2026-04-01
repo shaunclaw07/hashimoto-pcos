@@ -9,6 +9,14 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/openfoodfacts/search',
+        destination: 'https://world.openfoodfacts.org/cgi/search.pl',
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
