@@ -230,9 +230,11 @@ npm run test:e2e   # Playwright E2E — auto-starts dev server
 2. Branch: `feat/issue-{N}-{description}` or `fix/issue-{N}-{description}`
 3. Write tests first
 4. Implement
-5. Run `npm run test:run && npm run lint && npm run build`
-6. Open PR referencing the issue (`Closes #N`)
-7. Squash-merge after ≥ 1 approval
+5. Run `npm run test:run && npm run lint && npm run build` — all must pass
+6. Run `npm run test:e2e` — all E2E tests must pass
+7. **Never push if any test is failing**
+8. Open PR referencing the issue (`Closes #N`)
+9. Squash-merge after ≥ 1 approval
 
 **Commit format:** Conventional Commits
 ```
