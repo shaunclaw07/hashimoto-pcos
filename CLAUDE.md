@@ -41,7 +41,7 @@ docker compose up           # Start existing image
 
 ```
 Browser
-  └── Next.js 14 App Router (TypeScript)
+  └── Next.js 16 App Router (TypeScript)
         ├── /                       → Landing page (server component)
         ├── /scanner                → Barcode scanner (camera + manual input)
         ├── /lebensmittel           → Product search with infinite scroll
@@ -127,7 +127,7 @@ Final score is **clamped to [1.0, 5.0]** and mapped to labels:
 | ≥ 1.5 | 2 | WENIGER GUT |
 | < 1.5 | 1 | VERMEIDEN |
 
-Tailwind custom colors for labels: `score.sehr_gut`, `score.gut`, `score.neutral`, `score.weniger_gut`, `score.vermeiden` (see `tailwind.config.ts`).
+Tailwind custom colors for labels: `score-very-good`, `score-good`, `score-neutral`, `score-fair`, `score-avoid` (defined in `globals.css` via `@theme`).
 
 ---
 
@@ -190,7 +190,7 @@ Always pattern-match on `result.success` before accessing `result.product`.
 ## Testing
 
 ### Unit Tests (Vitest)
-- **Framework:** Vitest 2.x + jsdom (browser DOM simulation)
+- **Framework:** Vitest 4.x + jsdom (browser DOM simulation)
 - **Location:** `src/lib/__tests__/*.test.ts`
 - **What's tested:** Scoring algorithm and OpenFoodFacts API client (pure logic)
 - **Mocking:** `vi.fn()` for `fetch`; no real network calls in tests

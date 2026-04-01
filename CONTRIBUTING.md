@@ -14,11 +14,16 @@ cd hashimoto-pcos
 # Dependencies installieren
 npm install
 
+# Lokale Produktdatenbank aufbauen (einmalig, CSV vorher herunterladen)
+# CSV: https://world.openfoodfacts.org/data → en.openfoodfacts.org.products.csv
+npm run db:build
+
 # Development-Server starten
 npm run dev
 
 # Tests ausführen
-npm run test:run
+npm run test:run      # Vitest Unit-Tests
+npm run test:e2e      # Playwright E2E-Tests
 ```
 
 Öffne [http://localhost:3000](http://localhost:3000) im Browser.
@@ -29,12 +34,14 @@ npm run test:run
 
 | Bereich | Technologie |
 |---------|-------------|
-| Framework | Next.js 14 (App Router) |
-| Sprache | TypeScript |
-| Styling | Tailwind CSS |
-| Testing | Vitest + React Testing Library |
+| Framework | Next.js 16 (App Router) |
+| Sprache | TypeScript 6 |
+| Runtime | React 19 |
+| Styling | Tailwind CSS v4 (CSS-first) |
+| Unit-Tests | Vitest 4.x |
+| E2E-Tests | Playwright 1.x |
 | Barcode-Scanner | QuaggaJS2 |
-| Lebensmittel-Daten | OpenFoodFacts API |
+| Lebensmittel-Daten | SQLite (lokal) + OpenFoodFacts API (Fallback) |
 
 ---
 
@@ -134,16 +141,19 @@ const MAX_RETRY_ATTEMPTS = 3;
 
 ### Testing
 
-- **Unit-Tests** für alle Business-Logik (z.B. `scoring.ts`)
-- **Component-Tests** für UI-Komponenten
-- Testdateien im selben Verzeichnis: `__tests__/meinfeature.test.ts`
+- **Unit-Tests** für alle Business-Logik (z.B. `scoring.ts`, `openfoodfacts.ts`)
+- **E2E-Tests** mit Playwright für UI-Flows (`e2e/*.spec.ts`)
+- Unit-Testdateien unter `src/lib/__tests__/*.test.ts`
 
 ```bash
 # Einzelne Test-Datei
-npm run test:run src/lib/__tests__/scoring.test.ts
+npm run test:run -- src/lib/__tests__/scoring.test.ts
 
 # Watch mode während Entwicklung
 npm run test
+
+# E2E Tests
+npm run test:e2e
 ```
 
 ---

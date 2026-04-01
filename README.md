@@ -23,7 +23,7 @@ Dieses Projekt hilft Frauen, die sowohl an Hashimoto als auch an PCOS leiden, di
 ```
 hashimoto-pcos/
 ├── src/
-│   ├── app/                        # Next.js 14 App Router Seiten
+│   ├── app/                        # Next.js 16 App Router Seiten
 │   │   ├── page.tsx                # Landing Page
 │   │   ├── scanner/page.tsx        # Barcode-Scanner
 │   │   ├── lebensmittel/           # Produktsuche
@@ -86,6 +86,7 @@ Die Recherche basiert auf folgenden Quellen:
 | MVP-Entwicklung | ✅ Abgeschlossen |
 | E2E-Tests | ✅ Abgeschlossen |
 | Lokale SQLite-DB | ✅ Abgeschlossen |
+| Tailwind v4 Migration | ✅ Abgeschlossen |
 | Beta-Release | 🔄 In Planung |
 
 ---
