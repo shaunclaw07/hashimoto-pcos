@@ -19,11 +19,7 @@ test.describe('localStorage / Persistence', () => {
     expect(storage).toContain(vermeiden.barcode);
   });
 
-  test('multiple_products_can_be_saved', async ({ page, context }) => {
-    await context.addInitScript(() => {
-      localStorage.setItem('hashimoto-pcos-saved-products', JSON.stringify({}));
-    });
-
+  test('multiple_products_can_be_saved', async ({ page }) => {
     await mockProductApi(page, vermeiden.barcode, vermeiden);
     await page.goto(`/result/${vermeiden.barcode}`);
     await page.getByRole('button', { name: /speichern/i }).click();

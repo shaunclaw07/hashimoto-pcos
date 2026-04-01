@@ -12,12 +12,12 @@ test.describe('Startseite (/)', () => {
   test('feature_cards_render', async ({ page }) => {
     await expect(page.getByText('Barcode scannen')).toBeVisible();
     await expect(page.getByText('Lebensmittel suchen')).toBeVisible();
-    await expect(page.getByText('Wissenschaftlich fundiert')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Wissenschaftlich fundiert' })).toBeVisible();
   });
 
   test('score_legend_shows_all_5_levels', async ({ page }) => {
     await expect(page.getByText('Sehr gut')).toBeVisible();
-    await expect(page.getByText('Gut')).toBeVisible();
+    await expect(page.getByText('Gut', { exact: true })).toBeVisible();
     await expect(page.getByText('Neutral')).toBeVisible();
     await expect(page.getByText('Weniger gut')).toBeVisible();
     await expect(page.getByText('Vermeiden')).toBeVisible();

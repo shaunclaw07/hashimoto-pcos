@@ -15,7 +15,7 @@ test.describe('Scanner-Seite (/scanner)', () => {
 
   test('manual_input_accepts_only_digits', async ({ page }) => {
     await page.getByRole('button', { name: /manuell/i }).click();
-    const input = page.locator('input[placeholder*="Barcode"]').first();
+    const input = page.getByRole('textbox');
     // Use click() + type() instead of fill() to avoid React state race conditions
     await input.click();
     await input.type('abc123def456');
@@ -24,7 +24,7 @@ test.describe('Scanner-Seite (/scanner)', () => {
 
   test('manual_input_validates_ean13_format', async ({ page }) => {
     await page.getByRole('button', { name: /manuell/i }).click();
-    const input = page.locator('input[placeholder*="Barcode"]').first();
+    const input = page.getByRole('textbox');
     await input.click();
     await input.type('7622210449283');
     await expect(input).toHaveValue('7622210449283');
@@ -32,7 +32,7 @@ test.describe('Scanner-Seite (/scanner)', () => {
 
   test('manual_submit_shows_error_for_invalid_barcode', async ({ page }) => {
     await page.getByRole('button', { name: /manuell/i }).click();
-    const input = page.locator('input[placeholder*="Barcode"]').first();
+    const input = page.getByRole('textbox');
     await input.click();
     await input.type('123');
     await page.getByRole('button', { name: /produkt suchen/i }).click();
@@ -41,7 +41,7 @@ test.describe('Scanner-Seite (/scanner)', () => {
 
   test('manual_submit_navigates_to_result', async ({ page }) => {
     await page.getByRole('button', { name: /manuell/i }).click();
-    const input = page.locator('input[placeholder*="Barcode"]').first();
+    const input = page.getByRole('textbox');
     await input.click();
     // Nutella barcode - should exist in OpenFoodFacts
     await input.type('7622210449283');
@@ -57,7 +57,7 @@ test.describe('Scanner-Seite (/scanner)', () => {
 
   test('reset_clears_error', async ({ page }) => {
     await page.getByRole('button', { name: /manuell/i }).click();
-    const input = page.locator('input[placeholder*="Barcode"]').first();
+    const input = page.getByRole('textbox');
     await input.click();
     await input.type('123');
     await page.getByRole('button', { name: /produkt suchen/i }).click();

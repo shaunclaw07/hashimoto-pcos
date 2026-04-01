@@ -138,7 +138,6 @@ export function ScoreCard({ product, scoreResult, onRescan, onSave, saved }: Sco
         {onSave && (
           <button
             onClick={onSave}
-            disabled={saved}
             className={`flex flex-1 items-center justify-center gap-2.5 rounded-xl px-5 py-4 text-base font-medium transition-all touch-target ${
               saved
                 ? "bg-green-100 border border-green-200 text-green-700 cursor-default"
