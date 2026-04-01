@@ -23,23 +23,31 @@ Dieses Projekt hilft Frauen, die sowohl an Hashimoto als auch an PCOS leiden, di
 ```
 hashimoto-pcos/
 ├── src/
-│   ├── app/                    # Next.js 14 App Router Seiten
-│   │   ├── page.tsx            # Landing Page
-│   │   ├── scanner/page.tsx    # Barcode-Scanner
-│   │   ├── lebensmittel/       # Produktsuche
-│   │   └── result/[barcode]/   # Produktdetail + Score
-│   ├── components/              # React Components
-│   │   ├── Scanner.tsx         # QuaggaJS2 Barcode-Scanner
-│   │   ├── ScoreCard.tsx      # Bewertungsanzeige
-│   │   └── bottom-nav.tsx     # Navigation
+│   ├── app/                        # Next.js 14 App Router Seiten
+│   │   ├── page.tsx                # Landing Page
+│   │   ├── scanner/page.tsx        # Barcode-Scanner
+│   │   ├── lebensmittel/           # Produktsuche
+│   │   ├── result/[barcode]/       # Produktdetail + Score
+│   │   └── api/products/           # Next.js API Routes
+│   │       ├── [barcode]/route.ts  # Barcode-Lookup (SQLite → OFf)
+│   │       └── search/route.ts     # Volltextsuche (SQLite FTS5 → OFf)
+│   ├── components/                  # React Components
+│   │   ├── Scanner.tsx             # QuaggaJS2 Barcode-Scanner
+│   │   ├── ScoreCard.tsx          # Bewertungsanzeige
+│   │   └── bottom-nav.tsx         # Navigation
 │   └── lib/
-│       ├── openfoodfacts.ts   # OpenFoodFacts API-Client
-│       ├── scoring.ts          # Bewertungsalgorithmus
-│       └── utils.ts            # Helfer (cn())
-├── e2e/                        # Playwright E2E Tests (9 Specs)
-├── docs/recherche/             # Wissenschaftliche Grundlagen
-├── k8s/                        # Kubernetes Manifests
-└── .github/workflows/          # CI/CD Pipelines
+│       ├── db.ts                   # SQLite-Singleton + Mapper
+│       ├── openfoodfacts.ts        # OpenFoodFacts API-Client (Fallback)
+│       ├── scoring.ts              # Bewertungsalgorithmus
+│       └── utils.ts                # Helfer (cn())
+├── data/
+│   └── products.db                 # Lokale SQLite-DB (via npm run db:build)
+├── scripts/
+│   └── build-db.mjs               # CSV → SQLite Konvertierskript
+├── e2e/                            # Playwright E2E Tests (9 Specs)
+├── docs/recherche/                 # Wissenschaftliche Grundlagen
+├── k8s/                            # Kubernetes Manifests
+└── .github/workflows/              # CI/CD Pipelines
 ```
 
 ---
@@ -74,6 +82,7 @@ Die Recherche basiert auf folgenden Quellen:
 | Recherche | ✅ Abgeschlossen |
 | MVP-Entwicklung | ✅ Abgeschlossen |
 | E2E-Tests | ✅ Abgeschlossen |
+| Lokale SQLite-DB | ✅ Abgeschlossen |
 | Beta-Release | 🔄 In Planung |
 
 ---
@@ -88,8 +97,15 @@ cd hashimoto-pcos
 # Dependencies installieren
 npm install
 
+# Lokale Produktdatenbank aufbauen (einmalig, CSV vorher herunterladen)
+# CSV: https://world.openfoodfacts.org/data → en.openfoodfacts.org.products.csv
+npm run db:build                          # CSV im Projektverzeichnis erwartet
+# oder mit explizitem Pfad:
+node scripts/build-db.mjs /pfad/zur/csv
+
 # Development-Server starten
-npm run dev
+npm run dev           # Port 3000 (oder 3001 falls belegt)
+npm run dev:clean     # .next-Cache löschen und neu starten
 
 # Tests ausführen
 npm run test:run       # Vitest Unit-Tests
@@ -100,6 +116,8 @@ npm run test:e2e:ui    # Playwright mit interaktiver UI
 npm run lint
 npm run build
 ```
+
+> **Hinweis:** Ohne `data/products.db` fällt die App automatisch auf die OpenFoodFacts-API zurück. Die lokale DB ist optional, wird aber für zuverlässige Performance empfohlen.
 
 **Wichtige Docs für Entwickler:**
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — Mitwirkungs-Guide, Branching, Coding-Standards
@@ -114,16 +132,21 @@ npm run build
 ### Docker
 
 ```bash
-# Mit Docker Compose starten
-docker-compose up -d
+# Lokale DB aufbauen (Voraussetzung!)
+npm run db:build
+
+# Mit Docker Compose bauen und starten
+docker compose up --build -d
 
 # Container-Logs anzeigen
-docker-compose logs -f
+docker compose logs -f
 
-# Produktions-Build
+# Oder manuell
 docker build -t hashimoto-pcos .
 docker run -p 3000:3000 hashimoto-pcos
 ```
+
+> **Wichtig:** `npm run db:build` muss **vor** dem Docker-Build ausgeführt werden. Das `data/products.db`-File wird beim Build-Schritt in das Image kopiert.
 
 ### Kubernetes
 
@@ -157,4 +180,4 @@ Pull Requests sollten [.github/pull_request_template.md](.github/pull_request_te
 
 ---
 
-*Letzte Aktualisierung: 2026-03-30*
+*Letzte Aktualisierung: 2026-04-01*

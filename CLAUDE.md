@@ -6,7 +6,8 @@ A **nutrition guidance web app** for women with Hashimoto-Thyreoiditis and PCOS.
 
 - **Target users:** Women with Hashimoto and/or PCOS (German-speaking)
 - **UI language:** German (all user-facing strings are in German)
-- **No backend server, no database** — purely client-side Next.js consuming the public OpenFoodFacts REST API
+- **Local SQLite database** (`data/products.db`) with 460k+ DACH products as primary data source; OpenFoodFacts REST API as fallback
+- **Next.js API routes** serve product data server-side (`/api/products/[barcode]`, `/api/products/search`)
 - **Persistence:** Browser `localStorage` only (saved favorites)
 - **No authentication** — fully public app
 
@@ -16,6 +17,7 @@ A **nutrition guidance web app** for women with Hashimoto-Thyreoiditis and PCOS.
 
 ```bash
 npm run dev         # Start dev server on localhost:3000
+npm run dev:clean   # Delete .next cache and start fresh
 npm run build       # Production build (outputs standalone)
 npm start           # Run production build
 npm run lint        # ESLint (next lint)
@@ -23,12 +25,14 @@ npm run test        # Vitest in watch mode
 npm run test:run    # Vitest single run (use in CI / before commits)
 npm run test:e2e    # Playwright E2E tests (auto-starts dev server)
 npm run test:e2e:ui # Playwright E2E with interactive UI
+npm run db:build    # Build local SQLite DB from OpenFoodFacts CSV
 ```
 
 Docker:
 ```bash
-docker compose up   # Run app in Docker on port 3000
-docker compose up --build   # Rebuild first
+npm run db:build            # Must run before docker build!
+docker compose up --build   # Build image (copies products.db) and start
+docker compose up           # Start existing image
 ```
 
 ---
@@ -37,18 +41,23 @@ docker compose up --build   # Rebuild first
 
 ```
 Browser
-  └── Next.js 14 App Router (TypeScript, SSR selectively)
-        ├── /                  → Landing page (server component)
-        ├── /scanner           → Barcode scanner (camera + manual input)
-        ├── /lebensmittel      → Product search with infinite scroll
-        └── /result/[barcode]  → Product detail + score + save
-              │
-              ├── src/lib/openfoodfacts.ts  — API client (fetch, type-safe)
-              ├── src/lib/scoring.ts         — Scoring algorithm (pure functions)
-              └── src/lib/utils.ts           — cn() classname helper
+  └── Next.js 14 App Router (TypeScript)
+        ├── /                       → Landing page (server component)
+        ├── /scanner                → Barcode scanner (camera + manual input)
+        ├── /lebensmittel           → Product search with infinite scroll
+        └── /result/[barcode]       → Product detail + score + save
+              │  (calls via fetch)
+              └── API Routes (server-side)
+                    ├── /api/products/[barcode]  → SQLite lookup → OFf fallback
+                    └── /api/products/search     → FTS5 search  → OFf fallback
+                              │
+                              ├── src/lib/db.ts              — SQLite singleton (better-sqlite3)
+                              ├── src/lib/openfoodfacts.ts   — OFf API client (fallback only)
+                              ├── src/lib/scoring.ts         — Scoring algorithm (pure functions)
+                              └── data/products.db           — 460k+ DACH products (SQLite FTS5)
 ```
 
-**All pages use `"use client"`.** There are no Next.js API routes (`route.ts`). All data fetching happens client-side via the native `fetch` API.
+**Data flow:** Client pages call local API routes → API routes query SQLite first → fall back to OpenFoodFacts REST API if not found locally. No direct client-to-external-API calls (eliminates CORS issues).
 
 ---
 
@@ -59,17 +68,22 @@ Browser
 | `src/app/layout.tsx` | Root layout: ThemeProvider, Inter font, BottomNav |
 | `src/app/page.tsx` | Landing page (server component) |
 | `src/app/scanner/page.tsx` | Scanner — dual mode: QuaggaJS camera & manual EAN-13 input |
-| `src/app/lebensmittel/page.tsx` | Search page — OpenFoodFacts search with category filters, Intersection Observer pagination |
-| `src/app/result/[barcode]/page.tsx` | Result page — fetches product, runs scoring, save to localStorage |
+| `src/app/lebensmittel/page.tsx` | Search page — calls `/api/products/search`, category filters, infinite scroll |
+| `src/app/result/[barcode]/page.tsx` | Result page — calls `/api/products/[barcode]`, runs scoring, save to localStorage |
+| `src/app/api/products/[barcode]/route.ts` | API Route: SQLite lookup → OpenFoodFacts fallback |
+| `src/app/api/products/search/route.ts` | API Route: FTS5 full-text search → OpenFoodFacts fallback |
 | `src/components/Scanner.tsx` | QuaggaJS2 wrapper; debounces duplicate scans (3 s) |
 | `src/components/ScoreCard.tsx` | Displays score badge, star rating, nutrition breakdown, action buttons |
 | `src/components/bottom-nav.tsx` | Fixed bottom navigation (3 routes) |
 | `src/components/theme-provider.tsx` | next-themes wrapper (light/dark/system) |
-| `src/lib/openfoodfacts.ts` | Fetch product by barcode, search by query/category; typed discriminated-union results |
+| `src/lib/db.ts` | SQLite singleton (`getDb()`), `DbProductRow` type, `rowToProduct()` mapper |
+| `src/lib/openfoodfacts.ts` | OFf API fallback client — `fetchProduct()`, types, barcode validation |
 | `src/lib/scoring.ts` | Core scoring algorithm — pure function `calculateScore(product)` |
 | `src/lib/utils.ts` | `cn()` — clsx + tailwind-merge |
 | `src/lib/__tests__/scoring.test.ts` | 47 scoring tests (real products + edge cases) |
 | `src/lib/__tests__/openfoodfacts.test.ts` | 12 API client tests (validation, fetch, errors) |
+| `scripts/build-db.mjs` | One-time script: OpenFoodFacts CSV → SQLite (DACH filter, FTS5) |
+| `data/products.db` | SQLite DB with ~462k DACH products (gitignored, build via `db:build`) |
 | `e2e/*.spec.ts` | Playwright E2E tests (9 specs, 40+ tests) |
 | `playwright.config.ts` | Playwright config — mobile viewport, auto dev-server |
 | `docs/recherche/` | Scientific research in German (4 files) |
@@ -114,15 +128,30 @@ Tailwind custom colors for labels: `score.sehr_gut`, `score.gut`, `score.neutral
 
 ---
 
-## External API — OpenFoodFacts
+## Local SQLite Database
+
+- **File:** `data/products.db` (gitignored — build with `npm run db:build`)
+- **Source:** OpenFoodFacts global CSV export (`en.openfoodfacts.org.products.csv`)
+- **Filter:** Only DACH products (`countries_tags` contains `en:germany`, `en:austria`, or `en:switzerland`) with valid EAN-13 barcodes
+- **Size:** ~260 MB, ~462k products
+- **Search:** SQLite FTS5 virtual table (`products_fts`) for fast full-text search on product name and brand
+- **Build time:** ~5–10 minutes for the full CSV (~4.4M rows)
+
+To rebuild after a fresh CSV download:
+```bash
+node scripts/build-db.mjs /path/to/en.openfoodfacts.org.products.csv
+```
+
+## External API — OpenFoodFacts (Fallback only)
 
 | Endpoint | URL |
 |----------|-----|
 | Product by barcode | `GET https://world.openfoodfacts.org/api/v0/product/{barcode}.json` |
-| Search | `GET https://de.openfoodfacts.org/cgi/search.pl?search_terms=...&json=1&page_size=20&...` |
+| Search | `GET https://world.openfoodfacts.org/cgi/search.pl?search_terms=...&json=1&page_size=20&...` |
 
+- Used only when the local SQLite DB has no result.
 - No API key required.
-- Product images proxied through Next.js image optimization (configured in `next.config.js`).
+- Called server-side from API routes (no CORS issues).
 - API responses use `status: 1` (found) / `status: 0` (not found).
 
 ---
@@ -235,13 +264,15 @@ docs(readme): update deployment instructions
 
 | Method | How |
 |--------|-----|
-| Local dev | `npm run dev` |
-| Docker | `docker compose up` |
-| Production Docker | `docker build . && docker run -p 3000:3000` |
+| Local dev | `npm run db:build && npm run dev` |
+| Docker | `npm run db:build && docker compose up --build` |
+| Production Docker | `npm run db:build && docker build . && docker run -p 3000:3000` |
 | Kubernetes | `kubectl apply -f k8s/` (image: `ghcr.io/shaunclaw07/hashimoto-pcos:latest`) |
 | CI/CD | GitHub Actions auto-builds and pushes on every push to `main` or tag `v*` |
 
-The Docker image uses **multi-stage build** (Node 20 Alpine), runs as **non-root user** (`nextjs`, uid 1001), and exposes port **3000**.
+**Important:** `npm run db:build` must run before any Docker build — the script produces `data/products.db` which is copied into the image. Without the DB file, the app falls back to the OpenFoodFacts API automatically.
+
+The Docker image uses **multi-stage build** (Node 20 Alpine + native build tools for `better-sqlite3`), runs as **non-root user** (`nextjs`, uid 1001), and exposes port **3000**.
 
 K8s HPA scales between **2–10 replicas** based on CPU (70%) and memory (80%).
 
@@ -259,8 +290,7 @@ No secrets or API keys required. The OpenFoodFacts API is fully public.
 
 ## What Does NOT Exist (Don't Add Without Discussion)
 
-- No backend API routes (`/api/*`)
-- No database (no Prisma, no Drizzle, no SQL)
+- No ORM (no Prisma, no Drizzle) — raw `better-sqlite3` only
 - No authentication (no NextAuth, no Clerk)
 - No Redux / Zustand / global state library
 - No i18n
