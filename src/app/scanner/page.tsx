@@ -127,7 +127,7 @@ export default function ScannerPage() {
             <input
               type="text"
               value={barcode}
-              onChange={(e) => setBarcode(e.target.value.replace(/\D/g, ""))}
+              onChange={(e) => { setBarcode(e.target.value.replace(/\D/g, "")); setError(null); }}
               placeholder="z.B. 7622210449283"
               className="w-full rounded-xl border border-border bg-background px-5 py-4 text-lg tracking-wider text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
               maxLength={13}
