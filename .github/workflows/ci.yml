@@ -20,13 +20,10 @@ jobs:
       - run: npm ci
 
       - run: npm run lint
-        continue-on-error: true
 
       - run: npm run build
-        continue-on-error: true
 
       - run: npm run test:run
-        continue-on-error: true
 
   e2e:
     runs-on: ubuntu-latest
