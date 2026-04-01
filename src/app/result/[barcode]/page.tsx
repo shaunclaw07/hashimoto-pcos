@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { ScoreCard } from "@/components/ScoreCard";
-import { fetchProduct } from "@/lib/openfoodfacts";
-import type { OpenFoodFactsProduct } from "@/lib/openfoodfacts";
+import type { FetchProductResult, OpenFoodFactsProduct } from "@/lib/openfoodfacts";
 import type { ScoreResult } from "@/lib/scoring";
 import { calculateScore } from "@/lib/scoring";
 import { AlertCircle, Loader2, PackageX } from "lucide-react";
@@ -48,7 +47,8 @@ export default function ResultPage() {
       setLoading(true);
       setError(null);
 
-      const result = await fetchProduct(barcode);
+      const response = await fetch(`/api/products/${barcode}`);
+      const result: FetchProductResult = await response.json();
 
       if (!result.success) {
         setError(
