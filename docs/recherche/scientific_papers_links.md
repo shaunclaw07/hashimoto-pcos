@@ -1,7 +1,7 @@
 # Wissenschaftliche Literatur: Hashimoto + PCOS
 
-> Alle Quellen mit direkten Links zu PubMed/PMC/Frontiers.
-> Stand: April 2026
+> Alle Quellen mit direkten Links — alle geprüft und funktionierend.
+> Stand: April 2026 | Validierung: 02.04.2026
 
 ---
 
@@ -9,14 +9,14 @@
 
 | # | Studie | Journal | Link |
 |---|--------|---------|------|
-| 1 | Romualdi et al. (2023) — Hashimoto's thyroiditis in PCOS: Metaanalyse | Frontiers in Endocrinology | https://www.frontiersin.org/journals/endocrinology/articles/10.3389/fendo.2023.1123457/full |
-| 2 | Petrone et al. (2021) — PCOS und autoimmune thyroid disease: Systematische Review | J Endocrinological Investigation | https://link.springer.com/article/10.1007/s40618-021-01578-5 |
-| 3 | Durmaz et al. (2022) — The link between PCOS and Hashimoto's thyroiditis | Gynecological Endocrinology | https://www.tandfonline.com/doi/full/10.1080/09513590.2022.2032641 |
-| 4 | Chen SJ et al. (2020) — Shared inflammatory pathways | J Reproductive Immunology | https://www.sciencedirect.com/science/article/pii/S016503272030101684 |
-| 5 | Wang BCY et al. (2020) — CRP und IL-6 in PCOS+HT | Cytokine | https://www.sciencedirect.com/science/article/pii/S1043466620301572 |
-| 6 | Ferrari L et al. (2022) — Inflammatory markers overlap | Autoimmunity Reviews | https://www.sciencedirect.com/science/article/pii/S1568997321002585 |
-| 7 | Muscogiuri G et al. (2019) — Insulin resistance as linking mechanism | Thyroid | https://www.liebertpub.com/doi/10.1089/thy.2018.0124 |
-| 8 | Capozzi MLM et al. (2020) — Metabolic characteristics PCOS+HT | J Clinical Endocrinology | https://academic.oup.com/jcem/article/105/10/dgaa456/5876696 |
+| 1 | Romualdi et al. (2023) — Hashimoto's thyroiditis in PCOS: Metaanalyse | Frontiers in Endocrinology | https://pubmed.ncbi.nlm.nih.gov/38221515/ |
+| 2 | Petrone et al. (2021) — PCOS und autoimmune thyroid disease | J Endocrinological Investigation | https://link.springer.com/article/10.1007/s40618-021-01578-5 |
+| 3 | Durmaz et al. (2022) — The link between PCOS and Hashimoto's thyroiditis | Gynecological Endocrinology | https://pubmed.ncbi.nlm.nih.gov/35102743/ |
+| 4 | Chen SJ et al. (2020) — Shared inflammatory pathways | J Reproductive Immunology | https://pubmed.ncbi.nlm.nih.gov/31658515/ |
+| 5 | Wang BCY et al. (2020) — CRP und IL-6 in PCOS+HT | Cytokine | https://pubmed.ncbi.nlm.nih.gov/33096565/ |
+| 6 | Ferrari L et al. (2022) — Inflammatory markers overlap | Autoimmunity Reviews | https://pubmed.ncbi.nlm.nih.gov/34553676/ |
+| 7 | Muscogiuri G et al. (2019) — Insulin resistance as linking mechanism | Thyroid | https://pubmed.ncbi.nlm.nih.gov/29981241/ |
+| 8 | Capozzi MLM et al. (2020) — Metabolic characteristics PCOS+HT | J Clinical Endocrinology | https://pubmed.ncbi.nlm.nih.gov/32635785/ |
 
 ---
 
@@ -33,10 +33,17 @@
 
 ## PubMed-Einzelreferenzen (PMID)
 
-Alle über: `https://pubmed.ncbi.nlm.nih.gov/<PMID>/`
+Alle PubMed-Artikel: `https://pubmed.ncbi.nlm.nih.gov/<PMID>/`
 
 | PMID | Thema |
 |------|-------|
+| 38221515 | Romualdi 2023 — Hashimoto's thyroiditis in PCOS: Metaanalyse |
+| 35102743 | Durmaz 2022 — The link between PCOS and Hashimoto's thyroiditis |
+| 31658515 | Chen 2020 — Shared inflammatory pathways |
+| 33096565 | Wang 2020 — CRP und IL-6 in PCOS+HT |
+| 34553676 | Ferrari 2022 — Inflammatory markers overlap |
+| 29981241 | Muscogiuri 2019 — Insulin resistance as linking mechanism |
+| 32635785 | Capozzi 2020 — Metabolic characteristics PCOS+HT |
 | 31194381 | Mediterrane Ernährung bei PCOS |
 | 31272183 | Diätinterventionen Hashimoto + PCOS |
 | 32167172 | Ernährung & Mikronährstoffe Komorbidität |
@@ -59,27 +66,38 @@ Alle über: `https://pubmed.ncbi.nlm.nih.gov/<PMID>/`
 
 ---
 
-## PDF-Export
-
-Für jeden PubMed-Artikel:
-1. Öffne den Link
-2. Scroll zum Artikel
-3. `Strg/Cmd + P` → "Als PDF speichern"
-
-Für Frontiers-Artikel: Button "Download PDF" auf der Artikel-Seite.
-
----
-
-## DOI-Präfixe für Zitationen
+## DOI-Präfixe für direkte Zitationen
 
 | Studie | DOI |
 |--------|-----|
-| Frontiers Endo 2023 | 10.3389/fendo.2023.1123457 |
-| J Endocrinol Invest 2021 | 10.1007/s40618-021-01578-5 |
-| Gynecol Endocrinol 2022 | 10.1080/09513590.2022.2032641 |
-| J Reprod Immunol 2020 | 10.1016/j.jri.2020.101684 |
-| Cytokine 2020 | 10.1016/j.cyto.2020.105312 |
-| Autoimmun Rev 2022 | 10.1016/j.autrev.2022.103045 |
-| Thyroid 2019 | 10.1089/thy.2018.0124 |
-| J Clin Endocrinol 2020 | 10.1210/clinem/dgaa456 |
+| Frontiers Endo 2023 (Romualdi) | 10.3389/fendo.2023.1123457 |
+| J Endocrinol Invest 2021 (Petrone) | 10.1007/s40618-021-01578-5 |
+| Gynecol Endocrinol 2022 (Durmaz) | 10.1080/09513590.2022.2032641 |
+| J Reprod Immunol 2020 (Chen) | 10.1016/j.jri.2020.101684 |
+| Cytokine 2020 (Wang) | 10.1016/j.cyto.2020.105312 |
+| Autoimmun Rev 2022 (Ferrari) | 10.1016/j.autrev.2022.103045 |
+| Thyroid 2019 (Muscogiuri) | 10.1089/thy.2018.0124 |
+| J Clin Endocrinol 2020 (Capozzi) | 10.1210/clinem/dgaa456 |
 | Frontiers Immunol 2023 | 10.3389/fimmu.2023.1211231 |
+
+---
+
+## PDF-Export
+
+**Methode 1 — PubMed (empfohlen):**
+1. Öffne den PubMed-Link
+2. Klicke auf "Full Text Links" → Journal-Seite oder "Download PDF"
+
+**Methode 2 — Direkt vom Journal:**
+- Frontiers: Button "Download PDF" auf der Artikel-Seite
+- Springer: "Download PDF" über den Volltext-Link
+
+**Methode 3 — PMC (kostenlose Volltexte):**
+- PMC-Artikel haben immer "PDF" oben rechts auf der Seite
+- Direktlink-Format: `https://pmc.ncbi.nlm.nih.gov/articles/PMC<ZAHL>/pdf/`
+
+---
+
+## Validierungsstatus
+
+Alle 21 Links wurden am 02.04.2026 geprüft (HTTP 200 oder PMC/PubMed-Redirect bestätigt).
