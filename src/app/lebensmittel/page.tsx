@@ -292,11 +292,11 @@ export default function LebensmittelPage() {
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 4.5) return "bg-score-sehr_gut";
-  if (score >= 3.5) return "bg-score-gut";
+  if (score >= 4.5) return "bg-score-very-good";
+  if (score >= 3.5) return "bg-score-good";
   if (score >= 2.5) return "bg-score-neutral";
-  if (score >= 1.5) return "bg-score-weniger_gut";
-  return "bg-score-vermeiden";
+  if (score >= 1.5) return "bg-score-fair";
+  return "bg-score-avoid";
 }
 
 function ProductCard({ product }: { product: SearchProduct }) {

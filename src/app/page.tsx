@@ -68,16 +68,16 @@ export default function HomePage() {
         <h2 className="mb-5 text-xl font-semibold">So funktioniert die Bewertung</h2>
         <div className="grid grid-cols-5 gap-3 text-center">
           <div className="flex flex-col items-center gap-2">
-            <div className="h-12 w-12 rounded-full bg-score-sehr_gut shadow-soft flex items-center justify-center">
+            <div className="h-12 w-12 rounded-full bg-score-very-good shadow-soft flex items-center justify-center">
               <span className="text-white text-lg">✓</span>
             </div>
-            <span className="text-sm font-medium text-score-sehr_gut">Sehr gut</span>
+            <span className="text-sm font-medium text-score-very-good">Sehr gut</span>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <div className="h-12 w-12 rounded-full bg-score-gut shadow-soft flex items-center justify-center">
+            <div className="h-12 w-12 rounded-full bg-score-good shadow-soft flex items-center justify-center">
               <span className="text-white text-lg">✓</span>
             </div>
-            <span className="text-sm font-medium text-score-gut">Gut</span>
+            <span className="text-sm font-medium text-score-good">Gut</span>
           </div>
           <div className="flex flex-col items-center gap-2">
             <div className="h-12 w-12 rounded-full bg-score-neutral shadow-soft flex items-center justify-center">
@@ -86,16 +86,16 @@ export default function HomePage() {
             <span className="text-sm font-medium text-score-neutral">Neutral</span>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <div className="h-12 w-12 rounded-full bg-score-weniger_gut shadow-soft flex items-center justify-center">
+            <div className="h-12 w-12 rounded-full bg-score-fair shadow-soft flex items-center justify-center">
               <span className="text-white text-lg">!</span>
             </div>
-            <span className="text-sm font-medium text-score-weniger_gut">Weniger gut</span>
+            <span className="text-sm font-medium text-score-fair">Weniger gut</span>
           </div>
           <div className="flex flex-col items-center gap-2">
-            <div className="h-12 w-12 rounded-full bg-score-vermeiden shadow-soft flex items-center justify-center">
+            <div className="h-12 w-12 rounded-full bg-score-avoid shadow-soft flex items-center justify-center">
               <span className="text-white text-lg">✗</span>
             </div>
-            <span className="text-sm font-medium text-score-vermeiden">Vermeiden</span>
+            <span className="text-sm font-medium text-score-avoid">Vermeiden</span>
           </div>
         </div>
       </section>
