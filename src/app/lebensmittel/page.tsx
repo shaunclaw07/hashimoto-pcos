@@ -30,7 +30,7 @@ interface SearchResult {
   page: number;
 }
 
-const SEARCH_URL = "/api/openfoodfacts/search";
+const SEARCH_URL = "/api/products/search";
 
 async function searchProducts(
   query: string,
