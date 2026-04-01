@@ -80,10 +80,13 @@ Browser
 | `src/lib/openfoodfacts.ts` | OFf API fallback client — `fetchProduct()`, types, barcode validation |
 | `src/lib/scoring.ts` | Core scoring algorithm — pure function `calculateScore(product)` |
 | `src/lib/utils.ts` | `cn()` — clsx + tailwind-merge |
-| `src/lib/__tests__/scoring.test.ts` | 47 scoring tests (real products + edge cases) |
+| `src/lib/__tests__/scoring.test.ts` | 39 scoring tests (edge cases + 5 real-product fixture tests) |
 | `src/lib/__tests__/openfoodfacts.test.ts` | 12 API client tests (validation, fetch, errors) |
 | `scripts/build-db.mjs` | One-time script: OpenFoodFacts CSV → SQLite (DACH filter, FTS5) |
+| `scripts/extract-fixtures.mjs` | Extracts 5 real products from `products.db` into JSON test fixtures |
 | `data/products.db` | SQLite DB with ~462k DACH products (gitignored, build via `db:build`) |
+| `tests/fixtures/products/*.json` | 5 real product fixtures (sehr-gut / gut / neutral / weniger-gut / vermeiden) |
+| `tests/helpers/mock-api.ts` | Playwright helpers: `mockProductApi`, `mockProductNotFound`, `mockSearchApi` |
 | `e2e/*.spec.ts` | Playwright E2E tests (9 specs, 40+ tests) |
 | `playwright.config.ts` | Playwright config — mobile viewport, auto dev-server |
 | `docs/recherche/` | Scientific research in German (4 files) |
@@ -197,7 +200,7 @@ Always pattern-match on `result.success` before accessing `result.product`.
 - **Location:** `e2e/*.spec.ts` (9 spec files, 40+ tests)
 - **Viewport:** Mobile-first (Pixel 5 / 375×812)
 - **Dev server:** Auto-started by `playwright.config.ts` webServer
-- **External API:** Tests use real OpenFoodFacts API (no mocking)
+- **API mocking:** `page.route()` intercepts `/api/products/*` — no real network calls; fixtures from `tests/fixtures/products/`
 
 **Test coverage:**
 | Spec | Area |

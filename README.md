@@ -44,6 +44,9 @@ hashimoto-pcos/
 │   └── products.db                 # Lokale SQLite-DB (via npm run db:build)
 ├── scripts/
 │   └── build-db.mjs               # CSV → SQLite Konvertierskript
+├── tests/
+│   ├── fixtures/products/          # 5 echte Produkt-Fixtures aus products.db
+│   └── helpers/mock-api.ts        # Playwright-Mocking-Hilfsfunktionen
 ├── e2e/                            # Playwright E2E Tests (9 Specs)
 ├── docs/recherche/                 # Wissenschaftliche Grundlagen
 ├── k8s/                            # Kubernetes Manifests
