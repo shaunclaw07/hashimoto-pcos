@@ -10,4 +10,22 @@ export default [
       "react-hooks/set-state-in-effect": "warn",
     },
   },
+  {
+    // Erzwingt: src/core/ darf NICHT aus infrastructure/ oder app/ importieren
+    files: ["src/core/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["**/infrastructure/**", "**/app/**", "better-sqlite3", "next/*"],
+              message:
+                "core/ darf keine Abhängigkeiten zu infrastructure/, app/ oder Framework-Packages haben.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ];
