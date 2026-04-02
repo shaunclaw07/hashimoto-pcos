@@ -43,3 +43,6 @@ data/products.db
 
 # OpenFoodFacts CSV export (too large for git)
 *.csv
+
+# Git worktrees
+.worktrees/
