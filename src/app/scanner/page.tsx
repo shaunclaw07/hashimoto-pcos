@@ -23,12 +23,10 @@ export default function ScannerPage() {
     setError(null);
 
     try {
-      const response = await fetch(
-        `https://world.openfoodfacts.org/api/v0/product/${code}.json`
-      );
-      const data = await response.json();
+      const response = await fetch(`/api/products/${code}`);
+      const result: { success: boolean } = await response.json();
 
-      if (data.status === 0) {
+      if (!result.success) {
         setError("Produkt nicht gefunden. Bitte überprüfe den Barcode.");
       } else {
         router.push(`/result/${code}`);
