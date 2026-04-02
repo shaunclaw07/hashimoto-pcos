@@ -1,11 +1,11 @@
 "use client";
 
 import { Star, RotateCcw, Save, Check, AlertTriangle } from "lucide-react";
-import type { OpenFoodFactsProduct } from "@/lib/openfoodfacts";
-import type { ScoreResult } from "@/lib/scoring";
+import type { Product } from "@/core/domain/product";
+import type { ScoreResult } from "@/core/domain/score";
 
 interface ScoreCardProps {
-  product: OpenFoodFactsProduct;
+  product: Product;
   scoreResult: ScoreResult;
   onRescan: () => void;
   onSave?: () => void;
@@ -13,11 +13,41 @@ interface ScoreCardProps {
 }
 
 const SCORE_CONFIG = {
-  "SEHR GUT": { color: "#22c55e", bgColor: "bg-green-50", textColor: "text-green-700", stars: 5, borderColor: "border-green-200" },
-  "GUT": { color: "#84cc16", bgColor: "bg-lime-50", textColor: "text-lime-700", stars: 4, borderColor: "border-lime-200" },
-  "NEUTRAL": { color: "#eab308", bgColor: "bg-yellow-50", textColor: "text-yellow-700", stars: 3, borderColor: "border-yellow-200" },
-  "WENIGER GUT": { color: "#f97316", bgColor: "bg-orange-50", textColor: "text-orange-700", stars: 2, borderColor: "border-orange-200" },
-  "VERMEIDEN": { color: "#ef4444", bgColor: "bg-red-50", textColor: "text-red-700", stars: 1, borderColor: "border-red-200" },
+  "SEHR GUT": {
+    color: "#22c55e",
+    bgColor: "bg-green-50",
+    textColor: "text-green-700",
+    stars: 5,
+    borderColor: "border-green-200",
+  },
+  GUT: {
+    color: "#84cc16",
+    bgColor: "bg-lime-50",
+    textColor: "text-lime-700",
+    stars: 4,
+    borderColor: "border-lime-200",
+  },
+  NEUTRAL: {
+    color: "#eab308",
+    bgColor: "bg-yellow-50",
+    textColor: "text-yellow-700",
+    stars: 3,
+    borderColor: "border-yellow-200",
+  },
+  "WENIGER GUT": {
+    color: "#f97316",
+    bgColor: "bg-orange-50",
+    textColor: "text-orange-700",
+    stars: 2,
+    borderColor: "border-orange-200",
+  },
+  VERMEIDEN: {
+    color: "#ef4444",
+    bgColor: "bg-red-50",
+    textColor: "text-red-700",
+    stars: 1,
+    borderColor: "border-red-200",
+  },
 } as const;
 
 function StarRating({ stars, color }: { stars: number; color: string }) {
@@ -34,18 +64,24 @@ function StarRating({ stars, color }: { stars: number; color: string }) {
   );
 }
 
-export function ScoreCard({ product, scoreResult, onRescan, onSave, saved }: ScoreCardProps) {
+export function ScoreCard({
+  product,
+  scoreResult,
+  onRescan,
+  onSave,
+  saved,
+}: ScoreCardProps) {
   const config = SCORE_CONFIG[scoreResult.label];
-  const nutriments = product.nutriments || {};
+  const n = product.nutriments;
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
       {/* Product Header */}
       <div className="flex gap-4 p-5">
-        {product.image_url || product.image_front_url ? (
+        {product.imageUrl ? (
           <img
-            src={product.image_front_url || product.image_url || ""}
-            alt={product.product_name || "Produkt"}
+            src={product.imageUrl}
+            alt={product.name || "Produkt"}
             className="h-28 w-28 shrink-0 rounded-xl object-contain bg-background-warm p-2"
           />
         ) : (
@@ -55,16 +91,20 @@ export function ScoreCard({ product, scoreResult, onRescan, onSave, saved }: Sco
         )}
         <div className="flex flex-col justify-center min-w-0 flex-1">
           <h2 className="font-bold text-xl leading-tight truncate text-foreground">
-            {product.product_name || "Unbekanntes Produkt"}
+            {product.name || "Unbekanntes Produkt"}
           </h2>
-          {product.brands && (
-            <p className="text-base text-muted-foreground truncate mt-1">{product.brands}</p>
+          {product.brand && (
+            <p className="text-base text-muted-foreground truncate mt-1">
+              {product.brand}
+            </p>
           )}
         </div>
       </div>
 
       {/* Score Badge */}
-      <div className={`${config.bgColor} ${config.borderColor} border-t px-5 py-8 text-center`}>
+      <div
+        className={`${config.bgColor} ${config.borderColor} border-t px-5 py-8 text-center`}
+      >
         <StarRating stars={config.stars} color={config.color} />
         <div className="mt-3 flex items-center justify-center gap-3">
           <span
@@ -82,12 +122,20 @@ export function ScoreCard({ product, scoreResult, onRescan, onSave, saved }: Sco
       {/* Bonus/Malus Breakdown */}
       {scoreResult.breakdown.length > 0 && (
         <div className="border-t border-border px-5 py-5">
-          <h3 className="mb-4 text-base font-semibold text-foreground">Bewertungsgründe</h3>
+          <h3 className="mb-4 text-base font-semibold text-foreground">
+            Bewertungsgründe
+          </h3>
           <div className="space-y-3">
             {scoreResult.breakdown.map((item, i) => (
               <div key={i} className="flex items-center gap-3 text-base">
-                <span className={item.points >= 0 ? "text-green-600" : "text-red-500"}>
-                  {item.points >= 0 ? <Check className="h-5 w-5" /> : <AlertTriangle className="h-5 w-5" />}
+                <span
+                  className={item.points >= 0 ? "text-green-600" : "text-red-500"}
+                >
+                  {item.points >= 0 ? (
+                    <Check className="h-5 w-5" />
+                  ) : (
+                    <AlertTriangle className="h-5 w-5" />
+                  )}
                 </span>
                 <span className="flex-1 text-foreground">{item.reason}</span>
                 <span
@@ -106,23 +154,17 @@ export function ScoreCard({ product, scoreResult, onRescan, onSave, saved }: Sco
 
       {/* Nutritional Info */}
       <div className="border-t border-border px-5 py-5">
-        <h3 className="mb-4 text-base font-semibold text-foreground">Nährwerte (pro 100g)</h3>
+        <h3 className="mb-4 text-base font-semibold text-foreground">
+          Nährwerte (pro 100g)
+        </h3>
         <div className="grid grid-cols-2 gap-3 text-base">
-          <NutrientRow
-            label="Energie"
-            value={nutriments["energy-kcal_100g"]}
-            unit="kcal"
-          />
-          <NutrientRow label="Fett" value={nutriments.fat_100g} unit="g" />
-          <NutrientRow
-            label="davon gesättigt"
-            value={nutriments["saturated-fat_100g"]}
-            unit="g"
-          />
-          <NutrientRow label="Zucker" value={nutriments.sugars_100g} unit="g" />
-          <NutrientRow label="Ballaststoffe" value={nutriments.fiber_100g} unit="g" />
-          <NutrientRow label="Protein" value={nutriments.proteins_100g} unit="g" />
-          <NutrientRow label="Salz" value={nutriments.salt_100g} unit="g" />
+          <NutrientRow label="Energie" value={n.energyKcal} unit="kcal" />
+          <NutrientRow label="Fett" value={n.fat} unit="g" />
+          <NutrientRow label="davon gesättigt" value={n.saturatedFat} unit="g" />
+          <NutrientRow label="Zucker" value={n.sugars} unit="g" />
+          <NutrientRow label="Ballaststoffe" value={n.fiber} unit="g" />
+          <NutrientRow label="Protein" value={n.protein} unit="g" />
+          <NutrientRow label="Salz" value={n.salt} unit="g" />
         </div>
       </div>
 
