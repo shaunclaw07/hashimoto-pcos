@@ -39,29 +39,71 @@ docker compose up           # Start existing image
 
 ## Architecture
 
+The app uses **Hexagonal Architecture (Ports & Adapters)**. Dependencies always point inward — `core/` has zero framework dependencies.
+
 ```
 Browser
-  └── Next.js 16 App Router (TypeScript)
-        ├── /                       → Landing page (server component)
-        ├── /scanner                → Barcode scanner (camera + manual input)
-        ├── /lebensmittel           → Product search with infinite scroll
-        └── /result/[barcode]       → Product detail + score + save
+  └── Next.js 16 App Router  (Presentation Layer)
+        ├── /                        → Landing page (server component)
+        ├── /scanner                 → Barcode scanner (camera + manual input)
+        ├── /lebensmittel            → Product search with infinite scroll
+        └── /result/[barcode]        → Product detail + score + save
               │  (calls via fetch)
-              └── API Routes (server-side)
-                    ├── /api/products/[barcode]  → SQLite lookup → OFf fallback
-                    └── /api/products/search     → FTS5 search  → OFf fallback
-                              │
-                              ├── src/lib/db.ts              — SQLite singleton (better-sqlite3)
-                              ├── src/lib/openfoodfacts.ts   — OFf API client (fallback only)
-                              ├── src/lib/scoring.ts         — Scoring algorithm (pure functions)
-                              └── data/products.db           — 460k+ DACH products (SQLite FTS5)
+              └── API Routes (thin — delegate to use cases)
+                    ├── /api/products/[barcode]  → GetProductUseCase
+                    └── /api/products/search     → SearchProductsUseCase
+
+  infrastructure/  (implements ports)
+    ├── sqlite/sqlite-product-repository.ts   — primary (better-sqlite3)
+    ├── openfoodfacts/off-api-adapter.ts      — fallback (OFf REST API)
+    ├── storage/local-storage-favorites.ts   — client-side persistence
+    └── container.ts                          — factory functions (no DI framework)
+
+  core/  (pure TypeScript — ZERO framework dependencies)
+    ├── domain/       — Product, Nutriments, ScoreResult, SearchQuery …
+    ├── ports/        — IProductRepository, IFavoritesRepository, IAIAnalysisService
+    ├── services/     — calculateScore(), isValidEan13()  (pure functions)
+    └── use-cases/    — GetProductUseCase, SearchProductsUseCase, ManageFavoritesUseCase
 ```
 
-**Data flow:** Client pages call local API routes → API routes query SQLite first → fall back to OpenFoodFacts REST API if not found locally. No direct client-to-external-API calls (eliminates CORS issues).
+**Golden rule:** No file in `src/core/**` may import from `infrastructure/`, `app/`, or any framework package (`next/*`, `better-sqlite3`). ESLint enforces this via `no-restricted-imports` in `eslint.config.mjs` — violations are errors, not warnings.
+
+**Data flow:** Client pages → `/api/products/` routes → Use Case → `SqliteProductRepository` (primary) → `OffApiAdapter` (fallback). No direct client-to-external-API calls (eliminates CORS issues).
 
 ---
 
 ## Codebase Map
+
+### Core (pure TypeScript — zero framework dependencies)
+
+| Path | Purpose |
+|------|---------|
+| `src/core/domain/product.ts` | `Product`, `Nutriments`, `SearchQuery`, `SearchResult` types |
+| `src/core/domain/score.ts` | `ScoreResult`, `ScoreLabel`, `ScoreBreakdownItem` types |
+| `src/core/domain/user-profile.ts` | `UserProfile`, `Condition` types (Phase 2) |
+| `src/core/ports/product-repository.ts` | `IProductRepository` interface: `findByBarcode`, `search`, `updateNutriments` |
+| `src/core/ports/favorites-repository.ts` | `IFavoritesRepository` interface + `SavedProduct` type |
+| `src/core/ports/ai-analysis-service.ts` | `IAIAnalysisService` interface (Phase 2) |
+| `src/core/services/scoring-service.ts` | `calculateScore(product, profile?)` — pure function |
+| `src/core/services/barcode-service.ts` | `isValidEan13(barcode)` — pure function |
+| `src/core/use-cases/get-product.ts` | `GetProductUseCase` — validate → primary → fallback → enrich |
+| `src/core/use-cases/search-products.ts` | `SearchProductsUseCase` — primary → fallback |
+| `src/core/use-cases/manage-favorites.ts` | `ManageFavoritesUseCase` — save/remove/list |
+
+### Infrastructure (implements ports)
+
+| Path | Purpose |
+|------|---------|
+| `src/infrastructure/sqlite/sqlite-client.ts` | `getDb()` singleton, `DbProductRow` type |
+| `src/infrastructure/sqlite/sqlite-mappers.ts` | DB row → domain `Product` mapper |
+| `src/infrastructure/sqlite/sqlite-product-repository.ts` | `SqliteProductRepository` — implements `IProductRepository` (primary) |
+| `src/infrastructure/openfoodfacts/off-types.ts` | Internal OFf API response types |
+| `src/infrastructure/openfoodfacts/off-mappers.ts` | OFf API response → domain `Product` mapper |
+| `src/infrastructure/openfoodfacts/off-api-adapter.ts` | `OffApiAdapter` — implements `IProductRepository` (fallback) |
+| `src/infrastructure/storage/local-storage-favorites.ts` | `LocalStorageFavoritesRepository` — implements `IFavoritesRepository` |
+| `src/infrastructure/container.ts` | Factory functions: `makePrimaryProductRepository()`, `makeFallbackProductRepository()` |
+
+### Presentation (Next.js App Router + React)
 
 | Path | Purpose |
 |------|---------|
@@ -70,22 +112,28 @@ Browser
 | `src/app/scanner/page.tsx` | Scanner — dual mode: QuaggaJS camera & manual EAN-13 input |
 | `src/app/lebensmittel/page.tsx` | Search page — calls `/api/products/search`, category filters, infinite scroll |
 | `src/app/result/[barcode]/page.tsx` | Result page — calls `/api/products/[barcode]`, runs scoring, save to localStorage |
-| `src/app/api/products/[barcode]/route.ts` | API Route: SQLite lookup → OpenFoodFacts fallback |
-| `src/app/api/products/search/route.ts` | API Route: FTS5 full-text search → OpenFoodFacts fallback |
+| `src/app/api/products/[barcode]/route.ts` | API Route: delegates to `GetProductUseCase` |
+| `src/app/api/products/search/route.ts` | API Route: delegates to `SearchProductsUseCase` |
 | `src/components/Scanner.tsx` | QuaggaJS2 wrapper; debounces duplicate scans (3 s) |
 | `src/components/ScoreCard.tsx` | Displays score badge, star rating, nutrition breakdown, action buttons |
 | `src/components/bottom-nav.tsx` | Fixed bottom navigation (3 routes) |
 | `src/components/theme-provider.tsx` | next-themes wrapper (light/dark/system) |
-| `src/lib/db.ts` | SQLite singleton (`getDb()`), `DbProductRow` type, `rowToProduct()` mapper, `updateNutriments()` cache writer |
-| `src/lib/openfoodfacts.ts` | OFf API fallback client — `fetchProduct()`, types, barcode validation |
-| `src/lib/scoring.ts` | Core scoring algorithm — pure function `calculateScore(product)` |
 | `src/lib/utils.ts` | `cn()` — clsx + tailwind-merge |
-| `src/lib/__tests__/scoring.test.ts` | 39 scoring tests (edge cases + 5 real-product fixture tests) |
-| `src/lib/__tests__/openfoodfacts.test.ts` | 12 API client tests (validation, fetch, errors) |
+
+### Tests & Scripts
+
+| Path | Purpose |
+|------|---------|
+| `src/core/services/scoring-service.test.ts` | Scoring algorithm tests (27 cases) |
+| `src/core/services/barcode-service.test.ts` | EAN-13 validation tests |
+| `src/core/use-cases/get-product.test.ts` | GetProductUseCase tests (fake repositories) |
+| `src/core/use-cases/search-products.test.ts` | SearchProductsUseCase tests |
+| `src/core/use-cases/manage-favorites.test.ts` | ManageFavoritesUseCase tests |
+| `src/infrastructure/openfoodfacts/off-api-adapter.test.ts` | OFf adapter tests (mocked fetch) |
 | `scripts/build-db.mjs` | One-time script: OpenFoodFacts CSV → SQLite (DACH filter, FTS5) |
 | `scripts/extract-fixtures.mjs` | Extracts 5 real products from `products.db` into JSON test fixtures |
 | `data/products.db` | SQLite DB with ~462k DACH products (gitignored, build via `db:build`) |
-| `tests/fixtures/products/*.json` | 5 real product fixtures (sehr-gut / gut / neutral / weniger-gut / vermeiden) |
+| `tests/fixtures/products/*.json` | 5 real product fixtures in domain format (sehr-gut / gut / neutral / weniger-gut / vermeiden) |
 | `tests/helpers/mock-api.ts` | Playwright helpers: `mockProductApi`, `mockProductNotFound`, `mockSearchApi` |
 | `e2e/*.spec.ts` | Playwright E2E tests (9 specs, 40+ tests) |
 | `playwright.config.ts` | Playwright config — mobile viewport, auto dev-server |
@@ -96,7 +144,7 @@ Browser
 
 ---
 
-## Scoring Algorithm (`src/lib/scoring.ts`)
+## Scoring Algorithm (`src/core/services/scoring-service.ts`)
 
 **Base score: 3.0** — adjusted by nutritional content per 100 g:
 
@@ -168,18 +216,20 @@ node scripts/build-db.mjs /path/to/en.openfoodfacts.org.products.csv
 **Error handling** uses discriminated unions — no thrown exceptions:
 
 ```typescript
-type FetchProductResult =
-  | { success: true; product: OpenFoodFactsProduct }
-  | { success: false; error: FetchProductError };
+// Example from GetProductUseCase (src/core/use-cases/get-product.ts)
+type GetProductResult =
+  | { success: true; product: Product }
+  | { success: false; error: GetProductError };
 
-type FetchProductError =
+type GetProductError =
   | { type: "invalid_barcode"; message: string }
   | { type: "not_found"; message: string }
-  | { type: "network_error"; message: string }
-  | { type: "unknown_error"; message: string };
+  | { type: "network_error"; message: string };
 ```
 
 Always pattern-match on `result.success` before accessing `result.product`.
+
+**Domain types** live in `src/core/domain/` and are used throughout the app — `Product`, `Nutriments`, `ScoreResult`, `SearchQuery`, `SearchResult`. Never use raw OFf API types (`OpenFoodFactsProduct`) in UI components or use cases — convert at the infrastructure boundary using mappers.
 
 **Path alias:** `@/` → `src/` (configured in `tsconfig.json`).
 
@@ -191,9 +241,12 @@ Always pattern-match on `result.success` before accessing `result.product`.
 
 ### Unit Tests (Vitest)
 - **Framework:** Vitest 4.x + jsdom (browser DOM simulation)
-- **Location:** `src/lib/__tests__/*.test.ts`
-- **What's tested:** Scoring algorithm and OpenFoodFacts API client (pure logic)
-- **Mocking:** `vi.fn()` for `fetch`; no real network calls in tests
+- **Locations:**
+  - `src/core/services/*.test.ts` — pure function tests (scoring, barcode validation)
+  - `src/core/use-cases/*.test.ts` — use case tests with in-memory fake repositories
+  - `src/infrastructure/openfoodfacts/off-api-adapter.test.ts` — OFf adapter with mocked fetch
+- **Strategy:** `core/` tests use no mocks (pure functions). Use case tests use fake in-memory `IProductRepository` implementations. Infrastructure tests use `vi.fn()` for `fetch`.
+- **No real network calls** in any unit test
 
 ### E2E Tests (Playwright)
 - **Framework:** Playwright 1.x (`@playwright/test`)
@@ -202,7 +255,17 @@ Always pattern-match on `result.success` before accessing `result.product`.
 - **Dev server:** Auto-started by `playwright.config.ts` webServer
 - **API mocking:** `page.route()` intercepts `/api/products/*` — no real network calls; fixtures from `tests/fixtures/products/`
 
-**Test coverage:**
+**Unit test coverage:**
+| File | Area |
+|------|------|
+| `src/core/services/scoring-service.test.ts` | `calculateScore()` — all bonus/malus rules + edge cases |
+| `src/core/services/barcode-service.test.ts` | `isValidEan13()` — valid/invalid EAN-13 |
+| `src/core/use-cases/get-product.test.ts` | `GetProductUseCase` — primary, fallback, enrichment, errors |
+| `src/core/use-cases/search-products.test.ts` | `SearchProductsUseCase` — primary, fallback |
+| `src/core/use-cases/manage-favorites.test.ts` | `ManageFavoritesUseCase` — save/remove/list/isSaved |
+| `src/infrastructure/openfoodfacts/off-api-adapter.test.ts` | `OffApiAdapter` — fetch, mapping, errors |
+
+**E2E test coverage:**
 | Spec | Area |
 |------|------|
 | `navigation.spec.ts` | Routing, BottomNav |
@@ -215,7 +278,7 @@ Always pattern-match on `result.success` before accessing `result.product`.
 | `theme.spec.ts` | Dark mode (system-only; tests skipped — no UI toggle) |
 | `localstorage.spec.ts` | Save/remove/persist products |
 
-Write tests before implementation (TDD). All lib code must have full test coverage.
+Write tests before implementation (TDD). All `core/` code must have full test coverage.
 
 ```bash
 npm run test:run   # Vitest — must pass before creating a PR

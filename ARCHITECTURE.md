@@ -11,39 +11,144 @@ Das Hashimoto-PCOS Ernährungs-Tool ist eine **Next.js 16** Web-App mit:
 
 ---
 
-## Systemarchitektur
+## Hexagonale Architektur (Ports & Adapters)
+
+Die App folgt dem **Hexagonal Architecture Pattern**. Abhängigkeiten zeigen immer nach innen:
 
 ```
-┌─────────────┐     ┌──────────────────────┐     ┌─────────────────────┐
-│  Browser    │────▶│  Next.js 16 App      │────▶│  OpenFoodFacts API  │
-│  (Client)   │◀────│  (API Routes)        │◀────│  (Fallback only)    │
-└─────────────┘     └──────────────────────┘     └─────────────────────┘
-                              │
-                              ▼
-                    ┌──────────────────────┐
-                    │  SQLite (products.db) │
-                    │  462k+ DACH-Produkte  │
-                    │  FTS5 Volltextsuche   │
-                    └──────────────────────┘
+presentation/ → infrastructure/ → core/
 ```
 
-**Datenfluss:** Client-Seiten rufen lokale API-Routes auf → API-Routes fragen SQLite zuerst → Fallback auf OpenFoodFacts REST API wenn nicht lokal gefunden. Keine direkten Client-zu-API-Aufrufe (kein CORS).
+`core/` kennt weder `infrastructure/` noch `presentation/`. Diese Regel wird per ESLint erzwungen.
+
+```
+┌─────────────────────────────────────────────────────┐
+│  presentation/  (Next.js App Router + React)         │
+│  src/app/api/   src/app/*/page.tsx   src/components/ │
+└───────────────────────┬─────────────────────────────┘
+                        │ importiert
+┌───────────────────────▼─────────────────────────────┐
+│  infrastructure/  (Implementierungen der Ports)       │
+│  sqlite/   openfoodfacts/   storage/   container.ts  │
+└───────────────────────┬─────────────────────────────┘
+                        │ implementiert
+┌───────────────────────▼─────────────────────────────┐
+│  core/  (reines TypeScript — ZERO Framework-Deps)    │
+│  domain/   ports/   services/   use-cases/           │
+└─────────────────────────────────────────────────────┘
+```
+
+**Goldene Regel:** Kein Import in `src/core/**` darf auf `infrastructure/`, `app/` oder Framework-Packages (`next/*`, `better-sqlite3`) zeigen. ESLint meldet Verstöße als Fehler.
 
 ---
 
-## Tech-Stack
+## Verzeichnisstruktur
 
-| Komponente | Technologie | Version |
-|------------|-------------|---------|
-| Framework | Next.js | ^16.2.2 |
-| Sprache | TypeScript | ^6.0.2 |
-| Runtime | React | ^19.0.4 |
-| Styling | Tailwind CSS | ^4.2.2 (CSS-first) |
-| Datenbank | better-sqlite3 | ^12.8.0 |
-| Unit-Tests | Vitest | ^4.1.2 |
-| E2E-Tests | Playwright | ^1.59.0 |
-| Barcode-Scanner | QuaggaJS2 | ^1.12.1 |
-| Icons | Lucide React | ^1.7.0 |
+```
+src/
+  core/                              ← ZERO Framework-Abhängigkeiten
+    domain/
+      product.ts                     ← Product, Nutriments, SearchQuery, SearchResult
+      score.ts                       ← ScoreResult, ScoreLabel, ScoreBreakdownItem
+      user-profile.ts                ← UserProfile, Condition (Phase 2)
+    services/
+      scoring-service.ts             ← calculateScore(product, profile?) — pure function
+      barcode-service.ts             ← isValidEan13() — pure function
+    ports/
+      product-repository.ts          ← IProductRepository Interface
+      favorites-repository.ts        ← IFavoritesRepository Interface + SavedProduct
+      ai-analysis-service.ts         ← IAIAnalysisService Interface (Phase 2)
+    use-cases/
+      get-product.ts                 ← GetProductUseCase
+      search-products.ts             ← SearchProductsUseCase
+      manage-favorites.ts            ← ManageFavoritesUseCase
+
+  infrastructure/                    ← Implementierungen der Ports
+    sqlite/
+      sqlite-client.ts               ← getDb() Singleton + DbProductRow
+      sqlite-mappers.ts              ← DbRow → Product Domain-Modell
+      sqlite-product-repository.ts   ← implements IProductRepository
+    openfoodfacts/
+      off-types.ts                   ← Interne OFf-Typen (nicht nach außen)
+      off-mappers.ts                 ← OFf API-Response → Product Domain-Modell
+      off-api-adapter.ts             ← implements IProductRepository (Fallback)
+    storage/
+      local-storage-favorites.ts     ← implements IFavoritesRepository
+    container.ts                     ← Factory-Funktionen (kein DI-Framework)
+
+  app/                               ← Next.js App Router (Presentation)
+    api/products/[barcode]/route.ts  ← Dünn: delegiert an GetProductUseCase
+    api/products/search/route.ts     ← Dünn: delegiert an SearchProductsUseCase
+    page.tsx / scanner/ / lebensmittel/ / result/[barcode]/
+
+  components/
+    ScoreCard.tsx                    ← Akzeptiert Product + ScoreResult (Domain-Typen)
+    Scanner.tsx                      ← QuaggaJS2 Kamera-Integration
+    bottom-nav.tsx
+    theme-provider.tsx
+
+  lib/
+    utils.ts                         ← cn() (clsx + tailwind-merge)
+```
+
+---
+
+## Domain-Modell
+
+### `core/domain/product.ts`
+
+Eigenes Domain-Modell — unabhängig von der OpenFoodFacts API. Alle Nährwert-Felder in **camelCase**, keine `_100g`-Suffixe.
+
+```typescript
+export interface Product {
+  barcode: string
+  name: string
+  brand?: string
+  imageUrl?: string
+  nutriments: Nutriments    // camelCase: fiber, sugars, saturatedFat, protein, salt …
+  labels: string[]          // z.B. ["gluten-free", "organic"]
+  ingredients: string
+  categories: string[]
+  additives: string[]       // E-Nummern, z.B. ["en:e330"]
+}
+```
+
+### `core/domain/score.ts`
+
+```typescript
+export interface ScoreResult {
+  score: number             // 1.0–5.0
+  stars: 1 | 2 | 3 | 4 | 5
+  label: ScoreLabel
+  breakdown: ScoreBreakdownItem[]
+  bonuses: number
+  maluses: number
+}
+```
+
+---
+
+## Ports (Interfaces)
+
+| Interface | Datei | Methoden |
+|-----------|-------|---------|
+| `IProductRepository` | `core/ports/product-repository.ts` | `findByBarcode`, `search`, `updateNutriments` |
+| `IFavoritesRepository` | `core/ports/favorites-repository.ts` | `getAll`, `save`, `remove`, `isSaved` |
+| `IAIAnalysisService` | `core/ports/ai-analysis-service.ts` | `analyzeImage` (Phase 2) |
+
+---
+
+## DI-Container (`infrastructure/container.ts`)
+
+Kein Framework — einfache Factory-Funktionen:
+
+```typescript
+makePrimaryProductRepository()  → SqliteProductRepository
+makeFallbackProductRepository() → OffApiAdapter
+makeFavoritesRepository()       → LocalStorageFavoritesRepository  // client-only
+```
+
+API-Routen und Use Cases werden hier verdrahtet.
 
 ---
 
@@ -63,17 +168,22 @@ User scannt Barcode
 └─────────┬──────────┘
           │ fetch /api/products/[barcode]
           ▼
-┌────────────────────┐     ┌──────────────────┐
-│  API Route         │────▶│  SQLite lookup   │  (primär)
-│  [barcode]/route   │     └──────────────────┘
-└─────────┬──────────┘     ┌──────────────────┐
-          │ (Fallback)      │  OFf API fetch   │  (wenn SQLite kein Ergebnis)
-          └───────────────▶│  + DB-Enrichment │
-                           └──────────────────┘
-          │ ProductData
+┌────────────────────┐
+│  API Route (dünn)  │  new GetProductUseCase(primary, fallback)
+└─────────┬──────────┘
+          │
+          ▼
+┌────────────────────────────────────────────────────┐
+│  GetProductUseCase                                  │
+│  1. isValidEan13() prüfen                           │
+│  2. primaryRepo.findByBarcode() → SqliteRepo        │
+│  3. Falls null: fallbackRepo.findByBarcode() → OFf  │
+│  4. Falls keine Nährwerte: anreichern + cachen      │
+└─────────┬──────────────────────────────────────────┘
+          │ Product (Domain-Typ)
           ▼
 ┌────────────────────┐
-│    scoring.ts      │  (pure function, client-side)
+│  calculateScore()  │  core/services/scoring-service.ts
 └─────────┬──────────┘
           │ ScoreResult
           ▼
@@ -84,7 +194,7 @@ User scannt Barcode
 
 ---
 
-## Scoring-Algorithmus (`src/lib/scoring.ts`)
+## Scoring-Algorithmus (`core/services/scoring-service.ts`)
 
 **Basiswert: 3.0** — angepasst nach Nährwerten pro 100 g:
 
@@ -93,16 +203,16 @@ User scannt Barcode
 | Ballaststoffe > 6 g | +1.0 |
 | Ballaststoffe > 3 g | +0.5 |
 | Protein > 20 g | +0.5 |
-| Omega-3 im Label | +1.0 |
+| Omega-3 im Label/Kategorie | +1.0 |
 | Glutenfrei-Label | +0.5 |
-| Bio-Label | +0.5 |
+| Bio/Organic-Label | +0.5 |
 | Zucker > 20 g | −2.0 |
 | Zucker > 10 g | −1.0 |
 | Gesättigte Fettsäuren > 10 g | −1.0 |
 | Salz > 2,5 g | −1.0 |
 | Salz > 1,5 g | −0.5 |
 | Gluten in Zutaten | −0.5 |
-| Laktose in Zutaten | −0.3 |
+| Milch/Laktose in Zutaten | −0.3 |
 | > 5 Zusatzstoffe (E-Nummern) | −0.5 |
 
 Endwert wird auf **[1.0, 5.0] geclampt** und auf Labels gemappt:
@@ -117,12 +227,51 @@ Endwert wird auf **[1.0, 5.0] geclampt** und auf Labels gemappt:
 
 ---
 
+## API-Routes (Presentation Layer — dünn)
+
+### `GET /api/products/[barcode]`
+
+Delegiert an `GetProductUseCase`. Gibt zurück:
+- `{ success: true, product: Product }` — HTTP 200
+- `{ success: false, error: { type: "invalid_barcode" } }` — HTTP 400
+- `{ success: false, error: { type: "not_found" } }` — HTTP 404
+
+### `GET /api/products/search?search_terms=...&tag_0=...&page=...&page_size=...`
+
+Delegiert an `SearchProductsUseCase`. Gibt zurück:
+- `{ products: Product[], count: number, page: number }`
+
+---
+
+## Testing-Strategie
+
+| Layer | Typ | Tool | Strategie |
+|-------|-----|------|-----------|
+| `core/domain/` | Unit | — | Pure types — kein Test nötig |
+| `core/services/` | Unit | Vitest | Pure functions — direkt testbar, kein Mock |
+| `core/use-cases/` | Unit | Vitest | Fake-Repository (in-memory `IProductRepository`) |
+| `infrastructure/sqlite/` | Integration | — | Via E2E (kein Test-DB-Setup nötig) |
+| `infrastructure/openfoodfacts/` | Unit | Vitest | `vi.fn()` für fetch |
+| `presentation/` | E2E | Playwright | `page.route()` mockt API |
+
+**Test-Dateien:**
+```
+src/core/services/barcode-service.test.ts
+src/core/services/scoring-service.test.ts
+src/core/use-cases/get-product.test.ts
+src/core/use-cases/search-products.test.ts
+src/core/use-cases/manage-favorites.test.ts
+src/infrastructure/openfoodfacts/off-api-adapter.test.ts
+e2e/*.spec.ts
+```
+
+---
+
 ## Styling — Tailwind CSS v4 (CSS-first)
 
 Kein `tailwind.config.ts` — alle Theme-Tokens sind direkt in `src/app/globals.css` via `@theme` definiert:
 
 ```css
-/* globals.css */
 @import "tailwindcss";
 
 @theme {
@@ -131,51 +280,10 @@ Kein `tailwind.config.ts` — alle Theme-Tokens sind direkt in `src/app/globals.
   --color-score-neutral:   #eab308;
   --color-score-fair:      #f97316;
   --color-score-avoid:     #ef4444;
-  /* ... weitere Tokens */
 }
 ```
 
 Dark Mode wird über CSS-Variablen und `@custom-variant dark` gesteuert.
-
----
-
-## Komponenten-Architektur
-
-### Page Components (App Router)
-
-| Route | Komponente | Beschreibung |
-|-------|------------|--------------|
-| `/` | `page.tsx` | Landing Page (Server Component) |
-| `/scanner` | `scanner/page.tsx` | Barcode-Scanner (Kamera + Manuelleingabe) |
-| `/lebensmittel` | `lebensmittel/page.tsx` | Produktsuche, Kategorie-Filter, Infinite Scroll |
-| `/result/[barcode]` | `result/[barcode]/page.tsx` | Produktdetail + Score + Favorit |
-
-### Shared Components
-
-| Komponente | Verzeichnis | Beschreibung |
-|------------|-------------|--------------|
-| `ScoreCard` | `components/` | Score-Badge, Sterne, Nährwert-Breakdown, Aktionsbuttons |
-| `Scanner` | `components/` | QuaggaJS2 Kamera-Integration (3 s Deduplizierung) |
-| `BottomNav` | `components/` | Fixe Bottom-Navigation (3 Routen) |
-| `ThemeProvider` | `components/` | next-themes Wrapper |
-
----
-
-## API-Routes (Server-side)
-
-### `GET /api/products/[barcode]`
-
-1. SQLite-Lookup per EAN-13
-2. Falls gefunden, aber ohne Nährwerte → OFf-API anfragen + DB-Update (`UPDATE products SET nutriments = ?`)
-3. Falls nicht in SQLite → OFf-API Vollabfrage
-4. 404 wenn nirgendwo gefunden
-
-### `GET /api/products/search?q=...&category=...&page=...`
-
-1. FTS5 Volltextsuche auf `products_fts` (Name + Marke)
-2. Optionaler Kategorie-Filter
-3. Pagination (20 Ergebnisse/Seite)
-4. Fallback auf OFf-Suchendpoint wenn SQLite leer
 
 ---
 
@@ -191,27 +299,8 @@ Dark Mode wird über CSS-Variablen und `@custom-variant dark` gesteuert.
 | Nährwertabdeckung | ~10% ab CSV, wächst mit Nutzung |
 
 ```bash
-# DB einmalig aufbauen (CSV vorher herunterladen)
 node scripts/build-db.mjs /pfad/zur/en.openfoodfacts.org.products.csv
 ```
-
----
-
-## Testing-Strategie
-
-### Unit Tests (`src/lib/__tests__/`)
-
-- **Framework:** Vitest 4.x + jsdom
-- `scoring.test.ts` — 39 Tests: Algorithmus-Logik + 5 reale Produkt-Fixtures
-- `openfoodfacts.test.ts` — 12 Tests: Validierung, Fetch, Fehlerbehandlung
-- Kein echtes Netzwerk — `vi.fn()` für `fetch`
-
-### E2E Tests (`e2e/*.spec.ts`)
-
-- **Framework:** Playwright 1.x, Mobile-Viewport (Pixel 5 / 375×812)
-- Dev-Server wird automatisch gestartet
-- API-Mocking via `page.route()` — keine echten Netzwerkaufrufe
-- 9 Spec-Dateien, 40+ Tests
 
 ---
 
@@ -220,21 +309,19 @@ node scripts/build-db.mjs /pfad/zur/en.openfoodfacts.org.products.csv
 ### Docker
 
 ```bash
-npm run db:build                   # Voraussetzung!
-docker compose up --build -d       # Build + Start
-docker compose logs -f
+npm run db:build
+docker compose up --build -d
 ```
 
 Multi-Stage Build (Node 20 Alpine), läuft als Non-Root-User (`nextjs`, uid 1001), Port 3000.
 
 ### Kubernetes
 
-```bash
-kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/hpa.yaml
-```
-
 HPA skaliert zwischen **2–10 Replicas** (CPU 70% / Memory 80%).
+
+```bash
+kubectl apply -f k8s/
+```
 
 ### CI/CD (GitHub Actions)
 
@@ -243,4 +330,4 @@ HPA skaliert zwischen **2–10 Replicas** (CPU 70% / Memory 80%).
 
 ---
 
-*Letzte Aktualisierung: 2026-04-01*
+*Letzte Aktualisierung: 2026-04-02*

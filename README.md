@@ -20,37 +20,41 @@ Dieses Projekt hilft Frauen, die sowohl an Hashimoto als auch an PCOS leiden, di
 
 ## Projektstruktur
 
+Das Projekt folgt **Hexagonaler Architektur (Ports & Adapters)**. Abhängigkeiten zeigen immer nach innen: `presentation/ → infrastructure/ → core/`. `core/` hat null Framework-Abhängigkeiten.
+
 ```
 hashimoto-pcos/
 ├── src/
-│   ├── app/                        # Next.js 16 App Router Seiten
-│   │   ├── page.tsx                # Landing Page
-│   │   ├── scanner/page.tsx        # Barcode-Scanner
-│   │   ├── lebensmittel/           # Produktsuche
-│   │   ├── result/[barcode]/       # Produktdetail + Score
-│   │   └── api/products/           # Next.js API Routes
-│   │       ├── [barcode]/route.ts  # Barcode-Lookup (SQLite → OFf)
-│   │       └── search/route.ts     # Volltextsuche (SQLite FTS5 → OFf)
-│   ├── components/                  # React Components
-│   │   ├── Scanner.tsx             # QuaggaJS2 Barcode-Scanner
-│   │   ├── ScoreCard.tsx          # Bewertungsanzeige
-│   │   └── bottom-nav.tsx         # Navigation
+│   ├── core/                        # ZERO Framework-Dependencies
+│   │   ├── domain/                  # Datentypen: Product, ScoreResult, UserProfile
+│   │   ├── ports/                   # Interfaces: IProductRepository, IFavoritesRepository
+│   │   ├── services/                # Pure functions: calculateScore, isValidEan13
+│   │   └── use-cases/               # Orchestrierung: GetProductUseCase, SearchProductsUseCase
+│   ├── infrastructure/              # Implementierungen der Ports
+│   │   ├── sqlite/                  # SQLite-Adapter (client, mappers, repository)
+│   │   ├── openfoodfacts/           # OFf API-Adapter (types, mappers, adapter)
+│   │   ├── storage/                 # LocalStorage-Adapter für Favoriten
+│   │   └── container.ts             # Factory-Funktionen (kein DI-Framework)
+│   ├── app/                         # Next.js App Router (Presentation Layer)
+│   │   ├── page.tsx                 # Landing Page
+│   │   ├── scanner/page.tsx         # Barcode-Scanner
+│   │   ├── lebensmittel/page.tsx    # Produktsuche
+│   │   ├── result/[barcode]/        # Produktdetail + Score
+│   │   └── api/products/            # Schlanke API-Routes (delegieren an Use Cases)
+│   ├── components/                  # React-Komponenten (ScoreCard, Scanner, BottomNav)
 │   └── lib/
-│       ├── db.ts                   # SQLite-Singleton + Mapper
-│       ├── openfoodfacts.ts        # OpenFoodFacts API-Client (Fallback)
-│       ├── scoring.ts              # Bewertungsalgorithmus
-│       └── utils.ts                # Helfer (cn())
+│       └── utils.ts                 # cn() Hilfsfunktion
 ├── data/
-│   └── products.db                 # Lokale SQLite-DB (via npm run db:build)
+│   └── products.db                  # Lokale SQLite-DB (via npm run db:build)
 ├── scripts/
-│   └── build-db.mjs               # CSV → SQLite Konvertierskript
+│   └── build-db.mjs                 # CSV → SQLite Konvertierskript
 ├── tests/
-│   ├── fixtures/products/          # 5 echte Produkt-Fixtures aus products.db
-│   └── helpers/mock-api.ts        # Playwright-Mocking-Hilfsfunktionen
-├── e2e/                            # Playwright E2E Tests (9 Specs)
-├── docs/recherche/                 # Wissenschaftliche Grundlagen
-├── k8s/                            # Kubernetes Manifests
-└── .github/workflows/              # CI/CD Pipelines
+│   ├── fixtures/products/           # 5 Produkt-Fixtures (Domain-Format)
+│   └── helpers/mock-api.ts          # Playwright-Mock-Hilfsfunktionen
+├── e2e/                             # Playwright E2E Tests (9 Specs)
+├── docs/recherche/                  # Wissenschaftliche Grundlagen
+├── k8s/                             # Kubernetes Manifests
+└── .github/workflows/               # CI/CD Pipelines
 ```
 
 ---
@@ -87,6 +91,7 @@ Die Recherche basiert auf folgenden Quellen:
 | E2E-Tests | ✅ Abgeschlossen |
 | Lokale SQLite-DB | ✅ Abgeschlossen |
 | Tailwind v4 Migration | ✅ Abgeschlossen |
+| Hexagonale Architektur | ✅ Abgeschlossen |
 | Beta-Release | 🔄 In Planung |
 
 ---
@@ -186,4 +191,4 @@ Pull Requests sollten [.github/pull_request_template.md](.github/pull_request_te
 
 ---
 
-*Letzte Aktualisierung: 2026-04-01*
+*Letzte Aktualisierung: 2026-04-02*

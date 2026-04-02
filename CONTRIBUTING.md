@@ -1,6 +1,6 @@
 # Mitwirken am Hashimoto-PCOS Projekt
 
-🎉 Danke für dein Interesse! Jeder Beitrag ist willkommen.
+Danke für dein Interesse! Jeder Beitrag ist willkommen.
 
 ---
 
@@ -30,24 +30,148 @@ npm run test:e2e      # Playwright E2E-Tests
 
 ---
 
-## Tech-Stack
+## Architektur verstehen (Pflichtlektüre)
 
-| Bereich | Technologie |
-|---------|-------------|
-| Framework | Next.js 16 (App Router) |
-| Sprache | TypeScript 6 |
-| Runtime | React 19 |
-| Styling | Tailwind CSS v4 (CSS-first) |
-| Unit-Tests | Vitest 4.x |
-| E2E-Tests | Playwright 1.x |
-| Barcode-Scanner | QuaggaJS2 |
-| Lebensmittel-Daten | SQLite (lokal) + OpenFoodFacts API (Fallback) |
+Das Projekt folgt **Hexagonaler Architektur (Ports & Adapters)**. Bevor du code schreibst, lies [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+**Die eine Regel:** `src/core/` darf niemals aus `src/infrastructure/` oder `src/app/` importieren. Der Rest der App kann frei in `core/` importieren. ESLint erzwingt dies automatisch — ein Verstoß bricht den Lint-Check.
+
+```
+presentation/ (app/, components/)
+      ↓ importiert
+infrastructure/ (sqlite/, openfoodfacts/, storage/)
+      ↓ implementiert
+core/ (domain/, ports/, services/, use-cases/)
+      ← KEINE Abhängigkeit nach oben
+```
+
+---
+
+## Neues Feature entwickeln
+
+Die Architektur hat eine klare Reihenfolge für neue Features. Hier am Beispiel "Mahlzeiten-Tracker":
+
+### Schritt 1: Domain-Typen definieren (in `core/domain/`)
+
+```typescript
+// src/core/domain/meal.ts
+export interface Meal {
+  id: string
+  products: string[]   // barcodes
+  eatenAt: number      // timestamp
+}
+```
+
+### Schritt 2: Port definieren (in `core/ports/`)
+
+```typescript
+// src/core/ports/meal-repository.ts
+import type { Meal } from "../domain/meal"
+
+export interface IMealRepository {
+  getAll(): Meal[]
+  save(meal: Meal): void
+  remove(id: string): void
+}
+```
+
+### Schritt 3: Use Case schreiben — TDD (in `core/use-cases/`)
+
+Erst den Test schreiben, der noch fehlschlägt:
+
+```typescript
+// src/core/use-cases/log-meal.test.ts
+import { describe, it, expect, vi } from "vitest"
+import { LogMealUseCase } from "./log-meal"
+import type { IMealRepository } from "../ports/meal-repository"
+
+function makeRepo(): IMealRepository {
+  return {
+    getAll: vi.fn().mockReturnValue([]),
+    save: vi.fn(),
+    remove: vi.fn(),
+  }
+}
+
+describe("LogMealUseCase", () => {
+  it("speichert eine Mahlzeit mit Timestamp", () => {
+    const repo = makeRepo()
+    const useCase = new LogMealUseCase(repo)
+    useCase.log(["4006040197219"])
+    expect(repo.save).toHaveBeenCalledWith(
+      expect.objectContaining({ products: ["4006040197219"] })
+    )
+  })
+})
+```
+
+Dann implementieren:
+
+```typescript
+// src/core/use-cases/log-meal.ts
+import type { IMealRepository } from "../ports/meal-repository"
+
+export class LogMealUseCase {
+  constructor(private readonly repo: IMealRepository) {}
+
+  log(barcodes: string[]): void {
+    this.repo.save({ id: crypto.randomUUID(), products: barcodes, eatenAt: Date.now() })
+  }
+}
+```
+
+**Wichtig:** Der Use Case importiert nur aus `../domain/` und `../ports/`. Kein `localStorage`, kein SQLite, kein `next/*`.
+
+### Schritt 4: Adapter implementieren (in `infrastructure/`)
+
+```typescript
+// src/infrastructure/storage/local-storage-meals.ts
+import type { IMealRepository, Meal } from "../../core/ports/meal-repository"
+
+export class LocalStorageMealsRepository implements IMealRepository {
+  private readonly KEY = "hashimoto-pcos-meals"
+  // ...
+}
+```
+
+### Schritt 5: Im Container verdrahten (`infrastructure/container.ts`)
+
+```typescript
+export function makeMealRepository(): IMealRepository {
+  return new LocalStorageMealsRepository()
+}
+```
+
+### Schritt 6: Slim API-Route oder Client-Component
+
+```typescript
+// In einer Client-Component:
+import { LogMealUseCase } from "@/core/use-cases/log-meal"
+import { makeMealRepository } from "@/infrastructure/container"
+
+const useCase = new LogMealUseCase(makeMealRepository())
+useCase.log(selectedBarcodes)
+```
+
+Die Seite/Route enthält keine Business-Logik — nur Delegation an den Use Case.
+
+---
+
+## Was in welche Schicht gehört
+
+| Schicht | Gehört dorthin | Gehört NICHT dorthin |
+|---------|---------------|---------------------|
+| `core/domain/` | TypeScript-Interfaces für Entitäten | Klassen, Logik, Imports |
+| `core/services/` | Pure functions (scoring, validation) | DB-Calls, fetch, localStorage |
+| `core/ports/` | Interface-Definitionen | Implementierungen |
+| `core/use-cases/` | Orchestrierung via Ports | SQLite, fetch, React, next/* |
+| `infrastructure/` | Konkrete Implementierungen der Ports | Business-Logik |
+| `app/api/` | Request parsing, Response formatting | SQL, fetch zu externen APIs |
+| `app/*/page.tsx` | UI, State, User-Interaktion | Direkte DB-Calls, externe APIs |
 
 ---
 
 ## Branching-Strategie
-
-Wir nutzen **Feature-Branches** basierend auf Issues:
 
 ```bash
 # Neuen Branch für Issue erstellen
@@ -69,49 +193,46 @@ git push origin feat/issue-{N}-{kurze-beschreibung}
 
 ### 1. Issue erstellen
 
-Vor dem Arbeiten immer ein Issue anlegen (oder eines zuweisen lassen).
-
-Verwende die Issue-Templates:
-- **Feature Request** — Für neue Features
-- **Bug Report** — Für Fehler
+Vor dem Arbeiten immer ein Issue anlegen.
 
 ### 2. Branch erstellen
 
 ```bash
-git checkout -b feat/issue-15-developer-docs
+git checkout -b feat/issue-15-mahlzeiten-tracker
 ```
 
-### 3. Entwickeln
+### 3. Entwickeln (TDD)
 
-- Schreibe erst die **Tests** (TDD-Ansatz empfohlen)
-- Implementiere dann die Feature-Logik
-- Halte den Code **clean** und **einfach**
+1. Test schreiben (schlägt fehl)
+2. Minimale Implementierung (Test grün)
+3. Commit
 
-### 4. Commit-Nachrichten
-
-Wir folgen [Conventional Commits](https://www.conventionalcommits.org/):
-
-```
-feat(scanner): add camera permission handling
-fix(scoring): correct iodine calculation for kelp products
-docs(readme): update installation instructions
+```bash
+npm run test:run   # vor jedem Commit
+npm run lint
+npm run build
 ```
 
-### 5. Pull Request erstellen
+### 4. Commit-Nachrichten (Conventional Commits)
+
+```
+feat(core): add MealRepository port interface
+feat(infra): add LocalStorageMealsRepository
+feat(ui): add meal logging page
+fix(scoring): correct omega-3 detection in categories
+```
+
+### 5. Pull Request
 
 ```bash
 gh pr create --fill
 ```
 
-P.R. muss:
-- Das zugehörige Issue **referenzieren** (`Closes #N`)
-- Alle **Checks bestehen** (Lint, Test, Build)
-- Die **Checkliste** im PR-Template ausgefüllt haben
+PR muss: Issue referenzieren (`Closes #N`), alle Checks bestehen, Architektur-Regel einhalten.
 
 ### 6. Review & Merge
 
-- Mindestens **1 Review** erforderlich
-- Nach Approval: **Merge via Squash** bevorzugt
+Mindestens 1 Review. Nach Approval: Squash-Merge bevorzugt.
 
 ---
 
@@ -119,40 +240,52 @@ P.R. muss:
 
 ### TypeScript
 
-- **Strict Mode** ist aktiviert
-- Keine `any` Typen — immer `unknown` oder spezifische Typen verwenden
-- Interfaces für Objekte, Types für Unions/Primitives
-
-### Naming Conventions
+- **Strict Mode** ist aktiviert — niemals `any`, immer `unknown` oder spezifische Typen
+- Fehlerbehandlung via **Discriminated Unions**, keine geworfenen Exceptions:
 
 ```typescript
-// Variablen/Funktionen: camelCase
-const userName = "Chrischi";
+type Result =
+  | { success: true; product: Product }
+  | { success: false; error: { type: "not_found"; message: string } }
+```
+
+### Imports in `core/`
+
+```typescript
+// ✅ Erlaubt in core/
+import type { Product } from "../domain/product"
+import type { IProductRepository } from "../ports/product-repository"
+
+// ❌ Verboten in core/ (ESLint-Fehler)
+import Database from "better-sqlite3"
+import { NextResponse } from "next/server"
+import { SqliteProductRepository } from "../../infrastructure/sqlite/..."
+```
+
+### Naming
+
+```typescript
+const userName = "Chrischi"        // camelCase: Variablen/Funktionen
 function calculateScore() {}
-
-// Komponenten: PascalCase
-function ScoreCard() {}
-function BarcodeScanner() {}
-
-// Konstanten: SCREAMING_SNAKE_CASE
-const API_BASE_URL = "https://world.openfoodfacts.org";
-const MAX_RETRY_ATTEMPTS = 3;
+function ScoreCard() {}            // PascalCase: Komponenten
+const API_BASE = "https://..."    // SCREAMING_SNAKE_CASE: Konstanten
 ```
 
 ### Testing
 
-- **Unit-Tests** für alle Business-Logik (z.B. `scoring.ts`, `openfoodfacts.ts`)
-- **E2E-Tests** mit Playwright für UI-Flows (`e2e/*.spec.ts`)
-- Unit-Testdateien unter `src/lib/__tests__/*.test.ts`
+- **Unit-Tests** für alle `core/services/` und `core/use-cases/`
+- Fake-Repositories (in-memory) für Use Case Tests — keine echten Adapter
+- `vi.fn()` für `fetch` in Infrastruktur-Tests
+- **Keine** Mocks für `core/` — pure functions direkt testen
 
 ```bash
 # Einzelne Test-Datei
-npm run test:run -- src/lib/__tests__/scoring.test.ts
+npm run test:run -- src/core/use-cases/get-product.test.ts
 
-# Watch mode während Entwicklung
+# Watch mode
 npm run test
 
-# E2E Tests
+# E2E
 npm run test:e2e
 ```
 
@@ -162,52 +295,36 @@ npm run test:e2e
 
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── page.tsx           # Startseite
-│   ├── scanner/           # Barcode-Scanner
-│   ├── lebensmittel/      # Lebensmittel-Suche
-│   └── result/[barcode]/  # Produkt-Ergebnis
-├── components/            # React-Komponenten
-│   ├── ScoreCard.tsx      # Nährwert-Anzeige
-│   ├── Scanner.tsx        # QuaggaJS Integration
-│   └── ...
-└── lib/                   # Business-Logik
-    ├── scoring.ts         # Scoring-Algorithmus
-    ├── openfoodfacts.ts   # API-Client
-    └── utils.ts           # Hilfsfunktionen
+├── core/                      # ZERO Framework-Dependencies
+│   ├── domain/                # Datentypen (Product, ScoreResult, …)
+│   ├── ports/                 # Interfaces (IProductRepository, …)
+│   ├── services/              # Pure functions (calculateScore, isValidEan13)
+│   └── use-cases/             # Orchestrierung (GetProductUseCase, …)
+├── infrastructure/            # Implementierungen der Ports
+│   ├── sqlite/                # SQLite-Adapter
+│   ├── openfoodfacts/         # OFf API-Adapter
+│   ├── storage/               # LocalStorage-Adapter
+│   └── container.ts           # Factory-Funktionen (DI)
+├── app/                       # Next.js App Router
+│   ├── api/products/          # Schlanke API-Routes
+│   ├── scanner/
+│   ├── lebensmittel/
+│   └── result/[barcode]/
+├── components/                # React-Komponenten
+└── lib/
+    └── utils.ts               # cn() Hilfsfunktion
 
-docs/
-├── recherche/             # Wissenschaftliche Grundlagen
-└── ...
+tests/
+├── fixtures/products/         # 5 Produkt-Fixtures (Domain-Format)
+└── helpers/mock-api.ts        # Playwright-Mock-Hilfsfunktionen
 
-.github/
-├── ISSUE_TEMPLATE/       # Issue-Vorlagen
-└── pull_request_template.md
+e2e/                           # Playwright E2E Tests
 ```
 
 ---
 
-## API-Integration
-
-### OpenFoodFacts
-
-```typescript
-import { searchProducts, getProductByBarcode } from '@/lib/openfoodfacts';
-
-// Produkt per Barcode laden
-const product = await getProductByBarcode('7622210449283');
-
-// Produkte suchen
-const results = await searchProducts('quark', { page = 1, page_size = 20 });
-```
-
----
-
-##Hilfe & Fragen
+## Hilfe & Fragen
 
 - **Issues:** [GitHub Issues](https://github.com/shaunclaw07/hashimoto-pcos/issues)
-- **Discussions:** Für allgemeine Fragen
-
----
-
-Viel Spaß beim Entwickeln! 🚀
+- **Architektur:** [ARCHITECTURE.md](./ARCHITECTURE.md)
+- **AI-Kontext:** [CLAUDE.md](./CLAUDE.md)
