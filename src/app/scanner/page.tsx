@@ -24,10 +24,17 @@ export default function ScannerPage() {
 
     try {
       const response = await fetch(`/api/products/${code}`);
-      const result: { success: boolean } = await response.json();
+      const result: { success: boolean; error?: { type: string } } = await response.json();
 
       if (!result.success) {
-        setError("Produkt nicht gefunden. Bitte überprüfe den Barcode.");
+        const errType = result.error?.type ?? "unknown";
+        setError(
+          errType === "not_found"
+            ? "Produkt nicht gefunden. Bitte überprüfe den Barcode."
+            : errType === "invalid_barcode"
+            ? "Ungültiger Barcode. Bitte gib eine gültige EAN-Nummer ein."
+            : "Fehler bei der Suche. Bitte erneut versuchen."
+        );
       } else {
         router.push(`/result/${code}`);
         return;

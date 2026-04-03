@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  turbopack: {
-    root: __dirname,
-  },
+
   serverExternalPackages: ['better-sqlite3'],
   images: {
     remotePatterns: [

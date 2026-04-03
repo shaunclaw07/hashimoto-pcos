@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { mockProductApi, mockProductNotFound } from '../tests/helpers/mock-api';
+import vermeiden from '../tests/fixtures/products/vermeiden.json';
 
 test.describe('Scanner-Seite (/scanner)', () => {
   test.beforeEach(async ({ page }) => {
@@ -40,13 +42,39 @@ test.describe('Scanner-Seite (/scanner)', () => {
   });
 
   test('manual_submit_navigates_to_result', async ({ page }) => {
+    const barcode = vermeiden.barcode;
+    await mockProductApi(page, barcode, vermeiden);
     await page.getByRole('button', { name: /manuell/i }).click();
     const input = page.getByRole('textbox');
     await input.click();
-    // Nutella barcode - should exist in OpenFoodFacts
-    await input.type('7622210449283');
+    await input.type(barcode);
     await page.getByRole('button', { name: /produkt suchen/i }).click();
-    await expect(page).toHaveURL(/\/result\/7622210449283/, { timeout: 20000 });
+    await expect(page).toHaveURL(new RegExp(`/result/${barcode}`), { timeout: 10000 });
+  });
+
+  test('manual_submit_uses_internal_api_not_off_directly', async ({ page }) => {
+    const barcode = vermeiden.barcode;
+    let offCallMade = false;
+    await page.route('**/openfoodfacts.org/**', () => { offCallMade = true; });
+    await mockProductApi(page, barcode, vermeiden);
+    await page.getByRole('button', { name: /manuell/i }).click();
+    const input = page.getByRole('textbox');
+    await input.click();
+    await input.type(barcode);
+    await page.getByRole('button', { name: /produkt suchen/i }).click();
+    await expect(page).toHaveURL(new RegExp(`/result/${barcode}`), { timeout: 10000 });
+    expect(offCallMade).toBe(false);
+  });
+
+  test('manual_submit_shows_error_for_unknown_barcode', async ({ page }) => {
+    const barcode = '9999999999999';
+    await mockProductNotFound(page, barcode);
+    await page.getByRole('button', { name: /manuell/i }).click();
+    const input = page.getByRole('textbox');
+    await input.click();
+    await input.type(barcode);
+    await page.getByRole('button', { name: /produkt suchen/i }).click();
+    await expect(page.getByText(/nicht gefunden/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('scanner_fallback_input_in_camera_mode', async ({ page }) => {
