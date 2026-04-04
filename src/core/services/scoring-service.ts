@@ -7,6 +7,39 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
+/**
+ * Validiert Nährwerte und clampt sie in physiologisch realistische Bereiche.
+ * Negative oder unrealistisch hohe Werte werden korrigiert.
+ * Fixes: https://github.com/shaunclaw07/hashimoto-pcos/issues/32
+ */
+export function validateNutriments(n: {
+  energyKcal?: number;
+  fat?: number;
+  saturatedFat?: number;
+  sugars?: number;
+  fiber?: number;
+  protein?: number;
+  salt?: number;
+}): {
+  energyKcal: number;
+  fat: number;
+  saturatedFat: number;
+  sugars: number;
+  fiber: number;
+  protein: number;
+  salt: number;
+} {
+  return {
+    energyKcal: clamp(n.energyKcal ?? 0, 0, 4000),
+    fat: clamp(n.fat ?? 0, 0, 100),
+    saturatedFat: clamp(n.saturatedFat ?? 0, 0, 100),
+    sugars: clamp(n.sugars ?? 0, 0, 100),
+    fiber: clamp(n.fiber ?? 0, 0, 100),
+    protein: clamp(n.protein ?? 0, 0, 100),
+    salt: clamp(n.salt ?? 0, 0, 100),
+  };
+}
+
 function containsIgnoreCase(str: string | undefined, search: string): boolean {
   if (!str) return false;
   return str.toLowerCase().includes(search.toLowerCase());
@@ -21,7 +54,16 @@ export function calculateScore(product: Product, _profile?: UserProfile): ScoreR
   let bonusPoints = 0;
   let malusPoints = 0;
 
-  const n = product.nutriments;
+  const rawN = product.nutriments;
+  const n = validateNutriments({
+    energyKcal: rawN.energyKcal,
+    fat: rawN.fat,
+    saturatedFat: rawN.saturatedFat,
+    sugars: rawN.sugars,
+    fiber: rawN.fiber,
+    protein: rawN.protein,
+    salt: rawN.salt,
+  });
 
   // === BONUS POINTS ===
 

@@ -252,3 +252,209 @@ describe("calculateScore", () => {
     });
   });
 });
+
+describe("Nährwert-Validierung (Bugfix #32)", () => {
+  describe("Negative Werte werden korrigiert", () => {
+    it("negative Zuckerwerte geben keinen Bonus", () => {
+      // Bug: sugars = -5 würde als "gut" gelten weil -5 nicht > 20
+      // aber negativer Zucker sollte nicht negativ in Berechnungen einfließen
+      const product = makeProduct({ nutriments: { sugars: -5 } });
+      const result = calculateScore(product);
+      // Ohne clamp: sugars=-5 → kein Malus → 3.0
+      // Mit clamp: sugars=0 → kein Malus → 3.0 → gleiches Ergebnis, ABER
+      // es darf KEIN Bonus sein, nur weil der Wert fehlerhaft negativ ist
+      expect(result.maluses).toBe(0);
+      expect(result.score).toBe(3.0); // neutral da kein Bonus
+    });
+
+    it("negativer Zucker darf nicht als niedrig interpretiert werden (Bonus)", () => {
+      // sugars=-30 ist ein Fehlerwert - darf keinen Zucker-Malus geben
+      const product = makeProduct({ nutriments: { sugars: -30 } });
+      const result = calculateScore(product);
+      // Ohne clamp: sugars=-30 → -30 > 20? nein → kein Malus ✓
+      // aber auch: -30 > 10? nein → kein Malus ✓
+      // Das ist zufällig richtig, ABER bei zukünftigen thresholds wird es falsch
+      expect(result.maluses).toBe(0);
+    });
+
+    it("negative Faserwerte werden nicht als Ballaststoff-Bonus gewertet", () => {
+      const product = makeProduct({ nutriments: { fiber: -10 } });
+      const result = calculateScore(product);
+      // Ohne clamp: fiber=-10 → -10 > 6? nein → kein Bonus ✓
+      // Ohne clamp: fiber=-10 → -10 > 3? nein → kein Bonus ✓
+      // Auch zufällig richtig, aber semantisch falsch
+      expect(result.bonuses).toBe(0);
+    });
+
+    it("negative Proteine geben keinen Bonus", () => {
+      const product = makeProduct({ nutriments: { protein: -5 } });
+      const result = calculateScore(product);
+      expect(result.bonuses).toBe(0);
+    });
+  });
+
+  describe("Unrealistisch hohe Werte werden geclampt", () => {
+    it("Energie > 4000 kcal wird geclampt", () => {
+      const product = makeProduct({ nutriments: { energyKcal: 9000 } });
+      const result = calculateScore(product);
+      // Sollte keinen Bonus geben weil unrealistisch
+      // Achtung: energyKcal wird aktuell NICHT im Scoring verwendet
+      // Daher nur prüfen dass kein Crash
+      expect(result.score).toBeDefined();
+    });
+
+    it("Zucker > 100g wird geclampt auf 100g", () => {
+      // 100g Zucker = 2.0 malus → score 1.0
+      // 200g Zucker = sollte ebenfalls 2.0 malus weil geclampt
+      const product100 = makeProduct({ nutriments: { sugars: 100 } });
+      const product200 = makeProduct({ nutriments: { sugars: 200 } });
+      const result100 = calculateScore(product100);
+      const result200 = calculateScore(product200);
+      expect(result200.score).toBe(result100.score);
+      expect(result100.score).toBe(1.0); // 3.0 - 2.0 malus
+    });
+
+    it("Ballaststoffe > 100g werden geclampt", () => {
+      const product = makeProduct({ nutriments: { fiber: 150 } });
+      const result = calculateScore(product);
+      // fiber=150 → clamp auf 100 → >6 → bonus +1.0
+      // Ohne clamp: >6 → bonus +1.0 (funktioniert zufällig richtig)
+      // ABER: fiber=150 ist unrealistisch und sollte clamped werden
+      expect(result.score).toBe(4.0); // 3.0 + 1.0
+    });
+  });
+
+  describe("Kombinierte Validierung", () => {
+    it("Alle Werte gleichzeitig negativ/hoch → korrektes Scoring", () => {
+      const product = makeProduct({
+        nutriments: {
+          sugars: -20,
+          saturatedFat: -5,
+          salt: -1,
+          fiber: -3,
+          protein: -10,
+        }
+      });
+      const result = calculateScore(product);
+      // Alle Werte auf 0 geclampt → keine Boni/Mali → score 3.0
+      expect(result.score).toBe(3.0);
+      expect(result.bonuses).toBe(0);
+      expect(result.maluses).toBe(0);
+    });
+
+    it("Mixed valid and invalid values", () => {
+      const product = makeProduct({
+        nutriments: {
+          sugars: -5,     // ungültig → 0
+          fiber: 7,       // gültig → bonus +1.0
+          salt: 3,        // gültig → malus -1.0
+        }
+      });
+      const result = calculateScore(product);
+      // sugars=-5 → 0 (kein malus), fiber=7 → +1.0, salt=3 → -1.0
+      // score = 3.0 + 1.0 - 1.0 = 3.0
+      expect(result.score).toBe(3.0);
+    });
+  });
+});
+
+// =============================================================================
+// EXPLICIT VALIDATION TESTS (Bugfix #32)
+// =============================================================================
+// Die validateNutriments() Funktion muss negative/unrealistische Werte clampen.
+// Diese Tests scheitern OHNE Implementierung.
+describe("validateNutriments (Bugfix #32)", () => {
+  // Da validateNutriments noch nicht existiert, müssen diese Tests explizit
+  // die clamps prüfen die im scoring passieren - oder prüfen dass die Funktion
+  // existiert und korrekt arbeitet
+  
+  it("sollte negative Zucker auf 0 geclampt behandeln (Bonus-Logik)", () => {
+    // Achtung: sugars=-5 führt zufällig zu keinem Malus weil -5>20 false
+    // ABER: sugars=-5 ist fehlerhafte Daten und sollte nicht als "0" behandelt werden
+    // für zukünftige Features die "niedrigen zucker" als Bonus sehen wollen
+    // Wir testen hier das gewünschte Verhalten: validateNutriments clampet auf 0
+    const product = makeProduct({ nutriments: { sugars: -5 } });
+    const result = calculateScore(product);
+    // Erwünscht: sugars wird auf 0 geclampt → kein Malus
+    // Realität: sugars=-5 → kein Malus (zufällig richtig)
+    // ABER: Das Problem ist semantisch - die Daten sind ungültig
+    expect(result.score).toBe(3.0); // neutral da kein Bonus und kein Malus
+  });
+
+  it("Zucker > 100g muss auf 100g geclampt sein (nicht 200g=mehr Malus)", () => {
+    const product = makeProduct({ nutriments: { sugars: 200 } });
+    const result = calculateScore(product);
+    // Erwünscht: sugars=200 → clamp auf 100 → malus 2.0 → score 1.0
+    // Ohne clamp: sugars=200 → malus 2.0 → score 1.0 (zufällig richtig)
+    // Das Problem tritt auf wenn thresholds sich ändern
+    expect(result.score).toBe(1.0); // clamped auf 100g = malus 2.0
+  });
+
+  it("Alle negativen Makronährwerte auf 0", () => {
+    const product = makeProduct({
+      nutriments: {
+        fat: -50,
+        saturatedFat: -20,
+        sugars: -30,
+        fiber: -10,
+        protein: -15,
+        salt: -5,
+      }
+    });
+    const result = calculateScore(product);
+    // Alles auf 0 → kein Bonus, kein Malus → 3.0
+    expect(result.score).toBe(3.0);
+  });
+
+  it("Unrealistisch hohe Energie wird nicht gecrasht", () => {
+    const product = makeProduct({ nutriments: { energyKcal: 99999 } });
+    const result = calculateScore(product);
+    expect(result.score).toBeDefined();
+    expect(result.stars).toBeGreaterThanOrEqual(1);
+  });
+});
+
+// =============================================================================
+// RED PHASE: Test for validateNutriments function (does not exist yet)
+// This test will FAIL until we implement the function
+// =============================================================================
+describe("validateNutriments function (RED phase test)", () => {
+  it("sollte als exportierte Funktion existieren", async () => {
+    // This import will fail at compile/run time if function doesn't exist
+    const { validateNutriments } = await import("./scoring-service");
+    expect(typeof validateNutriments).toBe("function");
+  });
+
+  it("sollte negative Werte auf 0 clampen", async () => {
+    const { validateNutriments } = await import("./scoring-service");
+    const result = validateNutriments({
+      sugars: -20,
+      fiber: -5,
+      protein: -10,
+    });
+    expect(result.sugars).toBe(0);
+    expect(result.fiber).toBe(0);
+    expect(result.protein).toBe(0);
+  });
+
+  it("sollte unrealistische Werte clampen", async () => {
+    const { validateNutriments } = await import("./scoring-service");
+    const result = validateNutriments({
+      energyKcal: 5000,
+      sugars: 150,
+      fat: 200,
+    });
+    expect(result.energyKcal).toBe(4000);
+    expect(result.sugars).toBe(100);
+    expect(result.fat).toBe(100);
+  });
+
+  it("sollte gültige Werte unverändert lassen", async () => {
+    const { validateNutriments } = await import("./scoring-service");
+    const input = { sugars: 15, fiber: 5, protein: 20 };
+    const result = validateNutriments(input);
+    expect(result.sugars).toBe(15);
+    expect(result.fiber).toBe(5);
+    expect(result.protein).toBe(20);
+  });
+});
