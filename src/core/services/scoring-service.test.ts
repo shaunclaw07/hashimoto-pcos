@@ -5,7 +5,7 @@ import type { Product } from "../domain/product";
 
 // Hilfsfunktion: erstellt ein minimales Test-Produkt (alle Pflichtfelder vorhanden)
 function makeProduct(overrides: Partial<Product> & { nutriments?: Partial<Product["nutriments"]> }): Product {
-  return {
+  const base: Product = {
     barcode: "",
     name: "Test",
     nutriments: {},
@@ -13,8 +13,11 @@ function makeProduct(overrides: Partial<Product> & { nutriments?: Partial<Produc
     ingredients: "",
     categories: [],
     additives: [],
+  };
+  return {
+    ...base,
     ...overrides,
-    nutriments: { ...overrides.nutriments },
+    nutriments: overrides.nutriments ? { ...overrides.nutriments } : base.nutriments,
   };
 }
 
