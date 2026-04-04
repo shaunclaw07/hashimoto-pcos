@@ -11,7 +11,8 @@ export class LocalStorageFavoritesRepository implements IFavoritesRepository {
     if (typeof window === "undefined") return {};
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-    } catch {
+    } catch (error) {
+      console.error("Failed to parse favorites from localStorage:", error);
       return {};
     }
   }
