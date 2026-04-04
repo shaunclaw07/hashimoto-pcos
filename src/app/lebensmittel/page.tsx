@@ -42,8 +42,14 @@ async function searchProducts(
 
   const response = await fetch(`${SEARCH_URL}?${params}`);
 
-  if (response.status === 503) {
-    throw new Error("SERVER_BUSY");
+  if (!response.ok) {
+    if (response.status === 503) {
+      throw new Error("SERVER_BUSY");
+    }
+    if (response.status === 400) {
+      throw new Error("INVALID_REQUEST");
+    }
+    throw new Error(`API_ERROR_${response.status}`);
   }
 
   return response.json() as Promise<ApiSearchResponse>;
