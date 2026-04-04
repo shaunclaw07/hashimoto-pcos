@@ -55,7 +55,8 @@ export class SqliteProductRepository implements IProductRepository {
         .prepare("SELECT * FROM products WHERE barcode = ?")
         .get(barcode) as DbProductRow | undefined;
       return row ? mapDbRowToProduct(row) : null;
-    } catch {
+    } catch (err) {
+      console.error("[SqliteProductRepository] findByBarcode failed:", err);
       return null;
     }
   }
@@ -139,7 +140,8 @@ export class SqliteProductRepository implements IProductRepository {
         total: count,
         page,
       };
-    } catch {
+    } catch (err) {
+      console.error("[SqliteProductRepository] search failed:", err);
       return { products: [], total: 0, page };
     }
   }
@@ -158,8 +160,8 @@ export class SqliteProductRepository implements IProductRepository {
       getDb()
         .prepare("UPDATE products SET nutriments = ? WHERE barcode = ?")
         .run(JSON.stringify(raw), barcode);
-    } catch {
-      // best-effort
+    } catch (err) {
+      console.error("[SqliteProductRepository] updateNutriments failed:", err);
     }
   }
 }

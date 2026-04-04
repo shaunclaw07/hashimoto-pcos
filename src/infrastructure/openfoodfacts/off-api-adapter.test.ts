@@ -45,12 +45,18 @@ describe("OffApiAdapter.findByBarcode", () => {
   });
 
   it("gibt null zurück bei Netzwerkfehler", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     global.fetch = vi.fn().mockRejectedValueOnce(new Error("Network error"));
 
     const adapter = new OffApiAdapter();
     const product = await adapter.findByBarcode("5000159484695");
 
     expect(product).toBeNull();
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "[OffApiAdapter] findByBarcode failed:",
+      expect.any(Error)
+    );
+    consoleSpy.mockRestore();
   });
 
   it("gibt null zurück bei HTTP-Fehler (non-ok response)", async () => {
@@ -63,6 +69,38 @@ describe("OffApiAdapter.findByBarcode", () => {
     const product = await adapter.findByBarcode("5000159484695");
 
     expect(product).toBeNull();
+  });
+});
+
+describe("OffApiAdapter.search", () => {
+  it("soll console.error bei Netzwerkfehler loggen", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    global.fetch = vi.fn().mockRejectedValueOnce(new Error("Network error"));
+
+    const adapter = new OffApiAdapter();
+    const result = await adapter.search({ terms: "test", page: 1, pageSize: 20 });
+
+    expect(result.products).toEqual([]);
+    expect(result.total).toBe(0);
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "[OffApiAdapter] search failed:",
+      expect.any(Error)
+    );
+    consoleSpy.mockRestore();
+  });
+
+  it("gibt leere Results bei HTTP-Fehler (non-ok response)", async () => {
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+    } as Response);
+
+    const adapter = new OffApiAdapter();
+    const result = await adapter.search({ terms: "test", page: 1, pageSize: 20 });
+
+    // HTTP errors are handled as normal control flow (non-exception), no logging expected
+    expect(result.products).toEqual([]);
+    expect(result.total).toBe(0);
   });
 });
 

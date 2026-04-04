@@ -16,7 +16,8 @@ export class OffApiAdapter implements IProductRepository {
       const data: OffApiResponse = await res.json();
       if (data.status === 0 || !data.product) return null;
       return mapOffProductToProduct(barcode, data.product);
-    } catch {
+    } catch (err) {
+      console.error("[OffApiAdapter] findByBarcode failed:", err);
       return null;
     }
   }
@@ -46,7 +47,8 @@ export class OffApiAdapter implements IProductRepository {
         return mapOffProductToProduct(barcode, p);
       });
       return { products, total: data.count ?? 0, page };
-    } catch {
+    } catch (err) {
+      console.error("[OffApiAdapter] search failed:", err);
       return { products: [], total: 0, page };
     }
   }
