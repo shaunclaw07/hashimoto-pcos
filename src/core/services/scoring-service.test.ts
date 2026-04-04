@@ -231,6 +231,93 @@ describe("calculateScore", () => {
     });
   });
 
+  describe("Nährwert-Validierung (Issue #32)", () => {
+    it("Negative Zucker werden auf 0 geclampt", () => {
+      // sugars = -10 → clamp zu 0 → 0 > 20 = false, kein Malus
+      const product = makeProduct({ nutriments: { sugars: -10 } });
+      const result = calculateScore(product);
+      expect(result.maluses).toBe(0);
+      expect(result.score).toBe(3.0);
+    });
+
+    it("Hohe Zuckerwerte (>100g) werden auf 100 geclampt", () => {
+      // sugars = 200 → clamp zu 100 → 100 > 20 = true → Malus 2.0
+      const product = makeProduct({ nutriments: { sugars: 200 } });
+      const result = calculateScore(product);
+      expect(result.maluses).toBe(2.0);
+      expect(result.score).toBe(1.0);
+    });
+
+    it("Negative Fiber werden auf 0 geclampt", () => {
+      const product = makeProduct({ nutriments: { fiber: -5 } });
+      const result = calculateScore(product);
+      expect(result.bonuses).toBe(0);
+      expect(result.score).toBe(3.0);
+    });
+
+    it("Hohe Fiber-Werte (>100g) werden auf 100 geclampt", () => {
+      // fiber = 150 → clamp zu 100 → 100 > 6 = true → Bonus 1.0
+      const product = makeProduct({ nutriments: { fiber: 150 } });
+      const result = calculateScore(product);
+      expect(result.bonuses).toBe(1.0);
+    });
+
+    it("Negative Salt werden auf 0 geclampt", () => {
+      const product = makeProduct({ nutriments: { salt: -10 } });
+      const result = calculateScore(product);
+      expect(result.maluses).toBe(0);
+      expect(result.score).toBe(3.0);
+    });
+
+    it("Hohe Salt-Werte (>100g) werden auf 100 geclampt", () => {
+      // salt = 500 → clamp zu 100 → 100 > 2.5 = true → Malus 1.0
+      const product = makeProduct({ nutriments: { salt: 500 } });
+      const result = calculateScore(product);
+      expect(result.maluses).toBe(1.0);
+    });
+
+    it("Energie > 4000 kcal wird auf 4000 geclampt", () => {
+      // energyKcal currently not used in scoring, but should be clamped
+      const product = makeProduct({ nutriments: { energyKcal: 5000 } });
+      const result = calculateScore(product);
+      expect(result.score).toBe(3.0); // No scoring impact, but no crash
+    });
+
+    it("Negative Protein werden auf 0 geclampt", () => {
+      const product = makeProduct({ nutriments: { protein: -10 } });
+      const result = calculateScore(product);
+      expect(result.bonuses).toBe(0);
+    });
+
+    it("Negative SaturatedFat werden auf 0 geclampt", () => {
+      const product = makeProduct({ nutriments: { saturatedFat: -5 } });
+      const result = calculateScore(product);
+      expect(result.maluses).toBe(0);
+    });
+
+    it("Kombination: alle Nährwerte negativ oder unrealistisch hoch", () => {
+      const product = makeProduct({
+        nutriments: {
+          sugars: -50,
+          fiber: 200,
+          saturatedFat: -20,
+          salt: 500,
+          protein: -30,
+        },
+      });
+      const result = calculateScore(product);
+      // sugars: -50 → 0, kein Malus
+      // fiber: 200 → 100 → 100 > 6 → Bonus 1.0
+      // saturatedFat: -20 → 0, kein Malus
+      // salt: 500 → 100 → 100 > 2.5 → Malus 1.0
+      // protein: -30 → 0, kein Bonus
+      // Score: 3.0 + 1.0 - 1.0 = 3.0
+      expect(result.score).toBe(3.0);
+      expect(result.bonuses).toBe(1.0);
+      expect(result.maluses).toBe(1.0);
+    });
+  });
+
   describe("Echte Produkt-Fixtures", () => {
     it("Green lentils → SEHR GUT", () => {
       const product = makeProduct({

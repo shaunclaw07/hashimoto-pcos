@@ -1,5 +1,5 @@
 // src/core/services/scoring-service.ts
-import type { Product } from "../domain/product";
+import type { Product, Nutriments } from "../domain/product";
 import type { ScoreResult, ScoreBreakdownItem } from "../domain/score";
 import type { UserProfile } from "../domain/user-profile";
 
@@ -7,6 +7,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
+/**
 /**
  * Validiert Nährwerte und clampt sie in physiologisch realistische Bereiche.
  * Negative oder unrealistisch hohe Werte werden korrigiert.
@@ -16,6 +17,7 @@ export function validateNutriments(n: {
   energyKcal?: number;
   fat?: number;
   saturatedFat?: number;
+  carbohydrates?: number;
   sugars?: number;
   fiber?: number;
   protein?: number;
@@ -24,6 +26,7 @@ export function validateNutriments(n: {
   energyKcal: number;
   fat: number;
   saturatedFat: number;
+  carbohydrates: number;
   sugars: number;
   fiber: number;
   protein: number;
@@ -33,6 +36,7 @@ export function validateNutriments(n: {
     energyKcal: clamp(n.energyKcal ?? 0, 0, 4000),
     fat: clamp(n.fat ?? 0, 0, 100),
     saturatedFat: clamp(n.saturatedFat ?? 0, 0, 100),
+    carbohydrates: clamp(n.carbohydrates ?? 0, 0, 100),
     sugars: clamp(n.sugars ?? 0, 0, 100),
     fiber: clamp(n.fiber ?? 0, 0, 100),
     protein: clamp(n.protein ?? 0, 0, 100),
@@ -54,16 +58,8 @@ export function calculateScore(product: Product, _profile?: UserProfile): ScoreR
   let bonusPoints = 0;
   let malusPoints = 0;
 
-  const rawN = product.nutriments;
-  const n = validateNutriments({
-    energyKcal: rawN.energyKcal,
-    fat: rawN.fat,
-    saturatedFat: rawN.saturatedFat,
-    sugars: rawN.sugars,
-    fiber: rawN.fiber,
-    protein: rawN.protein,
-    salt: rawN.salt,
-  });
+<<<<<<< HEAD
+  const n = validateNutriments(product.nutriments);
 
   // === BONUS POINTS ===
 
