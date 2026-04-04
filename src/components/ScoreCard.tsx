@@ -72,6 +72,7 @@ export function ScoreCard({
   saved,
 }: ScoreCardProps) {
   const config = SCORE_CONFIG[scoreResult.label];
+  if (!config) throw new Error(`Unknown score label: ${scoreResult.label}`);
   const n = product.nutriments;
 
   return (
