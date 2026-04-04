@@ -1,4 +1,4 @@
-import { isValidEan13 } from "../services/barcode-service";
+import { isValidBarcode } from "../services/barcode-service";
 import type { IProductRepository } from "../ports/product-repository";
 import type { Product } from "../domain/product";
 
@@ -24,10 +24,10 @@ export class GetProductUseCase {
   ) {}
 
   async execute(barcode: string): Promise<GetProductResult> {
-    if (!isValidEan13(barcode)) {
+    if (!isValidBarcode(barcode)) {
       return {
         success: false,
-        error: { type: "invalid_barcode", message: `Ungültiger EAN-13 Barcode: ${barcode}` },
+        error: { type: "invalid_barcode", message: `Ungültiger Barcode: ${barcode}` },
       };
     }
 
