@@ -203,7 +203,7 @@ export default function LebensmittelPage() {
       <div className="space-y-4">
         {results.map((product, index) => (
           <div
-            key={product.barcode || index}
+            key={product.barcode ? product.barcode : `fallback-${index}`}
             ref={index === results.length - 1 ? lastProductRef : undefined}
           >
             <ProductCard product={product} />
