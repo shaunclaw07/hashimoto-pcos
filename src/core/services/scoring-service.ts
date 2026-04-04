@@ -51,14 +51,21 @@ function containsIgnoreCase(str: string | undefined, search: string): boolean {
 
 /**
  * Calculates health score for a product (1.0–5.0).
- * _profile is reserved for Phase 2 personalization — currently unused.
+ *
+ * Phase 2: UserProfile personalization will enable:
+ * - Adjusted scoring based on user's condition (hashimoto/pcos/both)
+ * - Extra malus for gluten-containing products when glutenSensitive=true
+ * - Extra malus for dairy when lactoseIntolerant=true
+ * - Adjusted thresholds based on dietary restrictions
+ *
+ * @param product - The product to score
+ * @param _profile - User profile for personalized scoring (Phase 2)
  */
 export function calculateScore(product: Product, _profile?: UserProfile): ScoreResult {
   const breakdown: ScoreBreakdownItem[] = [];
   let bonusPoints = 0;
   let malusPoints = 0;
 
-<<<<<<< HEAD
   const n = validateNutriments(product.nutriments);
 
   // === BONUS POINTS ===
