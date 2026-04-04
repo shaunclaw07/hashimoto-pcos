@@ -2,10 +2,7 @@
 import type { Product, Nutriments } from "../domain/product";
 import type { ScoreResult, ScoreBreakdownItem } from "../domain/score";
 import type { UserProfile } from "../domain/user-profile";
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(Math.max(value, min), max);
-}
+import { clamp } from "../../lib/utils";
 
 /**
 /**
