@@ -27,6 +27,13 @@ export default function ResultPage() {
       setError(null);
 
       const response = await fetch(`/api/products/${barcode}`);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = (errorData as { message?: string })?.message || `HTTP ${response.status}`;
+        throw new Error(errorMessage);
+      }
+
       const result: { success: boolean; product?: Product; error?: { type: string } } =
         await response.json();
 
