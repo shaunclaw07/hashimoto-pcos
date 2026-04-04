@@ -5,6 +5,39 @@ import { getDb } from "./sqlite-client";
 import { mapDbRowToProduct } from "./sqlite-mappers";
 import type { DbProductRow } from "./sqlite-client";
 
+/**
+ * Sanitizes user input for SQLite FTS (Full-Text Search) queries.
+ * Removes FTS metacharacters that could be used for injection attacks.
+ *
+ * FTS metacharacters: " ( ) * AND OR NOT NEAR
+ *
+ * @param input - Raw user input string
+ * @returns Sanitized string safe for FTS queries
+ */
+export function sanitizeFtsInput(input: string): string {
+  // Handle null/undefined/empty input gracefully
+  if (!input || typeof input !== "string") {
+    return "";
+  }
+
+  // Trim and normalize whitespace
+  const trimmed = input.trim().replace(/\s+/g, " ");
+
+  // Remove FTS metacharacters: quotes, parentheses, asterisks
+  const sanitized = trimmed.replace(/["()*]/g, "");
+
+  // Split on whitespace and filter out FTS operators
+  // including NEAR with optional distance argument (NEAR/3, NEAR/10, etc.)
+  const terms = sanitized.split(/\s+/).filter(term => {
+    const upper = term.toUpperCase();
+    // Match full operator including NEAR/NEAR/N (FTS5 syntax)
+    if (/^NEAR\/?\d*$/.test(upper)) return false;
+    return upper !== "AND" && upper !== "OR" && upper !== "NOT";
+  });
+
+  return terms.join(" ");
+}
+
 const CATEGORY_TAGS: Record<string, string> = {
   gemüse: "en:vegetables",
   obst: "en:fruits",
@@ -38,8 +71,8 @@ export class SqliteProductRepository implements IProductRepository {
       let count: number;
 
       if (terms?.trim()) {
-        const ftsQuery = terms
-          .trim()
+        const sanitizedTerms = sanitizeFtsInput(terms);
+        const ftsQuery = sanitizedTerms
           .split(/\s+/)
           .map((t) => `"${t}"*`)
           .join(" AND ");
