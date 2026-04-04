@@ -1,5 +1,6 @@
 // src/infrastructure/sqlite/sqlite-client.ts
 import Database from "better-sqlite3";
+import fs from "fs";
 import path from "path";
 
 export interface DbProductRow {
@@ -22,7 +23,18 @@ let _db: Database.Database | null = null;
 export function getDb(): Database.Database {
   if (!_db) {
     const dbPath = path.join(process.cwd(), "data", "products.db");
-    _db = new Database(dbPath);
+    const dataDir = path.dirname(dbPath);
+
+    // Ensure the data directory exists (recursive)
+    if (!fs.existsSync(dataDir)) {
+      fs.mkdirSync(dataDir, { recursive: true });
+    }
+
+    try {
+      _db = new Database(dbPath);
+    } catch (err) {
+      throw new Error(`Database initialization failed: ${err instanceof Error ? err.message : String(err)}`);
+    }
   }
   return _db;
 }
