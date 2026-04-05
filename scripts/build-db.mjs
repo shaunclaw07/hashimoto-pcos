@@ -15,6 +15,20 @@ const DB_PATH = path.join(__dirname, '..', 'data', 'products.db');
 
 const DACH_TAGS = new Set(['en:germany', 'en:austria', 'en:switzerland']);
 
+// Minimum number of nutriment fields that must have a valid numeric value
+const MIN_NUTRIMENTS = 3;
+
+const NUTRIMENT_FIELDS = [
+  'energy-kcal_100g',
+  'sugars_100g',
+  'fat_100g',
+  'saturated-fat_100g',
+  'fiber_100g',
+  'proteins_100g',
+  'salt_100g',
+  'sodium_100g',
+];
+
 function isValidEan13(code) {
   return /^\d{13}$/.test(code ?? '');
 }
@@ -22,6 +36,19 @@ function isValidEan13(code) {
 function isDach(countriesTags) {
   if (!countriesTags) return false;
   return countriesTags.split(',').some(t => DACH_TAGS.has(t.trim()));
+}
+
+function parseNutriments(r) {
+  const values = {};
+  let count = 0;
+  for (const field of NUTRIMENT_FIELDS) {
+    const raw = r[field];
+    const num = raw !== '' && raw != null ? parseFloat(raw) : NaN;
+    const val = Number.isFinite(num) ? num : null;
+    values[field] = val;
+    if (val !== null) count++;
+  }
+  return { values, count };
 }
 
 // ── Setup DB ──────────────────────────────────────────────────────────────────
@@ -97,7 +124,7 @@ const batch = [];
 const BATCH_SIZE = 1000;
 
 console.log(`Reading: ${CSV_PATH}`);
-console.log('Filtering DACH products (DE/AT/CH) with valid EAN-13 barcodes...\n');
+console.log(`Filtering DACH products (DE/AT/CH) with valid EAN-13 barcodes and ≥${MIN_NUTRIMENTS} nutriments...\n`);
 
 const parser = createReadStream(CSV_PATH).pipe(
   parse({
@@ -118,15 +145,18 @@ for await (const r of parser) {
   if (!isValidEan13(r.code)) continue;
   if (!isDach(r.countries_tags)) continue;
 
+  const { values, count } = parseNutriments(r);
+  if (count < MIN_NUTRIMENTS) continue;
+
   const nutriments = JSON.stringify({
-    'energy-kcal_100g':   parseFloat(r['energy-kcal_100g'])   || null,
-    sugars_100g:          parseFloat(r.sugars_100g)            || null,
-    fat_100g:             parseFloat(r.fat_100g)               || null,
-    'saturated-fat_100g': parseFloat(r['saturated-fat_100g'])  || null,
-    fiber_100g:           parseFloat(r.fiber_100g)             || null,
-    proteins_100g:        parseFloat(r.proteins_100g)          || null,
-    salt_100g:            parseFloat(r.salt_100g)              || null,
-    sodium_100g:          parseFloat(r.sodium_100g)            || null,
+    'energy-kcal_100g':   values['energy-kcal_100g'],
+    sugars_100g:          values['sugars_100g'],
+    fat_100g:             values['fat_100g'],
+    'saturated-fat_100g': values['saturated-fat_100g'],
+    fiber_100g:           values['fiber_100g'],
+    proteins_100g:        values['proteins_100g'],
+    salt_100g:            values['salt_100g'],
+    sodium_100g:          values['sodium_100g'],
   });
 
   batch.push({
@@ -158,6 +188,6 @@ if (batch.length > 0) {
 
 db.close();
 console.log(`\n\nFertig!`);
-console.log(`  CSV-Zeilen verarbeitet : ${total.toLocaleString('de-DE')}`);
-console.log(`  DACH-Produkte inserted : ${inserted.toLocaleString('de-DE')}`);
-console.log(`  Datenbank              : ${DB_PATH}`);
+console.log(`  CSV-Zeilen verarbeitet      : ${total.toLocaleString('de-DE')}`);
+console.log(`  DACH-Produkte inserted      : ${inserted.toLocaleString('de-DE')} (≥${MIN_NUTRIMENTS} Nährwerte)`);
+console.log(`  Datenbank                   : ${DB_PATH}`);
