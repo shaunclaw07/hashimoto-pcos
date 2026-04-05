@@ -123,6 +123,14 @@ const GLUTEN_MALUS: Record<ConditionKey, number> = {
   both:      2.0,
 };
 
+/** Lactose ingredient malus per condition */
+const LACTOSE_MALUS: Record<ConditionKey, number> = {
+  generic:   0.3,
+  hashimoto: 0.3,
+  pcos:      0.3,
+  both:      0.3,
+};
+
 /**
  * Calculates health score for a product (1.0–5.0).
  *
@@ -155,6 +163,7 @@ export function calculateScore(product: Product, profile?: UserProfile): ScoreRe
     breakdown.push(item);
   } else if ((n.fiber ?? 0) > 3) {
     bonusPoints += fiberMidBonus;
+    // fiberMidBonus is identical across all conditions; no condition tag needed
     breakdown.push({ reason: "Ballaststoffe > 3g/100g", points: fiberMidBonus });
   }
 
@@ -212,35 +221,23 @@ export function calculateScore(product: Product, profile?: UserProfile): ScoreRe
   // === MALUS POINTS ===
 
   // Sugar: only the highest applicable threshold fires
-  if (conditionKey !== "generic") {
-    // Profile mode: check > 5g threshold too
-    if ((n.sugars ?? 0) > 20) {
-      const malus = SUGAR_20_MALUS[conditionKey];
-      malusPoints += malus;
-      const item: ScoreBreakdownItem = { reason: "Zucker > 20g/100g", points: -malus };
-      if (malus !== SUGAR_20_MALUS.generic) item.condition = profile!.condition;
-      breakdown.push(item);
-    } else if ((n.sugars ?? 0) > 10) {
-      const malus = SUGAR_10_MALUS[conditionKey];
-      malusPoints += malus;
-      const item: ScoreBreakdownItem = { reason: "Zucker > 10g/100g", points: -malus };
-      if (malus !== SUGAR_10_MALUS.generic) item.condition = profile!.condition;
-      breakdown.push(item);
-    } else if ((n.sugars ?? 0) > 5) {
-      const malus = SUGAR_5_MALUS[conditionKey];
-      malusPoints += malus;
-      // sugar > 5g threshold always gets condition set (new threshold, doesn't exist in generic)
-      breakdown.push({ reason: "Zucker > 5g/100g", points: -malus, condition: profile!.condition });
-    }
-  } else {
-    // Generic mode: only > 10g and > 20g thresholds
-    if ((n.sugars ?? 0) > 20) {
-      malusPoints += 2.0;
-      breakdown.push({ reason: "Zucker > 20g/100g", points: -2.0 });
-    } else if ((n.sugars ?? 0) > 10) {
-      malusPoints += 1.0;
-      breakdown.push({ reason: "Zucker > 10g/100g", points: -1.0 });
-    }
+  const sugar = n.sugars ?? 0;
+  if (sugar > 20) {
+    const malus = SUGAR_20_MALUS[conditionKey];
+    malusPoints += malus;
+    const item: ScoreBreakdownItem = { reason: "Zucker > 20g/100g", points: -malus };
+    if (profile && malus !== SUGAR_20_MALUS.generic) item.condition = profile.condition;
+    breakdown.push(item);
+  } else if (sugar > 10) {
+    const malus = SUGAR_10_MALUS[conditionKey];
+    malusPoints += malus;
+    const item: ScoreBreakdownItem = { reason: "Zucker > 10g/100g", points: -malus };
+    if (profile && malus !== SUGAR_10_MALUS.generic) item.condition = profile.condition;
+    breakdown.push(item);
+  } else if (sugar > 5 && conditionKey !== "generic") {
+    const malus = SUGAR_5_MALUS[conditionKey];
+    malusPoints += malus;
+    breakdown.push({ reason: "Zucker > 5g/100g", points: -malus, condition: profile!.condition });
   }
 
   if ((n.saturatedFat ?? 0) > 10) {
@@ -276,7 +273,7 @@ export function calculateScore(product: Product, profile?: UserProfile): ScoreRe
     containsIgnoreCase(product.ingredients, "milch");
 
   if (hasLactose) {
-    const baseLactoseMalus = 0.3;
+    const baseLactoseMalus = LACTOSE_MALUS[conditionKey];
     const multiplier = profile?.lactoseIntolerant ? 2 : 1;
     const effectiveLactoseMalus = baseLactoseMalus * multiplier;
     malusPoints += effectiveLactoseMalus;
