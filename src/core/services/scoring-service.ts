@@ -1,10 +1,9 @@
 // src/core/services/scoring-service.ts
-import type { Product, Nutriments } from "../domain/product";
+import type { Product } from "../domain/product";
 import type { ScoreResult, ScoreBreakdownItem } from "../domain/score";
-import type { UserProfile } from "../domain/user-profile";
+import type { UserProfile, Condition } from "../domain/user-profile";
 import { clamp } from "../../lib/utils";
 
-/**
 /**
  * Validiert Nährwerte und clampt sie in physiologisch realistische Bereiche.
  * Negative oder unrealistisch hohe Werte werden korrigiert.
@@ -46,38 +45,127 @@ function containsIgnoreCase(str: string | undefined, search: string): boolean {
   return str.toLowerCase().includes(search.toLowerCase());
 }
 
+// =====================================================================
+// Lookup tables for profile-aware scoring
+// =====================================================================
+
+type ConditionKey = "generic" | Condition;
+
+/** Fiber > 6g bonus per condition */
+const FIBER_HIGH_BONUS: Record<ConditionKey, number> = {
+  generic:   1.0,
+  hashimoto: 1.0,
+  pcos:      1.5,
+  both:      1.5,
+};
+
+/** Fiber > 3g bonus per condition */
+const FIBER_MID_BONUS: Record<ConditionKey, number> = {
+  generic:   0.5,
+  hashimoto: 0.5,
+  pcos:      0.5,
+  both:      0.5,
+};
+
+/** Protein > 20g bonus per condition */
+const PROTEIN_BONUS: Record<ConditionKey, number> = {
+  generic:   0.5,
+  hashimoto: 0.5,
+  pcos:      1.0,
+  both:      1.0,
+};
+
+/** Bio label bonus per condition */
+const BIO_BONUS: Record<ConditionKey, number> = {
+  generic:   0.5,
+  hashimoto: 0.5,
+  pcos:      0.3,
+  both:      0.5,
+};
+
+/** Gluten-free label bonus per condition */
+const GLUTEN_FREE_BONUS: Record<ConditionKey, number> = {
+  generic:   0.5,
+  hashimoto: 0.5,
+  pcos:      0.2,
+  both:      0.8,
+};
+
+/** Sugar > 5g malus per condition (only applies in profile mode) */
+const SUGAR_5_MALUS: Record<ConditionKey, number> = {
+  generic:   0,   // not used in generic mode
+  hashimoto: 0.5,
+  pcos:      1.5,
+  both:      2.0,
+};
+
+/** Sugar > 10g malus per condition */
+const SUGAR_10_MALUS: Record<ConditionKey, number> = {
+  generic:   1.0,
+  hashimoto: 1.0,
+  pcos:      2.5,
+  both:      3.0,
+};
+
+/** Sugar > 20g malus per condition */
+const SUGAR_20_MALUS: Record<ConditionKey, number> = {
+  generic:   2.0,
+  hashimoto: 2.0,
+  pcos:      3.5,
+  both:      4.0,
+};
+
+/** Gluten ingredient malus per condition */
+const GLUTEN_MALUS: Record<ConditionKey, number> = {
+  generic:   0.5,
+  hashimoto: 1.5,
+  pcos:      0.5,
+  both:      2.0,
+};
+
 /**
  * Calculates health score for a product (1.0–5.0).
  *
- * Phase 2: UserProfile personalization will enable:
- * - Adjusted scoring based on user's condition (hashimoto/pcos/both)
- * - Extra malus for gluten-containing products when glutenSensitive=true
- * - Extra malus for dairy when lactoseIntolerant=true
- * - Adjusted thresholds based on dietary restrictions
+ * When a UserProfile is provided, scoring thresholds are adjusted
+ * based on the user's condition (hashimoto/pcos/both) and dietary
+ * sensitivities (glutenSensitive, lactoseIntolerant).
  *
  * @param product - The product to score
- * @param _profile - User profile for personalized scoring (Phase 2)
+ * @param profile - Optional user profile for personalized scoring
  */
-export function calculateScore(product: Product, _profile?: UserProfile): ScoreResult {
+export function calculateScore(product: Product, profile?: UserProfile): ScoreResult {
   const breakdown: ScoreBreakdownItem[] = [];
   let bonusPoints = 0;
   let malusPoints = 0;
 
   const n = validateNutriments(product.nutriments);
+  const conditionKey: ConditionKey = profile?.condition ?? "generic";
 
   // === BONUS POINTS ===
 
+  const fiberHighBonus = FIBER_HIGH_BONUS[conditionKey];
+  const fiberMidBonus = FIBER_MID_BONUS[conditionKey];
+
   if ((n.fiber ?? 0) > 6) {
-    bonusPoints += 1.0;
-    breakdown.push({ reason: "Ballaststoffe > 6g/100g", points: 1.0 });
+    bonusPoints += fiberHighBonus;
+    const item: ScoreBreakdownItem = { reason: "Ballaststoffe > 6g/100g", points: fiberHighBonus };
+    if (profile && fiberHighBonus !== FIBER_HIGH_BONUS.generic) {
+      item.condition = profile.condition;
+    }
+    breakdown.push(item);
   } else if ((n.fiber ?? 0) > 3) {
-    bonusPoints += 0.5;
-    breakdown.push({ reason: "Ballaststoffe > 3g/100g", points: 0.5 });
+    bonusPoints += fiberMidBonus;
+    breakdown.push({ reason: "Ballaststoffe > 3g/100g", points: fiberMidBonus });
   }
 
+  const proteinBonus = PROTEIN_BONUS[conditionKey];
   if ((n.protein ?? 0) > 20) {
-    bonusPoints += 0.5;
-    breakdown.push({ reason: "Protein > 20g/100g", points: 0.5 });
+    bonusPoints += proteinBonus;
+    const item: ScoreBreakdownItem = { reason: "Protein > 20g/100g", points: proteinBonus };
+    if (profile && proteinBonus !== PROTEIN_BONUS.generic) {
+      item.condition = profile.condition;
+    }
+    breakdown.push(item);
   }
 
   const hasOmega3 =
@@ -95,30 +183,64 @@ export function calculateScore(product: Product, _profile?: UserProfile): ScoreR
 
   // === LABEL BONUS ===
 
+  const glutenFreeBonus = GLUTEN_FREE_BONUS[conditionKey];
   const hasGlutenFree = product.labels.some(
     (l) => containsIgnoreCase(l, "gluten-free") || containsIgnoreCase(l, "gluten free")
   );
   if (hasGlutenFree) {
-    bonusPoints += 0.5;
-    breakdown.push({ reason: "Glutenfrei-Label", points: 0.5 });
+    bonusPoints += glutenFreeBonus;
+    const item: ScoreBreakdownItem = { reason: "Glutenfrei-Label", points: glutenFreeBonus };
+    if (profile && glutenFreeBonus !== GLUTEN_FREE_BONUS.generic) {
+      item.condition = profile.condition;
+    }
+    breakdown.push(item);
   }
 
+  const bioBonus = BIO_BONUS[conditionKey];
   const hasBio = product.labels.some(
     (l) => containsIgnoreCase(l, "organic") || containsIgnoreCase(l, "bio")
   );
   if (hasBio) {
-    bonusPoints += 0.5;
-    breakdown.push({ reason: "Bio-Label", points: 0.5 });
+    bonusPoints += bioBonus;
+    const item: ScoreBreakdownItem = { reason: "Bio-Label", points: bioBonus };
+    if (profile && bioBonus !== BIO_BONUS.generic) {
+      item.condition = profile.condition;
+    }
+    breakdown.push(item);
   }
 
   // === MALUS POINTS ===
 
-  if ((n.sugars ?? 0) > 20) {
-    malusPoints += 2.0;
-    breakdown.push({ reason: "Zucker > 20g/100g", points: -2.0 });
-  } else if ((n.sugars ?? 0) > 10) {
-    malusPoints += 1.0;
-    breakdown.push({ reason: "Zucker > 10g/100g", points: -1.0 });
+  // Sugar: only the highest applicable threshold fires
+  if (conditionKey !== "generic") {
+    // Profile mode: check > 5g threshold too
+    if ((n.sugars ?? 0) > 20) {
+      const malus = SUGAR_20_MALUS[conditionKey];
+      malusPoints += malus;
+      const item: ScoreBreakdownItem = { reason: "Zucker > 20g/100g", points: -malus };
+      if (malus !== SUGAR_20_MALUS.generic) item.condition = profile!.condition;
+      breakdown.push(item);
+    } else if ((n.sugars ?? 0) > 10) {
+      const malus = SUGAR_10_MALUS[conditionKey];
+      malusPoints += malus;
+      const item: ScoreBreakdownItem = { reason: "Zucker > 10g/100g", points: -malus };
+      if (malus !== SUGAR_10_MALUS.generic) item.condition = profile!.condition;
+      breakdown.push(item);
+    } else if ((n.sugars ?? 0) > 5) {
+      const malus = SUGAR_5_MALUS[conditionKey];
+      malusPoints += malus;
+      // sugar > 5g threshold always gets condition set (new threshold, doesn't exist in generic)
+      breakdown.push({ reason: "Zucker > 5g/100g", points: -malus, condition: profile!.condition });
+    }
+  } else {
+    // Generic mode: only > 10g and > 20g thresholds
+    if ((n.sugars ?? 0) > 20) {
+      malusPoints += 2.0;
+      breakdown.push({ reason: "Zucker > 20g/100g", points: -2.0 });
+    } else if ((n.sugars ?? 0) > 10) {
+      malusPoints += 1.0;
+      breakdown.push({ reason: "Zucker > 10g/100g", points: -1.0 });
+    }
   }
 
   if ((n.saturatedFat ?? 0) > 10) {
@@ -137,17 +259,32 @@ export function calculateScore(product: Product, _profile?: UserProfile): ScoreR
   // === INGREDIENTS MALUS ===
 
   if (containsIgnoreCase(product.ingredients, "gluten")) {
-    malusPoints += 0.5;
-    breakdown.push({ reason: "Gluten in Zutaten", points: -0.5 });
+    const baseGlutenMalus = GLUTEN_MALUS[conditionKey];
+    const multiplier = profile?.glutenSensitive ? 2 : 1;
+    const effectiveGlutenMalus = baseGlutenMalus * multiplier;
+    malusPoints += effectiveGlutenMalus;
+    const item: ScoreBreakdownItem = { reason: "Gluten in Zutaten", points: -effectiveGlutenMalus };
+    if (profile && (effectiveGlutenMalus !== GLUTEN_MALUS.generic)) {
+      item.condition = profile.condition;
+    }
+    breakdown.push(item);
   }
 
-  if (
+  const hasLactose =
     containsIgnoreCase(product.ingredients, "lactose") ||
     containsIgnoreCase(product.ingredients, "milk") ||
-    containsIgnoreCase(product.ingredients, "milch")
-  ) {
-    malusPoints += 0.3;
-    breakdown.push({ reason: "Laktose in Zutaten", points: -0.3 });
+    containsIgnoreCase(product.ingredients, "milch");
+
+  if (hasLactose) {
+    const baseLactoseMalus = 0.3;
+    const multiplier = profile?.lactoseIntolerant ? 2 : 1;
+    const effectiveLactoseMalus = baseLactoseMalus * multiplier;
+    malusPoints += effectiveLactoseMalus;
+    const item: ScoreBreakdownItem = { reason: "Laktose in Zutaten", points: -effectiveLactoseMalus };
+    if (profile?.lactoseIntolerant) {
+      item.condition = profile.condition;
+    }
+    breakdown.push(item);
   }
 
   if (product.additives.length > 5) {
