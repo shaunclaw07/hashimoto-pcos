@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { BottomNav } from "@/components/bottom-nav";
+import { OnboardingGuard } from "@/components/onboarding-guard";
+import { ProfileHeader } from "@/components/profile-header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,10 +27,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className="min-h-screen pb-20">
-            {children}
-          </main>
-          <BottomNav />
+          <OnboardingGuard>
+            <ProfileHeader />
+            <main className="min-h-screen pb-20 pt-14">
+              {children}
+            </main>
+            <BottomNav />
+          </OnboardingGuard>
         </ThemeProvider>
       </body>
     </html>
