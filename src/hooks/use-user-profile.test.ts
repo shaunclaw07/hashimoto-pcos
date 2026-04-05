@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { createElement, useState } from "react";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { useUserProfile } from "./use-user-profile";
@@ -13,31 +13,25 @@ const mockProfile = {
   lactoseIntolerant: false,
 };
 
+const containers: HTMLDivElement[] = [];
+
 // Minimal renderHook implementation using react-dom/client + act
 function renderHook<T>(hook: () => T): { result: { current: T } } {
   const result: { current: T } = { current: null as unknown as T };
 
   function Wrapper() {
     result.current = hook();
-    // Re-render on state changes via useState trick
-    const [, forceUpdate] = useState(0);
-    void forceUpdate; // suppress unused warning
     return null;
   }
 
   const container = document.createElement("div");
   document.body.appendChild(container);
+  containers.push(container);
   const root = createRoot(container);
 
   act(() => {
     root.render(createElement(Wrapper));
   });
-
-  // Cleanup helper attached to result for convenience
-  (result as { current: T; _cleanup?: () => void })._cleanup = () => {
-    act(() => { root.unmount(); });
-    document.body.removeChild(container);
-  };
 
   return { result };
 }
@@ -46,8 +40,17 @@ beforeEach(() => {
   localStorage.clear();
 });
 
+afterEach(() => {
+  containers.forEach(container => {
+    if (container.parentNode) {
+      document.body.removeChild(container);
+    }
+  });
+  containers.length = 0;
+});
+
 describe("useUserProfile", () => {
-  it("starts with profile=null and isLoaded=false", () => {
+  it("initialises with profile=null and isLoaded=true after mount", () => {
     const { result } = renderHook(() => useUserProfile());
     // jsdom effects run synchronously within act, so settled state is checked
     expect(result.current.isLoaded).toBe(true);
