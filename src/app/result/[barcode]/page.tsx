@@ -27,18 +27,10 @@ export default function ResultPage() {
       setError(null);
 
       const response = await fetch(`/api/products/${barcode}`);
+      const data = await response.json().catch(() => ({})) as { success?: boolean; product?: Product; error?: { type?: string } };
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        const errorMessage = (errorData as { message?: string })?.message || `HTTP ${response.status}`;
-        throw new Error(errorMessage);
-      }
-
-      const result: { success: boolean; product?: Product; error?: { type: string } } =
-        await response.json();
-
-      if (!result.success || !result.product) {
-        const errType = result.error?.type ?? "unknown";
+      if (!response.ok || !data.success || !data.product) {
+        const errType = data.error?.type ?? "unknown";
         setError(
           errType === "not_found"
             ? "Produkt nicht gefunden. Bitte überprüfe den Barcode."
@@ -51,8 +43,8 @@ export default function ResultPage() {
       }
 
       const favUseCase = new ManageFavoritesUseCase(new LocalStorageFavoritesRepository());
-      setProduct(result.product);
-      setScoreResult(calculateScore(result.product));
+      setProduct(data.product);
+      setScoreResult(calculateScore(data.product));
       setSaved(favUseCase.isSaved(barcode));
       setLoading(false);
     }
