@@ -1,6 +1,9 @@
+import type { Condition } from "./user-profile";
+
 export interface ScoreBreakdownItem {
   reason: string;
   points: number;
+  condition?: Condition; // set when this item is profile-specific
 }
 
 export interface ScoreResult {
