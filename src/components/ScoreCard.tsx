@@ -3,7 +3,7 @@
 import { Star, RotateCcw, Save, Check, AlertTriangle } from "lucide-react";
 import type { Product } from "@/core/domain/product";
 import type { ScoreResult } from "@/core/domain/score";
-import type { UserProfile } from "@/core/domain/user-profile";
+import type { UserProfile, Condition } from "@/core/domain/user-profile";
 
 interface ScoreCardProps {
   product: Product;
@@ -13,6 +13,12 @@ interface ScoreCardProps {
   saved?: boolean;
   profile?: UserProfile;
 }
+
+const CONDITION_ICON: Record<Condition, string> = {
+  hashimoto: "🦋",
+  pcos: "🔵",
+  both: "🦋🔵",
+};
 
 const SCORE_CONFIG = {
   "SEHR GUT": {
@@ -147,9 +153,7 @@ export function ScoreCard({
                   )}
                 </span>
                 <span className="flex-1 text-foreground">
-                  {item.condition === "hashimoto" && <span className="mr-1">🦋</span>}
-                  {item.condition === "pcos" && <span className="mr-1">🔵</span>}
-                  {item.condition === "both" && <span className="mr-1">🦋🔵</span>}
+                  {item.condition && <span className="mr-1">{CONDITION_ICON[item.condition]}</span>}
                   {item.reason}
                 </span>
                 <span
