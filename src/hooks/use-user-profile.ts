@@ -24,6 +24,8 @@ export function useUserProfile() {
   const setProfile = useCallback((p: UserProfile | null) => {
     if (p) {
       localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+      localStorage.removeItem(SKIPPED_KEY); // Clear skip flag when profile is set
+      setSkipped(false);
     } else {
       localStorage.removeItem(PROFILE_KEY);
     }

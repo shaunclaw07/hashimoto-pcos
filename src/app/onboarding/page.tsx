@@ -43,8 +43,8 @@ export default function OnboardingPage() {
     if (!condition) return;
     setProfile({
       condition,
-      glutenSensitive: glutenAnswer === "yes",
-      lactoseIntolerant: lactoseAnswer === "yes",
+      glutenSensitive: glutenAnswer === "yes",   // "no" and "unknown" both map to false
+      lactoseIntolerant: lactoseAnswer === "yes", // "no" and "unknown" both map to false
     });
     router.replace("/");
   }
@@ -146,7 +146,7 @@ export default function OnboardingPage() {
                     key={value}
                     onClick={() => setGlutenAnswer(value)}
                     className={cn(
-                      "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all min-h-[44px]",
+                      "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all min-h-[44px] touch-target",
                       glutenAnswer === value
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-border text-foreground hover:bg-muted"
@@ -169,7 +169,7 @@ export default function OnboardingPage() {
                     key={value}
                     onClick={() => setLactoseAnswer(value)}
                     className={cn(
-                      "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all min-h-[44px]",
+                      "flex-1 rounded-xl border-2 py-3 text-sm font-medium transition-all min-h-[44px] touch-target",
                       lactoseAnswer === value
                         ? "border-primary bg-primary/10 text-primary"
                         : "border-border text-foreground hover:bg-muted"
