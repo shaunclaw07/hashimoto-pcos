@@ -3,6 +3,7 @@
 import { Star, RotateCcw, Save, Check, AlertTriangle } from "lucide-react";
 import type { Product } from "@/core/domain/product";
 import type { ScoreResult } from "@/core/domain/score";
+import type { UserProfile } from "@/core/domain/user-profile";
 
 interface ScoreCardProps {
   product: Product;
@@ -10,6 +11,7 @@ interface ScoreCardProps {
   onRescan: () => void;
   onSave?: () => void;
   saved?: boolean;
+  profile?: UserProfile;
 }
 
 const SCORE_CONFIG = {
@@ -70,6 +72,7 @@ export function ScoreCard({
   onRescan,
   onSave,
   saved,
+  profile,
 }: ScoreCardProps) {
   const config = SCORE_CONFIG[scoreResult.label];
   if (!config) throw new Error(`Unknown score label: ${scoreResult.label}`);
@@ -125,6 +128,11 @@ export function ScoreCard({
         <div className="border-t border-border px-5 py-5">
           <h3 className="mb-4 text-base font-semibold text-foreground">
             Bewertungsgründe
+            {profile && (
+              <span className="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                Angepasst für: {profile.condition === "hashimoto" ? "Hashimoto" : profile.condition === "pcos" ? "PCOS" : "Hashimoto + PCOS"}
+              </span>
+            )}
           </h3>
           <div className="space-y-3">
             {scoreResult.breakdown.map((item, i) => (
@@ -138,7 +146,12 @@ export function ScoreCard({
                     <AlertTriangle className="h-5 w-5" />
                   )}
                 </span>
-                <span className="flex-1 text-foreground">{item.reason}</span>
+                <span className="flex-1 text-foreground">
+                  {item.condition === "hashimoto" && <span className="mr-1">🦋</span>}
+                  {item.condition === "pcos" && <span className="mr-1">🔵</span>}
+                  {item.condition === "both" && <span className="mr-1">🦋🔵</span>}
+                  {item.reason}
+                </span>
                 <span
                   className={`font-semibold ${
                     item.points >= 0 ? "text-green-600" : "text-red-500"

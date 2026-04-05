@@ -10,6 +10,7 @@ import { ManageFavoritesUseCase } from "@/core/use-cases/manage-favorites";
 import { LocalStorageFavoritesRepository } from "@/infrastructure/storage/local-storage-favorites";
 import { AlertCircle, Loader2, PackageX } from "lucide-react";
 import Link from "next/link";
+import { useUserProfile } from "@/hooks/use-user-profile";
 
 export default function ResultPage() {
   const params = useParams();
@@ -20,6 +21,7 @@ export default function ResultPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const { profile, isLoaded: profileLoaded } = useUserProfile();
 
   useEffect(() => {
     async function load() {
@@ -44,13 +46,19 @@ export default function ResultPage() {
 
       const favUseCase = new ManageFavoritesUseCase(new LocalStorageFavoritesRepository());
       setProduct(data.product);
-      setScoreResult(calculateScore(data.product));
       setSaved(favUseCase.isSaved(barcode));
       setLoading(false);
     }
 
     load();
   }, [barcode]);
+
+  // Recalculate score when profile loads
+  useEffect(() => {
+    if (product && profileLoaded) {
+      setScoreResult(calculateScore(product, profile ?? undefined));
+    }
+  }, [product, profile, profileLoaded]);
 
   function handleRescan() {
     window.location.href = "/scanner";
@@ -121,6 +129,7 @@ export default function ResultPage() {
         onRescan={handleRescan}
         onSave={handleSave}
         saved={saved}
+        profile={profile ?? undefined}
       />
     </div>
   );

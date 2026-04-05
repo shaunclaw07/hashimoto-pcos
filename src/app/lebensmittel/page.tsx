@@ -5,7 +5,9 @@ import { Search, Loader2, PackageX, ServerCrash } from "lucide-react";
 import { calculateScore } from "@/core/services/scoring-service";
 import type { Product } from "@/core/domain/product";
 import type { ScoreResult } from "@/core/domain/score";
+import type { UserProfile } from "@/core/domain/user-profile";
 import Link from "next/link";
+import { useUserProfile } from "@/hooks/use-user-profile";
 
 const CATEGORIES = [
   { key: "alle", label: "Alle" },
@@ -56,6 +58,7 @@ async function searchProducts(
 }
 
 export default function LebensmittelPage() {
+  const { profile } = useUserProfile();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("alle");
   const [results, setResults] = useState<Product[]>([]);
@@ -212,7 +215,7 @@ export default function LebensmittelPage() {
             key={product.barcode ? product.barcode : `fallback-${index}`}
             ref={index === results.length - 1 ? lastProductRef : undefined}
           >
-            <ProductCard product={product} />
+            <ProductCard product={product} profile={profile ?? undefined} />
           </div>
         ))}
       </div>
@@ -263,10 +266,10 @@ function getScoreColor(score: number): string {
   return "bg-score-avoid";
 }
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, profile }: { product: Product; profile?: UserProfile }) {
   let scoreResult: ScoreResult | undefined;
   try {
-    scoreResult = calculateScore(product);
+    scoreResult = calculateScore(product, profile);
   } catch {
     // ignore scoring errors — product still displays
   }
