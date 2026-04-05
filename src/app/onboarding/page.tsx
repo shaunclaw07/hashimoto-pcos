@@ -6,20 +6,7 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import type { Condition } from "@/core/domain/user-profile";
 import { cn } from "@/lib/utils";
 import { ArrowRight, ArrowLeft, Check } from "lucide-react";
-
-type SensitivityAnswer = "yes" | "no" | "unknown";
-
-const CONDITIONS: { value: Condition; label: string; emoji: string }[] = [
-  { value: "hashimoto", label: "Hashimoto-Thyreoiditis", emoji: "🦋" },
-  { value: "pcos", label: "PCOS (Polyzystisches Ovarialsyndrom)", emoji: "🔵" },
-  { value: "both", label: "Beides", emoji: "✦" },
-];
-
-const SENSITIVITY_OPTIONS: { value: SensitivityAnswer; label: string }[] = [
-  { value: "yes", label: "Ja" },
-  { value: "no", label: "Nein" },
-  { value: "unknown", label: "Weiß nicht" },
-];
+import { CONDITIONS, SENSITIVITY_OPTIONS, type SensitivityAnswer } from "@/lib/profile-options";
 
 export default function OnboardingPage() {
   const { setProfile, skipOnboarding } = useUserProfile();

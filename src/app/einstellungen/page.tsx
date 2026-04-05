@@ -1,31 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import type { Condition } from "@/core/domain/user-profile";
 import { cn } from "@/lib/utils";
 import { Check, Save } from "lucide-react";
-
-type SensitivityAnswer = "yes" | "no" | "unknown";
-
-const CONDITIONS: Array<{ value: Condition; label: string; emoji: string }> = [
-  { value: "hashimoto", label: "Hashimoto-Thyreoiditis", emoji: "🦋" },
-  { value: "pcos", label: "PCOS (Polyzystisches Ovarialsyndrom)", emoji: "🔵" },
-  { value: "both", label: "Beides", emoji: "✦" },
-];
-
-const SENSITIVITY_OPTIONS: Array<{ value: SensitivityAnswer; label: string }> = [
-  { value: "yes", label: "Ja" },
-  { value: "no", label: "Nein" },
-  { value: "unknown", label: "Weiß nicht" },
-];
+import { CONDITIONS, SENSITIVITY_OPTIONS, type SensitivityAnswer } from "@/lib/profile-options";
 
 export default function EinstellungenPage() {
   const { profile, setProfile, isLoaded } = useUserProfile();
+  const router = useRouter();
   const [condition, setCondition] = useState<Condition | null>(null);
   const [glutenAnswer, setGlutenAnswer] = useState<SensitivityAnswer | null>(null);
   const [lactoseAnswer, setLactoseAnswer] = useState<SensitivityAnswer | null>(null);
   const [saved, setSaved] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const confirmDeleteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Pre-fill from loaded profile
   useEffect(() => {
@@ -37,22 +29,35 @@ export default function EinstellungenPage() {
     }
   }, [isLoaded, profile]);
 
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
+    };
+  }, []);
+
   function handleSave() {
     if (!condition) return;
     setProfile({
       condition,
-      glutenSensitive: glutenAnswer === "yes",
-      lactoseIntolerant: lactoseAnswer === "yes",
+      glutenSensitive: glutenAnswer === "yes",   // "no" and "unknown" both map to false
+      lactoseIntolerant: lactoseAnswer === "yes", // "no" and "unknown" both map to false
     });
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
     setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    savedTimerRef.current = setTimeout(() => setSaved(false), 2000);
   }
 
   function handleDelete() {
+    if (!confirmDelete) {
+      setConfirmDelete(true);
+      if (confirmDeleteTimerRef.current) clearTimeout(confirmDeleteTimerRef.current);
+      confirmDeleteTimerRef.current = setTimeout(() => setConfirmDelete(false), 3000);
+      return;
+    }
     setProfile(null);
-    setCondition(null);
-    setGlutenAnswer(null);
-    setLactoseAnswer(null);
+    router.push("/onboarding");
   }
 
   if (!isLoaded) return null;
@@ -69,12 +74,6 @@ export default function EinstellungenPage() {
               <Check className="mr-1.5 h-3.5 w-3.5" />
               Profil aktiv
             </span>
-            <button
-              onClick={handleDelete}
-              className="text-sm text-muted-foreground underline-offset-2 hover:text-foreground hover:underline transition-colors"
-            >
-              Profil zurücksetzen
-            </button>
           </div>
         ) : (
           <span className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-sm font-medium text-muted-foreground">
@@ -180,6 +179,22 @@ export default function EinstellungenPage() {
           </>
         )}
       </button>
+
+      {/* Delete button */}
+      {profile && (
+        <button
+          type="button"
+          onClick={handleDelete}
+          className={cn(
+            "mt-4 w-full rounded-xl border py-4 text-base font-medium touch-target transition-all",
+            confirmDelete
+              ? "border-red-300 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-950/40 dark:text-red-300"
+              : "border-border text-muted-foreground hover:border-destructive hover:text-destructive"
+          )}
+        >
+          {confirmDelete ? "⚠️ Wirklich zurücksetzen?" : "Profil zurücksetzen"}
+        </button>
+      )}
     </div>
   );
 }

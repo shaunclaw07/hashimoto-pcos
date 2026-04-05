@@ -26,7 +26,7 @@ test.describe('Navigation & Routing', () => {
   });
 
   test('all_routes_return_200', async ({ page }) => {
-    const routes = ['/', '/scanner', '/lebensmittel'];
+    const routes = ['/', '/scanner', '/lebensmittel', '/einstellungen'];
     for (const route of routes) {
       const response = await page.goto(route);
       expect(response?.status()).toBe(200);

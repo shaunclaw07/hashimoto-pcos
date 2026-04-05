@@ -15,6 +15,9 @@ const navItems = [
 export function BottomNav() {
   const pathname = usePathname();
 
+  // Don't show nav on onboarding page
+  if (pathname === "/onboarding") return null;
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 bottom-nav-safe">
       <div className="mx-auto flex h-16 max-w-lg items-center justify-around">

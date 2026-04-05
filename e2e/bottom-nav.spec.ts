@@ -1,11 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('BottomNav Component', () => {
-  test('all_3_nav_items_present', async ({ page }) => {
+  test('all_4_nav_items_present', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('link', { name: /home/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /scanner/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /liste/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /profil/i })).toBeVisible();
   });
 
   test('active_item_highlighted', async ({ page }) => {
@@ -26,7 +27,15 @@ test.describe('BottomNav Component', () => {
     await page.getByRole('link', { name: /liste/i }).click();
     await expect(page).toHaveURL('/lebensmittel');
 
+    await page.getByRole('link', { name: /profil/i }).click();
+    await expect(page).toHaveURL('/einstellungen');
+
     await page.getByRole('link', { name: /home/i }).click();
     await expect(page).toHaveURL('/');
+  });
+
+  test('nav_hidden_on_onboarding', async ({ page }) => {
+    await page.goto('/onboarding');
+    await expect(page.getByRole('navigation')).not.toBeVisible();
   });
 });
