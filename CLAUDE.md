@@ -8,7 +8,7 @@ A **nutrition guidance web app** for women with Hashimoto-Thyreoiditis and PCOS.
 - **UI language:** German (all user-facing strings are in German)
 - **Local SQLite database** (`data/products.db`) with 460k+ DACH products as primary data source; OpenFoodFacts REST API as fallback
 - **Next.js API routes** serve product data server-side (`/api/products/[barcode]`, `/api/products/search`)
-- **Persistence:** Browser `localStorage` only (saved favorites)
+- **Persistence:** Browser `localStorage` only (saved favorites + user profile)
 - **No authentication** — fully public app
 
 ---
@@ -47,7 +47,9 @@ Browser
         ├── /                        → Landing page (server component)
         ├── /scanner                 → Barcode scanner (camera + manual input)
         ├── /lebensmittel            → Product search with infinite scroll
-        └── /result/[barcode]        → Product detail + score + save
+        ├── /result/[barcode]        → Product detail + score + save
+        ├── /onboarding              → 2-step profile wizard (first-run)
+        └── /einstellungen           → Profile settings (view + edit)
               │  (calls via fetch)
               └── API Routes (thin — delegate to use cases)
                     ├── /api/products/[barcode]  → GetProductUseCase
@@ -80,10 +82,10 @@ Browser
 |------|---------|
 | `src/core/domain/product.ts` | `Product`, `Nutriments`, `SearchQuery`, `SearchResult` types |
 | `src/core/domain/score.ts` | `ScoreResult`, `ScoreLabel`, `ScoreBreakdownItem` types |
-| `src/core/domain/user-profile.ts` | `UserProfile`, `Condition` types (Phase 2) |
+| `src/core/domain/user-profile.ts` | `UserProfile`, `Condition` types |
 | `src/core/ports/product-repository.ts` | `IProductRepository` interface: `findByBarcode`, `search`, `updateNutriments` |
 | `src/core/ports/favorites-repository.ts` | `IFavoritesRepository` interface + `SavedProduct` type |
-| `src/core/ports/ai-analysis-service.ts` | `IAIAnalysisService` interface (Phase 2) |
+| `src/core/ports/ai-analysis-service.ts` | `IAIAnalysisService` interface (future) |
 | `src/core/services/scoring-service.ts` | `calculateScore(product, profile?)` — pure function |
 | `src/core/services/barcode-service.ts` | `isValidEan13(barcode)` — pure function |
 | `src/core/use-cases/get-product.ts` | `GetProductUseCase` — validate → primary → fallback → enrich |
@@ -107,24 +109,31 @@ Browser
 
 | Path | Purpose |
 |------|---------|
-| `src/app/layout.tsx` | Root layout: ThemeProvider, Inter font, BottomNav |
+| `src/app/layout.tsx` | Root layout: ThemeProvider, ProfileHeader, OnboardingGuard, BottomNav |
 | `src/app/page.tsx` | Landing page (server component) |
 | `src/app/scanner/page.tsx` | Scanner — dual mode: QuaggaJS camera & manual EAN-13 input |
 | `src/app/lebensmittel/page.tsx` | Search page — calls `/api/products/search`, category filters, infinite scroll |
-| `src/app/result/[barcode]/page.tsx` | Result page — calls `/api/products/[barcode]`, runs scoring, save to localStorage |
+| `src/app/result/[barcode]/page.tsx` | Result page — calls `/api/products/[barcode]`, profile-aware scoring, save to localStorage |
+| `src/app/onboarding/page.tsx` | 2-step profile wizard: condition selection → sensitivities; skip supported |
+| `src/app/einstellungen/page.tsx` | Settings page — view/edit/delete user profile |
 | `src/app/api/products/[barcode]/route.ts` | API Route: delegates to `GetProductUseCase` |
 | `src/app/api/products/search/route.ts` | API Route: delegates to `SearchProductsUseCase` |
 | `src/components/Scanner.tsx` | QuaggaJS2 wrapper; debounces duplicate scans (3 s) |
-| `src/components/ScoreCard.tsx` | Displays score badge, star rating, nutrition breakdown, action buttons |
-| `src/components/bottom-nav.tsx` | Fixed bottom navigation (3 routes) |
+| `src/components/ScoreCard.tsx` | Score badge, star rating, breakdown with condition icons (🦋🔵), profile badge |
+| `src/components/bottom-nav.tsx` | Fixed bottom navigation (4 routes incl. /einstellungen); hidden on /onboarding |
+| `src/components/profile-header.tsx` | Fixed top bar with app title and profile badge (🦋/🔵/✦); hydration-safe |
+| `src/components/onboarding-guard.tsx` | Client-side redirect guard → /onboarding when no profile and not skipped |
 | `src/components/theme-provider.tsx` | next-themes wrapper (light/dark/system) |
+| `src/hooks/use-user-profile.ts` | `useUserProfile()` — localStorage hook for profile state; hydration-safe (`isLoaded`) |
 | `src/lib/utils.ts` | `cn()` — clsx + tailwind-merge |
+| `src/lib/profile-options.ts` | Shared constants: `CONDITIONS`, `SENSITIVITY_OPTIONS`, `SensitivityAnswer` type |
 
 ### Tests & Scripts
 
 | Path | Purpose |
 |------|---------|
-| `src/core/services/scoring-service.test.ts` | Scoring algorithm tests (27 cases) |
+| `src/core/services/scoring-service.test.ts` | Scoring algorithm tests (138 cases — generic + all profile variants) |
+| `src/hooks/use-user-profile.test.ts` | `useUserProfile()` hook — localStorage load, set, skip, corrupt JSON |
 | `src/core/services/barcode-service.test.ts` | EAN-13 validation tests |
 | `src/core/use-cases/get-product.test.ts` | GetProductUseCase tests (fake repositories) |
 | `src/core/use-cases/search-products.test.ts` | SearchProductsUseCase tests |
@@ -135,7 +144,7 @@ Browser
 | `data/products.db` | SQLite DB with ~462k DACH products (gitignored, build via `db:build`) |
 | `tests/fixtures/products/*.json` | 5 real product fixtures in domain format (sehr-gut / gut / neutral / weniger-gut / vermeiden) |
 | `tests/helpers/mock-api.ts` | Playwright helpers: `mockProductApi`, `mockProductNotFound`, `mockSearchApi` |
-| `e2e/*.spec.ts` | Playwright E2E tests (9 specs, 40+ tests) |
+| `e2e/*.spec.ts` | Playwright E2E tests (10 specs, 55+ tests) |
 | `playwright.config.ts` | Playwright config — mobile viewport, auto dev-server |
 | `docs/recherche/` | Scientific research in German (4 files) |
 | `k8s/` | Kubernetes deployment + HPA manifests |
@@ -146,9 +155,13 @@ Browser
 
 ## Scoring Algorithm (`src/core/services/scoring-service.ts`)
 
-**Base score: 3.0** — adjusted by nutritional content per 100 g:
+**Base score: 3.0** — adjusted by nutritional content per 100 g.
 
-| Condition | Points |
+`calculateScore(product, profile?)` accepts an optional `UserProfile`. When a profile is set, condition-specific lookup tables adjust the weights. Breakdown items that differ from generic weights get a `condition` tag shown as an icon in the UI.
+
+### Generic thresholds (no profile)
+
+| Criterion | Points |
 |-----------|--------|
 | Fiber > 6 g | +1.0 |
 | Fiber > 3 g | +0.5 |
@@ -164,6 +177,21 @@ Browser
 | Gluten in ingredients | −0.5 |
 | Lactose in ingredients | −0.3 |
 | > 5 additives (E-numbers) | −0.5 |
+
+### Profile-aware thresholds (lookup tables per `ConditionKey`)
+
+| Criterion | Generic | Hashimoto | PCOS | Both |
+|-----------|---------|-----------|------|------|
+| Sugar > 5 g | 0 | −0.5 | −1.5 | −2.0 |
+| Sugar > 10 g | −1.0 | −1.0 | −2.5 | −3.0 |
+| Sugar > 20 g | −2.0 | −2.0 | −3.5 | −4.0 |
+| Gluten in ingredients | −0.5 | −1.5 | −0.5 | −2.0 |
+| Fiber > 6 g | +1.0 | +1.0 | +1.5 | +1.5 |
+| Protein > 20 g | +0.5 | +0.5 | +1.0 | +1.0 |
+| Gluten-free label | +0.5 | +0.5 | +0.2 | +0.8 |
+| Organic/Bio label | +0.5 | +0.5 | +0.3 | +0.5 |
+
+Additionally: `profile.glutenSensitive` doubles the gluten malus; `profile.lactoseIntolerant` doubles the lactose malus.
 
 Final score is **clamped to [1.0, 5.0]** and mapped to labels:
 
@@ -258,7 +286,8 @@ Always pattern-match on `result.success` before accessing `result.product`.
 **Unit test coverage:**
 | File | Area |
 |------|------|
-| `src/core/services/scoring-service.test.ts` | `calculateScore()` — all bonus/malus rules + edge cases |
+| `src/core/services/scoring-service.test.ts` | `calculateScore()` — generic rules + all 3 condition profiles + sensitivity modifiers |
+| `src/hooks/use-user-profile.test.ts` | `useUserProfile()` — load, set, skip, clear, corrupt JSON fallback |
 | `src/core/services/barcode-service.test.ts` | `isValidEan13()` — valid/invalid EAN-13 |
 | `src/core/use-cases/get-product.test.ts` | `GetProductUseCase` — primary, fallback, enrichment, errors |
 | `src/core/use-cases/search-products.test.ts` | `SearchProductsUseCase` — primary, fallback |
@@ -274,9 +303,10 @@ Always pattern-match on `result.success` before accessing `result.product`.
 | `search.spec.ts` | Search, category filters, infinite scroll, empty states |
 | `result-page.spec.ts` | Loading, error, product display, score, save/unsave |
 | `scorecard.spec.ts` | Score rendering, save toggle |
-| `bottom-nav.spec.ts` | Nav items, active highlighting |
+| `bottom-nav.spec.ts` | Nav items (4 tabs), active highlighting, hidden on /onboarding |
 | `theme.spec.ts` | Dark mode (system-only; tests skipped — no UI toggle) |
 | `localstorage.spec.ts` | Save/remove/persist products |
+| `onboarding.spec.ts` | First-run redirect, skip, 2-step wizard, profile save, settings page, profile-aware scoring |
 
 Write tests before implementation (TDD). All `core/` code must have full test coverage.
 
@@ -325,8 +355,11 @@ docs(readme): update deployment instructions
 
 - Component-local state: `useState` / `useEffect` / `useRef`
 - Saved products: `localStorage` key `"hashimoto-pcos-saved-products"` (see `result/[barcode]/page.tsx`)
+- User profile: `localStorage` key `"hashimoto-pcos-user-profile"` — `UserProfile` JSON (see `src/hooks/use-user-profile.ts`)
+- Onboarding skipped: `localStorage` key `"hashimoto-pcos-onboarding-skipped"` — `"true"` string; cleared when a profile is saved
 - Route state: URL params (`[barcode]` dynamic route, query string in `/lebensmittel`)
 - **No server-side session, no cookies**
+- **Hydration safety:** `useUserProfile()` sets `isLoaded = true` after the first `useEffect` — all profile-dependent UI waits for `isLoaded` before rendering to prevent SSR/client mismatches
 
 ---
 

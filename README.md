@@ -13,6 +13,7 @@ Dieses Projekt hilft Frauen, die sowohl an Hashimoto als auch an PCOS leiden, di
 - 📷 **Barcode-Scanner** - Produkte scannen und sofort Bewertung erhalten
 - 🔍 **Lebensmittel-Datenbank** - Suche nach einzelnen Lebensmitteln (DACH-Produkte mit vollständigen Nährwerten)
 - 📊 **Nährstoff-Analyse** - Detaillierte Aufschlüsselung pro Produkt
+- 🦋 **Nutzerprofil-Personalisierung** - Bewertungen auf Hashimoto, PCOS oder beides zugeschnitten
 - 🎓 **Wissenschaftlich fundiert** - Alle Empfehlungen basieren auf aktueller Studienlage
 - 👩‍💻 **DAU-freundlich** - Keine medizinischen Vorkenntnisse nötig
 
@@ -39,11 +40,22 @@ hashimoto-pcos/
 │   │   ├── page.tsx                 # Landing Page
 │   │   ├── scanner/page.tsx         # Barcode-Scanner
 │   │   ├── lebensmittel/page.tsx    # Produktsuche
+│   │   ├── onboarding/page.tsx      # Erstkonfiguration Nutzerprofil (2-Schritt-Wizard)
+│   │   ├── einstellungen/page.tsx   # Profilseite (Profil anzeigen / ändern)
 │   │   ├── result/[barcode]/        # Produktdetail + Score
 │   │   └── api/products/            # Schlanke API-Routes (delegieren an Use Cases)
-│   ├── components/                  # React-Komponenten (ScoreCard, Scanner, BottomNav)
+│   ├── components/                  # React-Komponenten
+│   │   ├── ScoreCard.tsx            # Score-Badge, Breakdown mit Profil-Icons
+│   │   ├── Scanner.tsx              # QuaggaJS2 Barcode-Scanner
+│   │   ├── bottom-nav.tsx           # Fixed Bottom Navigation (4 Tabs)
+│   │   ├── profile-header.tsx       # Globale Top-Bar mit Profil-Badge
+│   │   ├── onboarding-guard.tsx     # Redirect-Guard → /onboarding bei fehlendem Profil
+│   │   └── theme-provider.tsx       # Dark/Light Mode
+│   ├── hooks/
+│   │   └── use-user-profile.ts      # localStorage-Hook für Nutzerprofil-State
 │   └── lib/
-│       └── utils.ts                 # cn() Hilfsfunktion
+│       ├── utils.ts                 # cn() Hilfsfunktion
+│       └── profile-options.ts       # Geteilte Konstanten: CONDITIONS, SENSITIVITY_OPTIONS
 ├── data/
 │   └── products.db                  # Lokale SQLite-DB (via npm run db:build, gitignored)
 ├── scripts/
@@ -92,6 +104,7 @@ Die Recherche basiert auf folgenden Quellen:
 | Lokale SQLite-DB | ✅ Abgeschlossen |
 | Tailwind v4 Migration | ✅ Abgeschlossen |
 | Hexagonale Architektur | ✅ Abgeschlossen |
+| Nutzerprofil-Personalisierung | ✅ Abgeschlossen |
 | Beta-Release | 🔄 In Planung |
 
 ---
