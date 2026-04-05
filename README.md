@@ -11,7 +11,7 @@ Dieses Projekt hilft Frauen, die sowohl an Hashimoto als auch an PCOS leiden, di
 ### Kernfeatures
 
 - 📷 **Barcode-Scanner** - Produkte scannen und sofort Bewertung erhalten
-- 🔍 **Lebensmittel-Datenbank** - Suche nach einzelnen Lebensmitteln (462k+ DACH-Produkte lokal)
+- 🔍 **Lebensmittel-Datenbank** - Suche nach einzelnen Lebensmitteln (DACH-Produkte mit vollständigen Nährwerten)
 - 📊 **Nährstoff-Analyse** - Detaillierte Aufschlüsselung pro Produkt
 - 🎓 **Wissenschaftlich fundiert** - Alle Empfehlungen basieren auf aktueller Studienlage
 - 👩‍💻 **DAU-freundlich** - Keine medizinischen Vorkenntnisse nötig
@@ -45,9 +45,9 @@ hashimoto-pcos/
 │   └── lib/
 │       └── utils.ts                 # cn() Hilfsfunktion
 ├── data/
-│   └── products.db                  # Lokale SQLite-DB (via npm run db:build)
+│   └── products.db                  # Lokale SQLite-DB (via npm run db:build, gitignored)
 ├── scripts/
-│   └── build-db.mjs                 # CSV → SQLite Konvertierskript
+│   └── build-db.mjs                 # CSV → SQLite Konvertierskript (DACH + ≥3 Nährwerte)
 ├── tests/
 │   ├── fixtures/products/           # 5 Produkt-Fixtures (Domain-Format)
 │   └── helpers/mock-api.ts          # Playwright-Mock-Hilfsfunktionen
@@ -128,6 +128,8 @@ npm run build
 
 > **Hinweis:** Ohne `data/products.db` fällt die App automatisch auf die OpenFoodFacts-API zurück. Die lokale DB ist optional, wird aber für zuverlässige Performance empfohlen.
 >
+> Das Build-Script importiert nur DACH-Produkte (DE/AT/CH) mit mindestens 3 gültigen Nährwert-Feldern — Produkte ohne ausreichende Nährwertdaten werden gefiltert. Der Schwellenwert ist über `MIN_NUTRIMENTS` in `scripts/build-db.mjs` konfigurierbar.
+>
 > Fehlende Nährwerte werden beim ersten Abruf eines Produkts automatisch von der OFf-API nachgeladen und dauerhaft in der lokalen DB gespeichert — die DB vervollständigt sich selbst mit der Nutzung.
 
 **Wichtige Docs für Entwickler:**
@@ -191,4 +193,4 @@ Pull Requests sollten [.github/pull_request_template.md](.github/pull_request_te
 
 ---
 
-*Letzte Aktualisierung: 2026-04-02*
+*Letzte Aktualisierung: 2026-04-05*
