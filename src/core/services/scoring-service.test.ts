@@ -2,6 +2,7 @@
 import { describe, it, expect } from "vitest";
 import { calculateScore } from "./scoring-service";
 import type { Product } from "../domain/product";
+import type { UserProfile } from "../domain/user-profile";
 
 // Hilfsfunktion: erstellt ein minimales Test-Produkt (alle Pflichtfelder vorhanden)
 function makeProduct(overrides: Partial<Product> & { nutriments?: Partial<Product["nutriments"]> }): Product {
@@ -501,6 +502,376 @@ describe("validateNutriments (Bugfix #32)", () => {
     const result = calculateScore(product);
     expect(result.score).toBeDefined();
     expect(result.stars).toBeGreaterThanOrEqual(1);
+  });
+});
+
+// =============================================================================
+// calculateScore MIT NUTZERPROFIL
+// =============================================================================
+describe("calculateScore mit Nutzerprofil", () => {
+  // -------------------------------------------------------------------------
+  // 1. Generic mode regression
+  // -------------------------------------------------------------------------
+  describe("Generic mode regression", () => {
+    it("alle Breakdown-Items haben condition === undefined ohne Profil", () => {
+      const product = makeProduct({
+        nutriments: { sugars: 11, fiber: 7, protein: 25 },
+        labels: ["gluten-free", "organic"],
+        ingredients: "wheat gluten, skim milk",
+      });
+      const result = calculateScore(product);
+      for (const item of result.breakdown) {
+        expect(item.condition).toBeUndefined();
+      }
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // 2. Hashimoto profile — threshold verification
+  // -------------------------------------------------------------------------
+  describe("Hashimoto profil — Schwellenwerte", () => {
+    const hashimotoProfile: import("../domain/user-profile").UserProfile = {
+      condition: "hashimoto",
+      glutenSensitive: false,
+      lactoseIntolerant: false,
+    };
+
+    it("Gluten in Zutaten → Malus -1.5, condition: hashimoto", () => {
+      const product = makeProduct({ ingredients: "wheat gluten, water" });
+      const result = calculateScore(product, hashimotoProfile);
+      // 3.0 - 1.5 = 1.5
+      expect(result.score).toBeCloseTo(1.5, 1);
+      const item = result.breakdown.find((i) => i.reason === "Gluten in Zutaten");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-1.5, 1);
+      expect(item!.condition).toBe("hashimoto");
+    });
+
+    it("Ballaststoffe > 6g → Bonus +1.0, condition NICHT gesetzt (identisch mit generic)", () => {
+      const product = makeProduct({ nutriments: { fiber: 7 } });
+      const result = calculateScore(product, hashimotoProfile);
+      // 3.0 + 1.0 = 4.0
+      expect(result.score).toBeCloseTo(4.0, 1);
+      const item = result.breakdown.find((i) => i.reason === "Ballaststoffe > 6g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(1.0, 1);
+      expect(item!.condition).toBeUndefined();
+    });
+
+    it("Protein > 20g → Bonus +0.5, condition NICHT gesetzt (identisch mit generic)", () => {
+      const product = makeProduct({ nutriments: { protein: 21 } });
+      const result = calculateScore(product, hashimotoProfile);
+      // 3.0 + 0.5 = 3.5
+      expect(result.score).toBeCloseTo(3.5, 1);
+      const item = result.breakdown.find((i) => i.reason === "Protein > 20g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(0.5, 1);
+      expect(item!.condition).toBeUndefined();
+    });
+
+    it("Bio-Label → Bonus +0.5, condition NICHT gesetzt (identisch mit generic)", () => {
+      const product = makeProduct({ labels: ["organic"] });
+      const result = calculateScore(product, hashimotoProfile);
+      // 3.0 + 0.5 = 3.5
+      expect(result.score).toBeCloseTo(3.5, 1);
+      const item = result.breakdown.find((i) => i.reason === "Bio-Label");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(0.5, 1);
+      expect(item!.condition).toBeUndefined();
+    });
+
+    it("Glutenfrei-Label → Bonus +0.5, condition NICHT gesetzt (identisch mit generic)", () => {
+      const product = makeProduct({ labels: ["gluten-free"] });
+      const result = calculateScore(product, hashimotoProfile);
+      // 3.0 + 0.5 = 3.5
+      expect(result.score).toBeCloseTo(3.5, 1);
+      const item = result.breakdown.find((i) => i.reason === "Glutenfrei-Label");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(0.5, 1);
+      expect(item!.condition).toBeUndefined();
+    });
+
+    it("Zucker > 20g → Malus -2.0, condition NICHT gesetzt (identisch mit generic)", () => {
+      const product = makeProduct({ nutriments: { sugars: 21 } });
+      const result = calculateScore(product, hashimotoProfile);
+      // 3.0 - 2.0 = 1.0
+      expect(result.score).toBeCloseTo(1.0, 1);
+      const item = result.breakdown.find((i) => i.reason === "Zucker > 20g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-2.0, 1);
+      expect(item!.condition).toBeUndefined();
+    });
+
+    it("Zucker > 10g ≤ 20g → Malus -1.0, condition NICHT gesetzt (identisch mit generic)", () => {
+      const product = makeProduct({ nutriments: { sugars: 11 } });
+      const result = calculateScore(product, hashimotoProfile);
+      // 3.0 - 1.0 = 2.0
+      expect(result.score).toBeCloseTo(2.0, 1);
+      const item = result.breakdown.find((i) => i.reason === "Zucker > 10g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-1.0, 1);
+      expect(item!.condition).toBeUndefined();
+    });
+
+    it("Zucker > 5g ≤ 10g → Malus -0.5, condition: hashimoto (neue Stufe)", () => {
+      const product = makeProduct({ nutriments: { sugars: 7 } });
+      const result = calculateScore(product, hashimotoProfile);
+      // 3.0 - 0.5 = 2.5
+      expect(result.score).toBeCloseTo(2.5, 1);
+      const item = result.breakdown.find((i) => i.reason === "Zucker > 5g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-0.5, 1);
+      expect(item!.condition).toBe("hashimoto");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // 3. PCOS profile — threshold verification
+  // -------------------------------------------------------------------------
+  describe("PCOS profil — Schwellenwerte", () => {
+    const pcosProfile: import("../domain/user-profile").UserProfile = {
+      condition: "pcos",
+      glutenSensitive: false,
+      lactoseIntolerant: false,
+    };
+
+    it("Ballaststoffe > 6g → Bonus +1.5, condition: pcos", () => {
+      const product = makeProduct({ nutriments: { fiber: 7 } });
+      const result = calculateScore(product, pcosProfile);
+      // 3.0 + 1.5 = 4.5
+      expect(result.score).toBeCloseTo(4.5, 1);
+      const item = result.breakdown.find((i) => i.reason === "Ballaststoffe > 6g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(1.5, 1);
+      expect(item!.condition).toBe("pcos");
+    });
+
+    it("Protein > 20g → Bonus +1.0, condition: pcos", () => {
+      const product = makeProduct({ nutriments: { protein: 21 } });
+      const result = calculateScore(product, pcosProfile);
+      // 3.0 + 1.0 = 4.0
+      expect(result.score).toBeCloseTo(4.0, 1);
+      const item = result.breakdown.find((i) => i.reason === "Protein > 20g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(1.0, 1);
+      expect(item!.condition).toBe("pcos");
+    });
+
+    it("Bio-Label → Bonus +0.3, condition: pcos", () => {
+      const product = makeProduct({ labels: ["organic"] });
+      const result = calculateScore(product, pcosProfile);
+      // 3.0 + 0.3 = 3.3
+      expect(result.score).toBeCloseTo(3.3, 1);
+      const item = result.breakdown.find((i) => i.reason === "Bio-Label");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(0.3, 1);
+      expect(item!.condition).toBe("pcos");
+    });
+
+    it("Glutenfrei-Label → Bonus +0.2, condition: pcos", () => {
+      const product = makeProduct({ labels: ["gluten-free"] });
+      const result = calculateScore(product, pcosProfile);
+      // 3.0 + 0.2 = 3.2
+      expect(result.score).toBeCloseTo(3.2, 1);
+      const item = result.breakdown.find((i) => i.reason === "Glutenfrei-Label");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(0.2, 1);
+      expect(item!.condition).toBe("pcos");
+    });
+
+    it("Zucker > 5g ≤ 10g → Malus -1.5, condition: pcos", () => {
+      const product = makeProduct({ nutriments: { sugars: 7 } });
+      const result = calculateScore(product, pcosProfile);
+      // 3.0 - 1.5 = 1.5
+      expect(result.score).toBeCloseTo(1.5, 1);
+      const item = result.breakdown.find((i) => i.reason === "Zucker > 5g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-1.5, 1);
+      expect(item!.condition).toBe("pcos");
+    });
+
+    it("Zucker > 10g ≤ 20g → Malus -2.5, condition: pcos", () => {
+      const product = makeProduct({ nutriments: { sugars: 11 } });
+      const result = calculateScore(product, pcosProfile);
+      // 3.0 - 2.5 = 0.5 → clamped to 1.0
+      expect(result.score).toBeCloseTo(1.0, 1);
+      const item = result.breakdown.find((i) => i.reason === "Zucker > 10g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-2.5, 1);
+      expect(item!.condition).toBe("pcos");
+    });
+
+    it("Zucker > 20g → Malus -3.5, condition: pcos", () => {
+      const product = makeProduct({ nutriments: { sugars: 21 } });
+      const result = calculateScore(product, pcosProfile);
+      // 3.0 - 3.5 = -0.5 → clamped to 1.0
+      expect(result.score).toBeCloseTo(1.0, 1);
+      const item = result.breakdown.find((i) => i.reason === "Zucker > 20g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-3.5, 1);
+      expect(item!.condition).toBe("pcos");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // 4. Both profile — stricter values
+  // -------------------------------------------------------------------------
+  describe("Both profil — strengere Werte", () => {
+    const bothProfile: import("../domain/user-profile").UserProfile = {
+      condition: "both",
+      glutenSensitive: false,
+      lactoseIntolerant: false,
+    };
+
+    it("Zucker > 5g ≤ 10g → Malus -2.0, condition: both", () => {
+      const product = makeProduct({ nutriments: { sugars: 7 } });
+      const result = calculateScore(product, bothProfile);
+      // 3.0 - 2.0 = 1.0
+      expect(result.score).toBeCloseTo(1.0, 1);
+      const item = result.breakdown.find((i) => i.reason === "Zucker > 5g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-2.0, 1);
+      expect(item!.condition).toBe("both");
+    });
+
+    it("Zucker > 10g → Malus -3.0, condition: both", () => {
+      const product = makeProduct({ nutriments: { sugars: 11 } });
+      const result = calculateScore(product, bothProfile);
+      // 3.0 - 3.0 = 0 → clamped to 1.0
+      expect(result.score).toBeCloseTo(1.0, 1);
+      const item = result.breakdown.find((i) => i.reason === "Zucker > 10g/100g");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-3.0, 1);
+      expect(item!.condition).toBe("both");
+    });
+
+    it("Gluten in Zutaten → Malus -2.0, condition: both", () => {
+      const product = makeProduct({ ingredients: "wheat gluten, water" });
+      const result = calculateScore(product, bothProfile);
+      // 3.0 - 2.0 = 1.0
+      expect(result.score).toBeCloseTo(1.0, 1);
+      const item = result.breakdown.find((i) => i.reason === "Gluten in Zutaten");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-2.0, 1);
+      expect(item!.condition).toBe("both");
+    });
+
+    it("Glutenfrei-Label → Bonus +0.8, condition: both", () => {
+      const product = makeProduct({ labels: ["gluten-free"] });
+      const result = calculateScore(product, bothProfile);
+      // 3.0 + 0.8 = 3.8
+      expect(result.score).toBeCloseTo(3.8, 1);
+      const item = result.breakdown.find((i) => i.reason === "Glutenfrei-Label");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(0.8, 1);
+      expect(item!.condition).toBe("both");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // 5. glutenSensitive multiplier
+  // -------------------------------------------------------------------------
+  describe("glutenSensitive Multiplikator", () => {
+    it("Hashimoto + glutenSensitive=true: Gluten-Malus = -3.0 (1.5 × 2), condition: hashimoto", () => {
+      const profile: import("../domain/user-profile").UserProfile = {
+        condition: "hashimoto",
+        glutenSensitive: true,
+        lactoseIntolerant: false,
+      };
+      const product = makeProduct({ ingredients: "wheat gluten, water" });
+      const result = calculateScore(product, profile);
+      // 3.0 - 3.0 = 0 → clamped to 1.0
+      expect(result.score).toBeCloseTo(1.0, 1);
+      const item = result.breakdown.find((i) => i.reason === "Gluten in Zutaten");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-3.0, 1);
+      expect(item!.condition).toBe("hashimoto");
+    });
+
+    it("Hashimoto + glutenSensitive=false: Gluten-Malus = -1.5, condition: hashimoto", () => {
+      const profile: import("../domain/user-profile").UserProfile = {
+        condition: "hashimoto",
+        glutenSensitive: false,
+        lactoseIntolerant: false,
+      };
+      const product = makeProduct({ ingredients: "wheat gluten, water" });
+      const result = calculateScore(product, profile);
+      // 3.0 - 1.5 = 1.5
+      expect(result.score).toBeCloseTo(1.5, 1);
+      const item = result.breakdown.find((i) => i.reason === "Gluten in Zutaten");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-1.5, 1);
+      expect(item!.condition).toBe("hashimoto");
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // 6. lactoseIntolerant multiplier
+  // -------------------------------------------------------------------------
+  describe("lactoseIntolerant Multiplikator", () => {
+    it("PCOS + lactoseIntolerant=true: Laktose-Malus = -0.6 (0.3 × 2), condition: pcos", () => {
+      const profile: import("../domain/user-profile").UserProfile = {
+        condition: "pcos",
+        glutenSensitive: false,
+        lactoseIntolerant: true,
+      };
+      const product = makeProduct({ ingredients: "skim milk, water" });
+      const result = calculateScore(product, profile);
+      // 3.0 - 0.6 = 2.4
+      expect(result.score).toBeCloseTo(2.4, 1);
+      const item = result.breakdown.find((i) => i.reason === "Laktose in Zutaten");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-0.6, 1);
+      expect(item!.condition).toBe("pcos");
+    });
+
+    it("PCOS + lactoseIntolerant=false: Laktose-Malus = -0.3, condition NICHT gesetzt", () => {
+      const profile: import("../domain/user-profile").UserProfile = {
+        condition: "pcos",
+        glutenSensitive: false,
+        lactoseIntolerant: false,
+      };
+      const product = makeProduct({ ingredients: "skim milk, water" });
+      const result = calculateScore(product, profile);
+      // 3.0 - 0.3 = 2.7
+      expect(result.score).toBeCloseTo(2.7, 1);
+      const item = result.breakdown.find((i) => i.reason === "Laktose in Zutaten");
+      expect(item).toBeDefined();
+      expect(item!.points).toBeCloseTo(-0.3, 1);
+      expect(item!.condition).toBeUndefined();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // 7. ScoreBreakdownItem condition tagging
+  // -------------------------------------------------------------------------
+  describe("ScoreBreakdownItem condition tagging", () => {
+    it("Profilmodus aktiv + abweichender Wert → item.condition entspricht profile.condition", () => {
+      const profile: import("../domain/user-profile").UserProfile = {
+        condition: "pcos",
+        glutenSensitive: false,
+        lactoseIntolerant: false,
+      };
+      // fiber > 6g → pcos bonus differs from generic (1.5 vs 1.0)
+      const product = makeProduct({ nutriments: { fiber: 7 } });
+      const result = calculateScore(product, profile);
+      const item = result.breakdown.find((i) => i.reason === "Ballaststoffe > 6g/100g");
+      expect(item).toBeDefined();
+      expect(item!.condition).toBe("pcos");
+    });
+
+    it("Zucker > 5g hat immer condition gesetzt, auch bei hashimoto (-0.5)", () => {
+      const profile: import("../domain/user-profile").UserProfile = {
+        condition: "hashimoto",
+        glutenSensitive: false,
+        lactoseIntolerant: false,
+      };
+      const product = makeProduct({ nutriments: { sugars: 7 } });
+      const result = calculateScore(product, profile);
+      const item = result.breakdown.find((i) => i.reason === "Zucker > 5g/100g");
+      expect(item).toBeDefined();
+      expect(item!.condition).toBe("hashimoto");
+    });
   });
 });
 
