@@ -15,7 +15,7 @@ interface UserProfileContextValue {
 
 const UserProfileContext = createContext<UserProfileContextValue | null>(null);
 
-export function UserProfileProvider({ children }: { children: React.ReactNode }) {
+function useUserProfileState(): UserProfileContextValue {
   const [profile, setProfileState] = useState<UserProfile | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [skipped, setSkipped] = useState(false);
@@ -34,7 +34,7 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
   const setProfile = useCallback((p: UserProfile | null) => {
     if (p) {
       localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
-      localStorage.removeItem(SKIPPED_KEY); // Clear skip flag when profile is set
+      localStorage.removeItem(SKIPPED_KEY);
       setSkipped(false);
     } else {
       localStorage.removeItem(PROFILE_KEY);
@@ -47,8 +47,13 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
     setSkipped(true);
   }, []);
 
+  return { profile, setProfile, isLoaded, hasSkipped: skipped, skipOnboarding };
+}
+
+export function UserProfileProvider({ children }: { children: React.ReactNode }) {
+  const state = useUserProfileState();
   return (
-    <UserProfileContext.Provider value={{ profile, setProfile, isLoaded, hasSkipped: skipped, skipOnboarding }}>
+    <UserProfileContext.Provider value={state}>
       {children}
     </UserProfileContext.Provider>
   );
@@ -56,40 +61,8 @@ export function UserProfileProvider({ children }: { children: React.ReactNode })
 
 export function useUserProfile() {
   const context = useContext(UserProfileContext);
-  if (!context) {
-    // Fallback for when context is not available (e.g., during testing)
-    const [profile, setProfileState] = useState<UserProfile | null>(null);
-    const [isLoaded, setIsLoaded] = useState(false);
-    const [skipped, setSkipped] = useState(false);
-
-    useEffect(() => {
-      const raw = localStorage.getItem(PROFILE_KEY);
-      try {
-        setProfileState(raw ? (JSON.parse(raw) as UserProfile) : null);
-      } catch {
-        setProfileState(null);
-      }
-      setSkipped(localStorage.getItem(SKIPPED_KEY) === "true");
-      setIsLoaded(true);
-    }, []);
-
-    const setProfile = useCallback((p: UserProfile | null) => {
-      if (p) {
-        localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
-        localStorage.removeItem(SKIPPED_KEY);
-        setSkipped(false);
-      } else {
-        localStorage.removeItem(PROFILE_KEY);
-      }
-      setProfileState(p);
-    }, []);
-
-    const skipOnboarding = useCallback(() => {
-      localStorage.setItem(SKIPPED_KEY, "true");
-      setSkipped(true);
-    }, []);
-
-    return { profile, setProfile, isLoaded, hasSkipped: skipped, skipOnboarding };
-  }
-  return context;
+  const fallback = useUserProfileState();
+  // context is always set by UserProfileProvider in layout.tsx;
+  // the ?? short-circuit only activates in test environments without the provider
+  return context ?? fallback;
 }
