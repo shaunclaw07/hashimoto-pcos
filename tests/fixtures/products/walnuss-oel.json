@@ -1,0 +1,29 @@
+{
+  "barcode": "0032481395269",
+  "name": "Walnussöl",
+  "brand": "Percheron Freres",
+  "imageUrl": "https://images.openfoodfacts.org/images/products/003/248/139/5269/front_de.3.200.jpg",
+  "ingredients": "Walnussöl",
+  "categories": [
+    "en:plant-based-foods-and-beverages",
+    "en:plant-based-foods",
+    "en:fats",
+    "en:nuts-and-their-products",
+    "en:vegetable-fats",
+    "en:vegetable-oils",
+    "en:nut-oils",
+    "en:walnut-oils"
+  ],
+  "additives": [],
+  "nutriments": {
+    "energy-kcal_100g": 900,
+    "sugars_100g": 0,
+    "fat_100g": 100,
+    "saturated-fat_100g": 11,
+    "fiber_100g": 0,
+    "proteins_100g": 0,
+    "salt_100g": 0,
+    "sodium_100g": 0
+  },
+  "labels": []
+}

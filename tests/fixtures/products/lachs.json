@@ -1,0 +1,20 @@
+{
+  "barcode": "0040668004156",
+  "name": "Wild salmon jerky",
+  "brand": null,
+  "imageUrl": "https://images.openfoodfacts.org/images/products/004/066/800/4156/front_fr.14.200.jpg",
+  "ingredients": "ALASKA WILDLACHS FILET, SALZ, ZUCKER, GEWUERTZE, PFEFFER, (FISCHEREI ERZEUGNIS).",
+  "categories": [],
+  "additives": [],
+  "nutriments": {
+    "energy-kcal_100g": 285.71428571429,
+    "sugars_100g": 7.1428571428571,
+    "fat_100g": 8.9285714285714,
+    "saturated-fat_100g": 1.7857142857143,
+    "fiber_100g": 0,
+    "proteins_100g": 46.428571428571,
+    "salt_100g": 7.0535714285715,
+    "sodium_100g": 2.8214285714286
+  },
+  "labels": []
+}

@@ -1,0 +1,29 @@
+{
+  "barcode": "4068134119254",
+  "name": "Ghee - clarified Butter",
+  "brand": null,
+  "imageUrl": "https://images.openfoodfacts.org/images/products/406/813/411/9254/front_en.7.200.jpg",
+  "ingredients": "100% organic Ghee (clarified Butter)",
+  "categories": [
+    "en:fats",
+    "en:animal-fats",
+    "en:butter-fat",
+    "en:clarified-butter",
+    "en:ghee"
+  ],
+  "additives": [],
+  "nutriments": {
+    "energy-kcal_100g": 898,
+    "sugars_100g": 0,
+    "fat_100g": 99,
+    "saturated-fat_100g": 66,
+    "fiber_100g": 0,
+    "proteins_100g": 0,
+    "salt_100g": 0,
+    "sodium_100g": 0
+  },
+  "labels": [
+    "No gluten",
+    " en:made-in-germany"
+  ]
+}

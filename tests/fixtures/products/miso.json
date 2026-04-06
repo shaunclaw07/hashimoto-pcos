@@ -1,0 +1,36 @@
+{
+  "barcode": "0619286802002",
+  "name": "Migthy miso soup",
+  "brand": "King Soba",
+  "imageUrl": "https://images.openfoodfacts.org/images/products/061/928/680/2002/front_fr.38.200.jpg",
+  "ingredients": "*Miso 60% (*graines de soja, *riz brun, culture aspergillus oryzae), *tamari (*soja, sel marin), *citrouille, sel marin, *oignon, *échalote, *céleri, *ciboule, *poivre noir - *ingrédients certifiés issus d'agriculture biologique.",
+  "categories": [
+    "en:meals",
+    "en:dried-products",
+    "en:dried-products-to-be-rehydrated",
+    "en:soups",
+    "en:dried-meals",
+    "en:dehydrated-soups",
+    "en:miso-soup"
+  ],
+  "additives": [],
+  "nutriments": {
+    "energy-kcal_100g": 12,
+    "sugars_100g": 0.3,
+    "fat_100g": 0.2,
+    "saturated-fat_100g": 0,
+    "fiber_100g": 0.3,
+    "proteins_100g": 0.5,
+    "salt_100g": 0.8,
+    "sodium_100g": 0.32
+  },
+  "labels": [
+    "No gluten",
+    " Organic",
+    " Kosher",
+    " Orthodox Union Kosher",
+    " Soil Association Organic",
+    " fr:Sol Association",
+    " en:kosher-parve"
+  ]
+}

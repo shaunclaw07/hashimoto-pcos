@@ -1,0 +1,24 @@
+{
+  "barcode": "0000250632969",
+  "name": "Mehrkomponeneten Protein 90 C6 Banane",
+  "brand": "allfitnessfactory.de",
+  "imageUrl": "https://images.openfoodfacts.org/images/products/000/025/063/2969/front_de.3.200.jpg",
+  "ingredients": "Proteinmischung (_Sojaprotein_, _Weizenprotein_, _Molkenprotein_, _Wheyprotein_), _Milchprotein_, _Hühnereiweiss_, Kakaopulver (nur Sorte Schoko), Aroma, Pflanzenöl, Süßungsmittel Natriumsaccharin und Acesulfam-K.",
+  "categories": [
+    "en:dietary-supplements",
+    "en:bodybuilding-supplements",
+    "en:protein-powders"
+  ],
+  "additives": [],
+  "nutriments": {
+    "energy-kcal_100g": 361,
+    "sugars_100g": null,
+    "fat_100g": 1,
+    "saturated-fat_100g": null,
+    "fiber_100g": null,
+    "proteins_100g": 85.5,
+    "salt_100g": null,
+    "sodium_100g": null
+  },
+  "labels": []
+}

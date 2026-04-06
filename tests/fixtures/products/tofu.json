@@ -1,0 +1,26 @@
+{
+  "barcode": "0010044540400",
+  "name": "Vegane Mühlen Frikadellen aus Sojaprotein",
+  "brand": null,
+  "imageUrl": "https://images.openfoodfacts.org/images/products/001/004/454/0400/front_de.3.200.jpg",
+  "ingredients": "Trinkwasser, Sojaprotein, Rapsöl, Zwiebeln, Weizenmehl, Stärke, natürliches Aroma, Haferhalmfasern, jodiertes Kochsalz (Kochsalz, Kaliumjodat), Kochsalz, Gewürze, Gewürzextrakte, Verdickungsmittel Methylcellulose, Branntweinessig, färbende Lebensmittel: Konzentrate aus Rote Beete, Blaubeere, Karotte, karamellisierte Karotte; Hefe, Zucker, Maltodextrin",
+  "categories": [
+    "de:fleischersatzprodukte"
+  ],
+  "additives": [
+    "en:e461"
+  ],
+  "nutriments": {
+    "energy-kcal_100g": 169,
+    "sugars_100g": 1,
+    "fat_100g": 9,
+    "saturated-fat_100g": 0.7,
+    "fiber_100g": 7,
+    "proteins_100g": 8.5,
+    "salt_100g": 2,
+    "sodium_100g": 0.8
+  },
+  "labels": [
+    "en:vegan"
+  ]
+}

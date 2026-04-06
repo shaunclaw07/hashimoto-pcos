@@ -1,0 +1,33 @@
+{
+  "barcode": "0222020207522",
+  "name": "Brokkoli milder Senfsauce, Schlemmerfilet",
+  "brand": "Iglo",
+  "imageUrl": "https://images.openfoodfacts.org/images/products/022/202/020/7522/front_de.3.200.jpg",
+  "ingredients": "Alaska Seelachs-Filet (52%), Senfsauce (27%) [Vollmilch, Wasser, Speisequarkzubereitung (Speisequark, Joghurt mild aus entrahmter Milch), Stärke, Rapsöl, Zitronensaft aus Zitronensaftkonzentrat, Senf (Wasser, Senfsaat, Branntweinessig, Salz, Gewürze), Salz, Senfsaat, Gewürze], Brokkoli (15%), Zwiebel, Paniermehl (Weizenmehl, Hefe, Dextrose, Solz), Edamer, Petersilie.",
+  "categories": [
+    "en:seafood",
+    "en:fishes-and-their-products",
+    "en:fishes",
+    "en:frozen-foods",
+    "en:fish-fillets",
+    "en:frozen-seafood",
+    "en:frozen-fishes"
+  ],
+  "additives": [],
+  "nutriments": {
+    "energy-kcal_100g": 89,
+    "sugars_100g": 1.2,
+    "fat_100g": 2.9,
+    "saturated-fat_100g": 0.7,
+    "fiber_100g": 0.6,
+    "proteins_100g": 11,
+    "salt_100g": 0.85,
+    "sodium_100g": 0.34
+  },
+  "labels": [
+    "Sustainable",
+    " Sustainable fishery",
+    " Sustainable Seafood MSC",
+    " en:nutriscore"
+  ]
+}

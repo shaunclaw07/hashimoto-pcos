@@ -1,0 +1,43 @@
+{
+  "barcode": "4337256336192",
+  "name": "Hähnchen Salat",
+  "brand": "Rewe",
+  "imageUrl": "https://images.openfoodfacts.org/images/products/433/725/633/6192/front_en.29.200.jpg",
+  "ingredients": "Salat-Gemüsemischung 42 % (Brokkoli, Wirsingkohl, _Sojabohnen_, Spinat, Lollo Rosso, Karotte), Joghurt-Senf-Dressing 32% (_Joghurterzeugnis_, Wasser, Honig, Zucker, Senf (Wasser, _Senfsaaten_, Speisesalz, Branntweinessig, Zucker, Gewürze, Sherryessig), Weißweinessig, Rapsöl, Speisesalz, Chili, modifizierte Stärke, eiweißangereichertes Molkenpulver (enthält _Milch_), Limettensaftkonzentrat, Gewürze, Kräuter, Verdickungsmittel (Guarkernmehl, Xanthan)), gegarte Kichererbsen 13 % (Wasser, Kichererbsen, Weißweinessig, Branntweinessig, Zucker, Speisesalz), gebratenes, gewürztes Hähnchenbrustfilet 10% (Hähnchenbrustfilet, Gewürzextrakt, Säuerungsmittel (Natriumacetat, Kaliumlactat, Citronensäure), Speisesalz, Dextrose, Gewürze, Zucker, Zwiebeln), gegrillte rote Paprika 3% (Paprika, Wasser, Speisesalz, Säuerungsmittel (Citronensäure)).",
+  "categories": [
+    "en:meats-and-their-products",
+    "en:meals",
+    "en:prepared-salads",
+    "en:meals-with-meat",
+    "en:poultry-meals",
+    "en:meals-with-chicken"
+  ],
+  "additives": [
+    "en:e14xx",
+    "en:e262",
+    "en:e262i",
+    "en:e330",
+    "en:e412",
+    "en:e415"
+  ],
+  "nutriments": {
+    "energy-kcal_100g": 102,
+    "sugars_100g": 3.3,
+    "fat_100g": 4.7,
+    "saturated-fat_100g": 0.4,
+    "fiber_100g": 2.1,
+    "proteins_100g": 6.1,
+    "salt_100g": 0.59,
+    "sodium_100g": 0.216
+  },
+  "labels": [
+    "Source of proteins",
+    " FSC",
+    " FSC Mix",
+    " High proteins",
+    " Nutriscore",
+    " Nutriscore Grade A",
+    " de:FSC C115913",
+    " en:no-flavors"
+  ]
+}

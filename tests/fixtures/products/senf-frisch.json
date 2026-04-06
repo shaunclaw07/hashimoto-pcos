@@ -1,0 +1,26 @@
+{
+  "barcode": "2000000121553",
+  "name": "Tomatenchutney",
+  "brand": "Genuss Botschaft",
+  "imageUrl": "https://images.openfoodfacts.org/images/products/200/000/012/1553/front_de.11.200.jpg",
+  "ingredients": "Tomaten, Apfel, Zwiebel, Tomatenmark, Bio-Rohrohrzucker, Balsamessig, Senfsamen, Chili, Ingwer, Gewürze",
+  "categories": [
+    "en:plant-based-foods-and-beverages",
+    "en:plant-based-foods",
+    "en:spreads",
+    "en:plant-based-spreads",
+    "en:chutneys"
+  ],
+  "additives": [],
+  "nutriments": {
+    "energy-kcal_100g": 42.87138671875,
+    "sugars_100g": 7.48878125,
+    "fat_100g": 0.35052734375,
+    "saturated-fat_100g": 0.0684171875,
+    "fiber_100g": 1.29871875,
+    "proteins_100g": 0.8031171875,
+    "salt_100g": 0.0896709375,
+    "sodium_100g": 0.03316029296875
+  },
+  "labels": []
+}

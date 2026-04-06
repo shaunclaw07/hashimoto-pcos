@@ -1,0 +1,20 @@
+{
+  "barcode": "0049144069788",
+  "name": "Yogurt Smoothie Schwarze Johannesbeere Heidelbeere",
+  "brand": "Yoothie",
+  "imageUrl": "https://images.openfoodfacts.org/images/products/004/914/406/9788/front_en.5.200.jpg",
+  "ingredients": "Joghurterzeugnis mit 13,2% schwarze Johannisbeeren und 33% Hecdelbeeren, 3,0% Fet im Milchanteil LUAEN Joghurterzeugnis, 13,2% schwarze Johanmispeeren Rohrzucker,33% Heidelbeeren.",
+  "categories": [],
+  "additives": [],
+  "nutriments": {
+    "energy-kcal_100g": 78,
+    "sugars_100g": 9.6,
+    "fat_100g": 2.4,
+    "saturated-fat_100g": 1.5,
+    "fiber_100g": null,
+    "proteins_100g": 2.8,
+    "salt_100g": 0.0984252,
+    "sodium_100g": 0.03937008
+  },
+  "labels": []
+}

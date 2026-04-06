@@ -1,0 +1,42 @@
+{
+  "barcode": "3019080040070",
+  "name": "Filets de Maquereaux à la Moutarde à l'Ancienne",
+  "brand": "Petit Navire",
+  "imageUrl": "https://images.openfoodfacts.org/images/products/301/908/004/0070/front_fr.27.200.jpg",
+  "ingredients": "Filets de maquereaux (56 %), eau, vinaigre d'alcool, moutarde (6,9 %) (eau, graines de moutarde, vinaigre d'alcool, sel), huile de tournesol, moutarde à l'ancienne (3,5 %) (eau, graines de moutarde, vinaigre d'alcool, sel), sucre, amidon transformé de maïs, sel, épaississants : gomme xanthane et gomme guar, épice, arôme naturel (dont céleri).",
+  "categories": [
+    "en:seafood",
+    "en:fishes-and-their-products",
+    "en:canned-foods",
+    "en:fishes",
+    "en:fatty-fishes",
+    "en:canned-fishes",
+    "en:fish-fillets",
+    "en:mackerels",
+    "en:mackerel-fillets",
+    "en:mackerel-fillets-in-mustard-sauce",
+    "en:tinned-mackerels"
+  ],
+  "additives": [
+    "en:e14xx",
+    "en:e412",
+    "en:e415"
+  ],
+  "nutriments": {
+    "energy-kcal_100g": 214.2857,
+    "sugars_100g": 1.1905,
+    "fat_100g": 16.6667,
+    "saturated-fat_100g": 2.9762,
+    "fiber_100g": 0.0435,
+    "proteins_100g": 1.1905,
+    "salt_100g": 1.16071425,
+    "sodium_100g": 0.4642857
+  },
+  "labels": [
+    "Omega-3",
+    " Point Vert",
+    " Riche en Oméga-3",
+    " Fabriqué au Portugal",
+    " Eco-Emballages"
+  ]
+}
