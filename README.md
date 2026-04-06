@@ -105,6 +105,7 @@ Die Recherche basiert auf folgenden Quellen:
 | Tailwind v4 Migration | ✅ Abgeschlossen |
 | Hexagonale Architektur | ✅ Abgeschlossen |
 | Nutzerprofil-Personalisierung | ✅ Abgeschlossen |
+| Scoring-Erweiterungen (#50/#51/#53/#54) | ✅ Abgeschlossen |
 | Beta-Release | 🔄 In Planung |
 
 ---
@@ -206,4 +207,4 @@ Pull Requests sollten [.github/pull_request_template.md](.github/pull_request_te
 
 ---
 
-*Letzte Aktualisierung: 2026-04-05*
+*Letzte Aktualisierung: 2026-04-06*

@@ -166,7 +166,9 @@ Browser
 | Fiber > 6 g | +1.0 |
 | Fiber > 3 g | +0.5 |
 | Protein > 20 g | +0.5 |
-| Omega-3 in labels | +1.0 |
+| Omega-3 marine (EPA/DHA) | +1.5 |
+| Omega-3 plant (ALA) | +0.5 |
+| Omega-3 label only (unknown source) | +0.7 |
 | Gluten-free label | +0.5 |
 | Organic/Bio label | +0.5 |
 | Sugar > 20 g | −2.0 |
@@ -175,7 +177,11 @@ Browser
 | Salt > 2.5 g | −1.0 |
 | Salt > 1.5 g | −0.5 |
 | Gluten in ingredients | −0.5 |
-| Lactose in ingredients | −0.3 |
+| Dairy general | −0.3 |
+| Dairy fermented | −0.1 |
+| Dairy whey | −0.3 |
+| Dairy A1-casein | −0.3 |
+| Soy lecithin | −0.1 |
 | > 5 additives (E-numbers) | −0.5 |
 
 ### Profile-aware thresholds (lookup tables per `ConditionKey`)
@@ -190,8 +196,58 @@ Browser
 | Protein > 20 g | +0.5 | +0.5 | +1.0 | +1.0 |
 | Gluten-free label | +0.5 | +0.5 | +0.2 | +0.8 |
 | Organic/Bio label | +0.5 | +0.5 | +0.3 | +0.5 |
+| Soy non-fermented | 0 | −0.8 | −0.2 | −0.8 |
+| Soy fermented | 0 | −0.3 | 0 | −0.3 |
+| Soy lecithin | −0.1 | −0.2 | −0.2 | −0.2 |
+| Dairy A1-casein | −0.3 | −0.5 | −0.3 | −0.5 |
+| Dairy fermented | −0.1 | −0.2 | −0.1 | −0.2 |
+| Goitrogen raw Brassica | 0 | −0.5 | 0 | −0.5 |
 
-Additionally: `profile.glutenSensitive` doubles the gluten malus; `profile.lactoseIntolerant` doubles the lactose malus.
+Additionally: `profile.glutenSensitive` doubles the gluten malus; `profile.lactoseIntolerant` doubles the dairy malus. Dairy ghee is always neutral (0 malus). Fermented soy overrides non-fermented soy; lecithin is detected independently.
+
+### Issue #50 — Soy / Phytoestrogen Detection (3 tiers)
+
+| Tier | Keywords | Breakdown reason |
+|------|----------|-----------------|
+| Non-fermented | soja, soy, soybeans, tofu, sojaprotein, edamame | `"Soja (Phytoöstrogene)"` |
+| Fermented | tempeh, miso | `"Fermentiertes Soja"` |
+| Lecithin | sojalecithin, E322 | `"Sojalecithin"` |
+
+### Issue #51 — Goitrogen Warning (Raw Cruciferous Vegetables)
+
+Brassica detection with preparation state (raw/cooked/unknown). Raw penalty only for Hashimoto/Both.
+
+| State | Detection signals | Malus |
+|-------|-----------------|-------|
+| Raw | roh, frisch, smoothie, saft, juice, rohkost, salat | −0.5 (Hashimoto/Both) |
+| Unknown | no raw/cooked signals found | 0 pts, informational |
+| Cooked | gegart, gekocht, gefroren, gedünstet, blanchiert | 0 |
+
+Keywords: broccoli, brokkoli, kohl, kale, senf, raps, rucola, etc.
+
+### Issue #53 — Differentiated Omega-3 Detection
+
+| Source | Keywords | Points |
+|--------|----------|--------|
+| Marine EPA/DHA | lachs, fischöl, algenöl, EPA, DHA | +1.5 |
+| Plant ALA | leinsamen, chia, hanföl, walnuss, ALA | +0.5 |
+| Label only (unknown) | omega-3 label/category without ingredient match | +0.7 |
+
+Marine takes priority over plant. Algae oil counts as marine (vegan).
+
+### Issue #54 — Tiered Dairy Detection (replaces flat lactose/milk check)
+
+| Tier | Keywords | Generic | Hashimoto | PCOS | Both |
+|------|----------|---------|-----------|------|------|
+| A1-Casein | casein, natriumcaseinat, micellar casein | −0.3 | −0.5 | −0.3 | −0.5 |
+| Whey | whey, molke, molkenprotein | −0.3 | −0.3 | −0.3 | −0.3 |
+| Fermented | kefir, joghurt, yogurt | −0.1 | −0.2 | −0.1 | −0.2 |
+| General | milk, milch, käse, quark, lactose, laktose | −0.3 | −0.3 | −0.3 | −0.3 |
+| Ghee | ghee | 0 | 0 | 0 | 0 |
+
+**Exceptions (no malus):** milchsäure, lactic acid, calciumlactat, calcium lactate
+
+Hierarchical: only the highest applicable tier fires. `lactoseIntolerant: true` doubles the penalty.
 
 Final score is **clamped to [1.0, 5.0]** and mapped to labels:
 
@@ -286,7 +342,7 @@ Always pattern-match on `result.success` before accessing `result.product`.
 **Unit test coverage:**
 | File | Area |
 |------|------|
-| `src/core/services/scoring-service.test.ts` | `calculateScore()` — generic rules + all 3 condition profiles + sensitivity modifiers |
+| `src/core/services/scoring-service.test.ts` | `calculateScore()` — generic rules + all 3 condition profiles + sensitivity modifiers + soy tiers + goitrogen + omega-3 sources + dairy tiers (164 tests) |
 | `src/hooks/use-user-profile.test.ts` | `useUserProfile()` — load, set, skip, clear, corrupt JSON fallback |
 | `src/core/services/barcode-service.test.ts` | `isValidEan13()` — valid/invalid EAN-13 |
 | `src/core/use-cases/get-product.test.ts` | `GetProductUseCase` — primary, fallback, enrichment, errors |
