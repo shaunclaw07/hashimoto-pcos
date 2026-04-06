@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { BottomNav } from "@/components/bottom-nav";
 import { OnboardingGuard } from "@/components/onboarding-guard";
 import { ProfileHeader } from "@/components/profile-header";
+import { UserProfileProvider } from "@/hooks/use-user-profile";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,13 +28,15 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <OnboardingGuard>
-            <ProfileHeader />
-            <main className="min-h-screen pb-20 pt-14">
-              {children}
-            </main>
-            <BottomNav />
-          </OnboardingGuard>
+          <UserProfileProvider>
+            <OnboardingGuard>
+              <ProfileHeader />
+              <main className="min-h-screen pb-20 pt-14">
+                {children}
+              </main>
+              <BottomNav />
+            </OnboardingGuard>
+          </UserProfileProvider>
         </ThemeProvider>
       </body>
     </html>

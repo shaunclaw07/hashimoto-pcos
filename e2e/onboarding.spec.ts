@@ -91,7 +91,7 @@ test.describe('Onboarding Flow', () => {
       }));
     }, PROFILE_KEY);
     await page.goto('/');
-    await expect(page.getByText(/hashimoto/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('link', { name: /🦋 hashimoto/i })).toBeVisible({ timeout: 5000 });
   });
 
   test('profile_badge_visible_for_pcos', async ({ page }) => {
@@ -103,7 +103,7 @@ test.describe('Onboarding Flow', () => {
       }));
     }, PROFILE_KEY);
     await page.goto('/');
-    await expect(page.getByText(/pcos/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('link', { name: /🔵 pcos/i })).toBeVisible({ timeout: 5000 });
   });
 });
 
@@ -151,6 +151,32 @@ test.describe('Settings Page', () => {
     const profile = JSON.parse(raw!);
     expect(profile.condition).toBe('hashimoto');
   });
+
+  test('settings_page_speichern_updates_header_badge_immediately', async ({ page }) => {
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, JSON.stringify({
+        condition: 'pcos',
+        glutenSensitive: false,
+        lactoseIntolerant: false,
+      }));
+    }, PROFILE_KEY);
+    await page.goto('/');
+    // Header should show PCOS badge
+    await expect(page.getByText(/🔵 pcos/i)).toBeVisible({ timeout: 5000 });
+
+    await page.getByRole('link', { name: /profil/i }).click();
+    await expect(page).toHaveURL('/einstellungen', { timeout: 5000 });
+
+    // Change to Hashimoto and save
+    await page.getByRole('button', { name: /hashimoto-thyreoiditis/i }).click();
+    await page.getByRole('button', { name: /speichern/i }).click();
+    await expect(page.getByText(/gespeichert/i)).toBeVisible({ timeout: 5000 });
+
+    // Header badge should update to Hashimoto immediately (🦋)
+    await expect(page.getByText(/🦋 hashimoto/i)).toBeVisible({ timeout: 5000 });
+    // PCOS badge should no longer be visible
+    await expect(page.getByText(/🔵 pcos/i)).not.toBeVisible({ timeout: 3000 });
+  });
 });
 
 test.describe('Profile-aware scoring in Result Page', () => {
@@ -165,7 +191,7 @@ test.describe('Profile-aware scoring in Result Page', () => {
     await mockProductApi(page, VALID_BARCODE, vermeiden);
     await page.goto(`/result/${VALID_BARCODE}`);
     await expect(page.getByText(/angepasst für/i)).toBeVisible({ timeout: 5000 });
-    await expect(page.getByText(/pcos/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/🔵 pcos/i)).toBeVisible({ timeout: 5000 });
   });
 
   test('result_page_no_profile_badge_in_generic_mode', async ({ page }) => {
@@ -193,7 +219,7 @@ test.describe('Profile-aware scoring in Result Page', () => {
     await mockProductApi(page, VALID_BARCODE, vermeiden);
     await page.goto(`/result/${VALID_BARCODE}`);
     await expect(page.getByText(/bewertungsgründe/i)).toBeVisible({ timeout: 5000 });
-    // Condition icon 🔵 should appear for PCOS-specific items
-    await expect(page.getByText('🔵')).toBeVisible({ timeout: 5000 });
+    // Condition icon 🔵 should appear for PCOS-specific items (2nd 🔵 = breakdown item, 1st = header badge)
+    await expect(page.getByText('🔵').nth(1)).toBeVisible({ timeout: 5000 });
   });
 });
