@@ -2,8 +2,13 @@ import { test, expect } from '@playwright/test';
 import { mockProductApi, mockProductNotFound } from '../tests/helpers/mock-api';
 import vermeiden from '../tests/fixtures/products/vermeiden.json';
 
+const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
+
 test.describe('Scanner-Seite (/scanner)', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, SKIPPED_KEY);
     await page.goto('/scanner');
   });
 

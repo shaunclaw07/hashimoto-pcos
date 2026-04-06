@@ -9,6 +9,9 @@ import { mockProductApi } from '../tests/helpers/mock-api';
  * - Issue #54: Tiered dairy detection
  */
 
+const PROFILE_KEY = 'hashimoto-pcos-user-profile';
+const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
+
 // ============================================================================
 // Hilfsfunktion: konvertiert OFF-Format (proteins_100g) → Domain-Format
 // ============================================================================
@@ -39,6 +42,9 @@ test.describe('Issue #53 — Omega-3 differenziert', () => {
       categories: [] as string[],
       additives: [] as string[],
     };
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, SKIPPED_KEY);
     await mockProductApi(page, lachs.barcode, lachs);
     await page.goto(`/result/${lachs.barcode}`);
     await expect(page.getByText(/Omega-3.*EPA.*DHA.*mariner/i)).toBeVisible({ timeout: 8000 });
@@ -48,12 +54,15 @@ test.describe('Issue #53 — Omega-3 differenziert', () => {
     const walnuss = {
       barcode: '0032481395269',
       name: 'Walnussöl',
-      nutriments: fromOff({ 'energy-kcal_100g': 898, 'sugars_100g': 0, 'fat_100g': 99, 'saturated-fat_100g': 66, 'fiber_100g': 0, 'proteins_100g': 0, 'salt_100g': 0 }),
+      nutriments: fromOff({ 'energy-kcal_100g': 898, 'sugars_100g': 0, 'fat_100g': 99, 'saturated-fat_100g': 11, 'fiber_100g': 0, 'proteins_100g': 0, 'salt_100g': 0 }),
       labels: [] as string[],
       ingredients: 'Walnussöl',
       categories: [] as string[],
       additives: [] as string[],
     };
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, SKIPPED_KEY);
     await mockProductApi(page, walnuss.barcode, walnuss);
     await page.goto(`/result/${walnuss.barcode}`);
     await expect(page.getByText(/Omega-3.*ALA.*pflanzlich/i)).toBeVisible({ timeout: 8000 });
@@ -76,11 +85,13 @@ test.describe('Issue #50 — Soja / Phytoöstrogen-Erkennung', () => {
       additives: ['en:e461'] as string[],
     };
 
-    // Setze Hashimoto-Profil in localStorage
-    await page.goto('/onboarding');
-    await page.evaluate((profile) => {
-      localStorage.setItem('hashimoto-pcos-user-profile', JSON.stringify(profile));
-    }, { condition: 'hashimoto', glutenSensitive: false, lactoseIntolerant: false });
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, JSON.stringify({
+        condition: 'hashimoto',
+        glutenSensitive: false,
+        lactoseIntolerant: false,
+      }));
+    }, PROFILE_KEY);
 
     await mockProductApi(page, tofu.barcode, tofu);
     await page.goto(`/result/${tofu.barcode}`);
@@ -98,10 +109,13 @@ test.describe('Issue #50 — Soja / Phytoöstrogen-Erkennung', () => {
       additives: [] as string[],
     };
 
-    await page.goto('/onboarding');
-    await page.evaluate((profile) => {
-      localStorage.setItem('hashimoto-pcos-user-profile', JSON.stringify(profile));
-    }, { condition: 'hashimoto', glutenSensitive: false, lactoseIntolerant: false });
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, JSON.stringify({
+        condition: 'hashimoto',
+        glutenSensitive: false,
+        lactoseIntolerant: false,
+      }));
+    }, PROFILE_KEY);
 
     await mockProductApi(page, miso.barcode, miso);
     await page.goto(`/result/${miso.barcode}`);
@@ -123,6 +137,9 @@ test.describe('Issue #54 — Milchprodukte tiered', () => {
       categories: ['en:dietary-supplements', 'en:protein-powders'] as string[],
       additives: ['en:e950', 'en:e955'] as string[],
     };
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, SKIPPED_KEY);
     await mockProductApi(page, whey.barcode, whey);
     await page.goto(`/result/${whey.barcode}`);
     await expect(page.getByText(/Molkenprotein.*Whey/i)).toBeVisible({ timeout: 8000 });
@@ -138,6 +155,9 @@ test.describe('Issue #54 — Milchprodukte tiered', () => {
       categories: ['en:fats', 'en:ghee'] as string[],
       additives: [] as string[],
     };
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, SKIPPED_KEY);
     await mockProductApi(page, ghee.barcode, ghee);
     await page.goto(`/result/${ghee.barcode}`);
     // Ghee sollte keinen Milchbestandteile-Eintrag haben
@@ -156,10 +176,13 @@ test.describe('Issue #54 — Milchprodukte tiered', () => {
       additives: [] as string[],
     };
 
-    await page.goto('/onboarding');
-    await page.evaluate((profile) => {
-      localStorage.setItem('hashimoto-pcos-user-profile', JSON.stringify(profile));
-    }, { condition: 'hashimoto', glutenSensitive: false, lactoseIntolerant: false });
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, JSON.stringify({
+        condition: 'hashimoto',
+        glutenSensitive: false,
+        lactoseIntolerant: false,
+      }));
+    }, PROFILE_KEY);
 
     await mockProductApi(page, caseinProd.barcode, caseinProd);
     await page.goto(`/result/${caseinProd.barcode}`);
@@ -182,10 +205,13 @@ test.describe('Issue #51 — Goitrogen-Warnung', () => {
       additives: [] as string[],
     };
 
-    await page.goto('/onboarding');
-    await page.evaluate((profile) => {
-      localStorage.setItem('hashimoto-pcos-user-profile', JSON.stringify(profile));
-    }, { condition: 'hashimoto', glutenSensitive: false, lactoseIntolerant: false });
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, JSON.stringify({
+        condition: 'hashimoto',
+        glutenSensitive: false,
+        lactoseIntolerant: false,
+      }));
+    }, PROFILE_KEY);
 
     await mockProductApi(page, rawBrokkoli.barcode, rawBrokkoli);
     await page.goto(`/result/${rawBrokkoli.barcode}`);

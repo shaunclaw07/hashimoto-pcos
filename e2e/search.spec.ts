@@ -6,6 +6,8 @@ import vermeiden from '../tests/fixtures/products/vermeiden.json';
 import sehrGut from '../tests/fixtures/products/sehr-gut.json';
 import wenigerGut from '../tests/fixtures/products/weniger-gut.json';
 
+const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
+
 // Search API returns products with `code` field (not `barcode`)
 const toSearchProduct = (f: typeof gut) => ({ ...f, code: f.barcode });
 
@@ -13,6 +15,9 @@ const MOCK_PRODUCTS = [gut, neutral, vermeiden, sehrGut, wenigerGut].map(toSearc
 
 test.describe('Suchseite (/lebensmittel)', () => {
   test.beforeEach(async ({ page }) => {
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, SKIPPED_KEY);
     await page.goto('/lebensmittel');
   });
 

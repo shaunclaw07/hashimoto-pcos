@@ -334,10 +334,11 @@ Always pattern-match on `result.success` before accessing `result.product`.
 
 ### E2E Tests (Playwright)
 - **Framework:** Playwright 1.x (`@playwright/test`)
-- **Location:** `e2e/*.spec.ts` (9 spec files, 40+ tests)
+- **Location:** `e2e/*.spec.ts` (10 spec files, 75 tests)
 - **Viewport:** Mobile-first (Pixel 5 / 375×812)
 - **Dev server:** Auto-started by `playwright.config.ts` webServer
 - **API mocking:** `page.route()` intercepts `/api/products/*` — no real network calls; fixtures from `tests/fixtures/products/`
+- **Onboarding bypass:** Tests that need to skip the onboarding flow must use `page.addInitScript()` to set `hashimoto-pcos-onboarding-skipped = "true"` (or a full profile) in localStorage **before** `page.goto()`. Never use `page.evaluate()` for this — it runs after page load and the OnboardingGuard redirect fires first.
 
 **Unit test coverage:**
 | File | Area |
@@ -360,11 +361,12 @@ Always pattern-match on `result.success` before accessing `result.product`.
 | `result-page.spec.ts` | Loading, error, product display, score, save/unsave |
 | `scorecard.spec.ts` | Score rendering, save toggle |
 | `bottom-nav.spec.ts` | Nav items (4 tabs), active highlighting, hidden on /onboarding |
-| `theme.spec.ts` | Dark mode (system-only; tests skipped — no UI toggle) |
+| `theme.spec.ts` | Dark mode via system preference (`page.emulateMedia`) |
+| `scoring-features.spec.ts` | Soy tiers, goitrogen, omega-3 sources, dairy tiers with Hashimoto profile |
 | `localstorage.spec.ts` | Save/remove/persist products |
 | `onboarding.spec.ts` | First-run redirect, skip, 2-step wizard, profile save, settings page, profile-aware scoring |
 
-Write tests before implementation (TDD). All `core/` code must have full test coverage.
+All `core/` code must have full test coverage.
 
 ```bash
 npm run test:run   # Vitest — must pass before creating a PR
@@ -377,13 +379,43 @@ npm run test:e2e   # Playwright E2E — auto-starts dev server
 
 1. Create a GitHub issue
 2. Branch: `feat/issue-{N}-{description}` or `fix/issue-{N}-{description}`
-3. Write tests first
-4. Implement
+3. **Write tests first (TDD)** — red → green → refactor
+4. Implement to make the tests pass
 5. Run `npm run test:run && npm run lint && npm run build` — all must pass
 6. Run `npm run test:e2e` — all E2E tests must pass
-7. **Never push if any test is failing**
+7. **Never commit or push if any test is failing**
 8. Open PR referencing the issue (`Closes #N`)
 9. Squash-merge after ≥ 1 approval
+
+### Test-Driven Development (TDD)
+
+**Write tests before writing implementation code.** For every new feature or bug fix:
+1. Write a failing unit test describing the expected behavior
+2. Run it — confirm it fails (red)
+3. Write the minimum implementation to pass (green)
+4. Refactor if needed, keeping tests green
+
+### Pre-commit Gate
+
+All of the following must pass before every commit — no exceptions:
+```bash
+npm run test:run   # Vitest unit tests — zero failures
+npm run test:e2e   # Playwright E2E — zero failures
+npm run lint       # ESLint — zero errors
+npm run build      # Production build — must succeed
+```
+
+Never skip this with `--no-verify` or by commenting out tests.
+
+### Architecture Compliance
+
+All code changes must conform to the Hexagonal Architecture rules:
+
+- **`core/` is sacred** — `src/core/**` must NEVER import from `infrastructure/`, `app/`, or any framework package (`next/*`, `better-sqlite3`, `react`, etc.). ESLint enforces this via `no-restricted-imports` — violations are errors.
+- **Dependency direction** always points inward: `presentation → infrastructure → core`. Never outward.
+- **Domain types only in `core/`** — use `Product`, `Nutriments`, `ScoreResult` etc. Never pass raw OFf API types or DB row types beyond the infrastructure boundary.
+- **New ports go in `core/ports/`** first, then implement in `infrastructure/`.
+- When in doubt, check `eslint.config.mjs` to see which imports are restricted.
 
 **Commit format:** Conventional Commits
 ```

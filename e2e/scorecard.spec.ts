@@ -3,7 +3,15 @@ import { mockProductApi } from '../tests/helpers/mock-api';
 import vermeiden from '../tests/fixtures/products/vermeiden.json';
 import sehrGut from '../tests/fixtures/products/sehr-gut.json';
 
+const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
+
 test.describe('ScoreCard Component', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, SKIPPED_KEY);
+  });
+
   test('scorecard_renders_without_crashing', async ({ page }) => {
     await mockProductApi(page, vermeiden.barcode, vermeiden);
     await page.goto(`/result/${vermeiden.barcode}`);

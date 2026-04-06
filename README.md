@@ -12,8 +12,9 @@ Dieses Projekt hilft Frauen, die sowohl an Hashimoto als auch an PCOS leiden, di
 
 - 📷 **Barcode-Scanner** - Produkte scannen und sofort Bewertung erhalten
 - 🔍 **Lebensmittel-Datenbank** - Suche nach einzelnen Lebensmitteln (DACH-Produkte mit vollständigen Nährwerten)
-- 📊 **Nährstoff-Analyse** - Detaillierte Aufschlüsselung pro Produkt
+- 📊 **Nährstoff-Analyse** - Detaillierte Aufschlüsselung pro Produkt mit Bewertungsgründen
 - 🦋 **Nutzerprofil-Personalisierung** - Bewertungen auf Hashimoto, PCOS oder beides zugeschnitten
+- 🌱 **Erweitertes Scoring** - Differenzierte Erkennung von Soja (Phytoöstrogene/fermentiert/Lecithin), Omega-3-Quellen (marin/pflanzlich), Milchprodukt-Typen (Casein/Whey/fermentiert/Ghee) und Goitrogenen (Kreuzblütler, roh vs. gegart)
 - 🎓 **Wissenschaftlich fundiert** - Alle Empfehlungen basieren auf aktueller Studienlage
 - 👩‍💻 **DAU-freundlich** - Keine medizinischen Vorkenntnisse nötig
 
@@ -61,9 +62,9 @@ hashimoto-pcos/
 ├── scripts/
 │   └── build-db.mjs                 # CSV → SQLite Konvertierskript (DACH + ≥3 Nährwerte)
 ├── tests/
-│   ├── fixtures/products/           # 5 Produkt-Fixtures (Domain-Format)
+│   ├── fixtures/products/           # Produkt-Fixtures (Domain-Format)
 │   └── helpers/mock-api.ts          # Playwright-Mock-Hilfsfunktionen
-├── e2e/                             # Playwright E2E Tests (9 Specs)
+├── e2e/                             # Playwright E2E Tests (10 Specs, 75 Tests)
 ├── docs/recherche/                  # Wissenschaftliche Grundlagen
 ├── k8s/                             # Kubernetes Manifests
 └── .github/workflows/               # CI/CD Pipelines
@@ -147,7 +148,7 @@ npm run build
 > Fehlende Nährwerte werden beim ersten Abruf eines Produkts automatisch von der OFf-API nachgeladen und dauerhaft in der lokalen DB gespeichert — die DB vervollständigt sich selbst mit der Nutzung.
 
 **Wichtige Docs für Entwickler:**
-- [CONTRIBUTING.md](./CONTRIBUTING.md) — Mitwirkungs-Guide, Branching, Coding-Standards
+- [CONTRIBUTING.md](./CONTRIBUTING.md) — Mitwirkungs-Guide, Branching, Coding-Standards (TDD, Pre-commit-Gate, Architekturregeln)
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — System-Architektur, Scoring-Algorithmus, Datenfluss
 - [CLAUDE.md](./CLAUDE.md) — Vollständiger Projekt-Kontext für AI-Assistenten
 - [docs/](./docs/) — Wissenschaftliche Grundlagen

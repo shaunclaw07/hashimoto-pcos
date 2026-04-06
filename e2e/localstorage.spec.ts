@@ -3,7 +3,15 @@ import { mockProductApi } from '../tests/helpers/mock-api';
 import vermeiden from '../tests/fixtures/products/vermeiden.json';
 import gut from '../tests/fixtures/products/gut.json';
 
+const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
+
 test.describe('localStorage / Persistence', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, SKIPPED_KEY);
+  });
+
   test('saved_products_persist_in_localStorage', async ({ page, context }) => {
     await context.addInitScript(() => {
       localStorage.setItem('hashimoto-pcos-saved-products', JSON.stringify({}));

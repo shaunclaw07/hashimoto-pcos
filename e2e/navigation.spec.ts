@@ -1,6 +1,14 @@
 import { test, expect } from '@playwright/test';
 
+const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
+
 test.describe('Navigation & Routing', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, SKIPPED_KEY);
+  });
+
   test('homepage_navigates_to_scanner', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('link', { name: /jetzt scannen/i }).click();

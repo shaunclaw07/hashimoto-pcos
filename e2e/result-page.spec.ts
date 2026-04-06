@@ -4,8 +4,15 @@ import vermeiden from '../tests/fixtures/products/vermeiden.json';
 
 const VALID_BARCODE = vermeiden.barcode;       // 0009800895007 — Hazelnut Spread (nutella)
 const INVALID_BARCODE = '9999999999999';
+const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
 
 test.describe('Ergebnisseite (/result/[barcode])', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript((key) => {
+      localStorage.setItem(key, 'true');
+    }, SKIPPED_KEY);
+  });
+
   test('loading_state_shown_while_fetching', async ({ page }) => {
     await mockProductApi(page, VALID_BARCODE, vermeiden);
     await page.goto(`/result/${VALID_BARCODE}`);
