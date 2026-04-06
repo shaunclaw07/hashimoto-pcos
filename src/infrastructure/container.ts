@@ -13,7 +13,7 @@ export function makeFallbackProductRepository(): IProductRepository {
   return new OffApiAdapter();
 }
 
-/** Nur client-seitig verwenden (benötigt window/localStorage). */
+/** Use on the client side only (requires window/localStorage). */
 export function makeFavoritesRepository(): IFavoritesRepository {
   return new LocalStorageFavoritesRepository();
 }

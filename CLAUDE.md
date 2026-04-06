@@ -426,6 +426,24 @@ docs(readme): update deployment instructions
 
 ---
 
+## Language Rules
+
+All source code must be in **English**. User-facing content stays in **German**.
+
+| What | Language | Examples |
+|------|----------|---------|
+| Variable / function / class names | English | `calculateScore`, `userProfile` |
+| Code comments (inline, JSDoc) | English | `// product found locally → enrich` |
+| TypeScript types / interfaces | English | `ScoreResult`, `SearchQuery` |
+| Test descriptions (`describe`/`it`/`test`) | English | `"returns results from primary repo"` |
+| URL route segments | English | `/products`, `/settings`, `/result` |
+| Internal keys / identifiers (e.g. category keys) | English | `"vegetables"`, `"dairy"` |
+| UI strings shown to the user | **German** | `"Lebensmittel suchen"`, `"Speichern"` |
+| Ingredient-matching arrays (detection data) | **German** | `"brokkoli"`, `"milch"` — must match German product text |
+| Scientific / domain terms in comments | English | `"goitrogen"`, `"phytoestrogen"` |
+
+---
+
 ## Code Style
 
 - **Components:** PascalCase
@@ -445,7 +463,7 @@ docs(readme): update deployment instructions
 - Saved products: `localStorage` key `"hashimoto-pcos-saved-products"` (see `result/[barcode]/page.tsx`)
 - User profile: `localStorage` key `"hashimoto-pcos-user-profile"` — `UserProfile` JSON (see `src/hooks/use-user-profile.ts`)
 - Onboarding skipped: `localStorage` key `"hashimoto-pcos-onboarding-skipped"` — `"true"` string; cleared when a profile is saved
-- Route state: URL params (`[barcode]` dynamic route, query string in `/lebensmittel`)
+- Route state: URL params (`[barcode]` dynamic route, query string in `/products`)
 - **No server-side session, no cookies**
 - **Hydration safety:** `useUserProfile()` sets `isLoaded = true` after the first `useEffect` — all profile-dependent UI waits for `isLoaded` before rendering to prevent SSR/client mismatches
 

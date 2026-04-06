@@ -5,8 +5,8 @@ import type { UserProfile, Condition } from "../domain/user-profile";
 import { clamp } from "../../lib/utils";
 
 /**
- * Validiert Nährwerte und clampt sie in physiologisch realistische Bereiche.
- * Negative oder unrealistisch hohe Werte werden korrigiert.
+ * Validates nutriments and clamps them to physiologically realistic ranges.
+ * Negative or unrealistically high values are corrected.
  * Fixes: https://github.com/shaunclaw07/hashimoto-pcos/issues/32
  */
 export function validateNutriments(n: {

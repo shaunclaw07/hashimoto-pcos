@@ -4,7 +4,7 @@ import { calculateScore } from "./scoring-service";
 import type { Product } from "../domain/product";
 import type { UserProfile } from "../domain/user-profile";
 
-// Hilfsfunktion: erstellt ein minimales Test-Produkt (alle Pflichtfelder vorhanden)
+// Helper: creates a minimal test product with all required fields present
 function makeProduct(overrides: Partial<Product> & { nutriments?: Partial<Product["nutriments"]> }): Product {
   const base: Product = {
     barcode: "",
@@ -23,8 +23,8 @@ function makeProduct(overrides: Partial<Product> & { nutriments?: Partial<Produc
 }
 
 describe("calculateScore", () => {
-  describe("Olivenöl", () => {
-    it("Score 2.5 mit Bio-Label (wegen gesättigten Fetten)", () => {
+  describe("Olive oil", () => {
+    it("score 2.5 with organic label (due to saturated fat)", () => {
       const product = makeProduct({
         nutriments: { sugars: 0, fat: 100, saturatedFat: 14, fiber: 0, protein: 0, salt: 0 },
         labels: ["organic"],
@@ -35,7 +35,7 @@ describe("calculateScore", () => {
       expect(result.label).toBe("NEUTRAL");
     });
 
-    it("Score 2.0 ohne Labels", () => {
+    it("score 2.0 without labels", () => {
       const product = makeProduct({
         nutriments: { sugars: 0, fat: 100, saturatedFat: 14, fiber: 0, protein: 0, salt: 0 },
       });
@@ -47,7 +47,7 @@ describe("calculateScore", () => {
   });
 
   describe("Nutella", () => {
-    it("Score 1.0 wegen hohem Zucker, Milch und gesättigten Fetten", () => {
+    it("score 1.0 due to high sugar, milk and saturated fat", () => {
       const product = makeProduct({
         nutriments: { sugars: 56, fat: 31, saturatedFat: 11, fiber: 2.7, protein: 5.4, salt: 0.1 },
         ingredients: "sugar, palm oil, hazelnuts, skim milk",
@@ -60,29 +60,29 @@ describe("calculateScore", () => {
     });
   });
 
-  describe("Ballaststoffe Bonus", () => {
-    it("+1.0 für Ballaststoffe > 6g", () => {
+  describe("Fiber bonus", () => {
+    it("+1.0 for fiber > 6g", () => {
       const product = makeProduct({ nutriments: { fiber: 7 } });
       const result = calculateScore(product);
       expect(result.score).toBe(4.0); // 3.0 + 1.0
       expect(result.bonuses).toBe(1.0);
     });
 
-    it("+0.5 für Ballaststoffe > 3g", () => {
+    it("+0.5 for fiber > 3g", () => {
       const product = makeProduct({ nutriments: { fiber: 4 } });
       const result = calculateScore(product);
       expect(result.score).toBe(3.5); // 3.0 + 0.5
     });
 
-    it("kein Bonus für Ballaststoffe <= 3g", () => {
+    it("no bonus for fiber <= 3g", () => {
       const product = makeProduct({ nutriments: { fiber: 3 } });
       const result = calculateScore(product);
       expect(result.score).toBe(3.0);
     });
   });
 
-  describe("Protein Bonus", () => {
-    it("+0.5 für Protein > 20g", () => {
+  describe("Protein bonus", () => {
+    it("+0.5 for protein > 20g", () => {
       const product = makeProduct({ nutriments: { protein: 21 } });
       const result = calculateScore(product);
       expect(result.score).toBe(3.5);
@@ -90,8 +90,8 @@ describe("calculateScore", () => {
     });
   });
 
-  describe("Omega-3 Bonus (Issue #53 — source-differentiated)", () => {
-    it("+1.5 für Omega-3 marine source (EPA/DHA)", () => {
+  describe("Omega-3 bonus (Issue #53 — source-differentiated)", () => {
+    it("+1.5 for Omega-3 marine source (EPA/DHA)", () => {
       const product = makeProduct({ ingredients: "lachs, salt" });
       const result = calculateScore(product);
       // 3.0 + 1.5 = 4.5 → clamped to 5? No, 4.5 < 5.0, so 4.5
@@ -99,14 +99,14 @@ describe("calculateScore", () => {
       expect(result.score).toBe(4.5);
     });
 
-    it("+0.5 für Omega-3 plant source (ALA)", () => {
+    it("+0.5 for Omega-3 plant source (ALA)", () => {
       const product = makeProduct({ ingredients: "leinsamen, fiber" });
       const result = calculateScore(product);
       // 3.0 + 0.5 = 3.5
       expect(result.score).toBe(3.5);
     });
 
-    it("+0.7 für Omega-3 label-only (unknown source)", () => {
+    it("+0.7 for Omega-3 label-only (unknown source)", () => {
       const product = makeProduct({ categories: ["omega-3 fatty acids"] });
       const result = calculateScore(product);
       // 3.0 + 0.7 = 3.7
@@ -116,7 +116,7 @@ describe("calculateScore", () => {
       expect(item!.points).toBe(0.7);
     });
 
-    it("+0.7 für Omega-3 label (unknown source)", () => {
+    it("+0.7 for Omega-3 label (unknown source)", () => {
       const product = makeProduct({ labels: ["omega-3"] });
       const result = calculateScore(product);
       // 3.0 + 0.7 = 3.7
@@ -124,35 +124,35 @@ describe("calculateScore", () => {
     });
   });
 
-  describe("Label Boni", () => {
-    it("+0.5 für gluten-free Label", () => {
+  describe("Label bonuses", () => {
+    it("+0.5 for gluten-free label", () => {
       const product = makeProduct({ labels: ["gluten-free"] });
       const result = calculateScore(product);
       expect(result.score).toBe(3.5);
     });
 
-    it("+0.5 für organic Label", () => {
+    it("+0.5 for organic label", () => {
       const product = makeProduct({ labels: ["organic"] });
       const result = calculateScore(product);
       expect(result.score).toBe(3.5);
     });
 
-    it("+0.5 für bio Label (case-insensitive)", () => {
+    it("+0.5 for bio label (case-insensitive)", () => {
       const product = makeProduct({ labels: ["Bio"] });
       const result = calculateScore(product);
       expect(result.score).toBe(3.5);
     });
   });
 
-  describe("Zucker Malus", () => {
-    it("-2.0 für Zucker > 20g", () => {
+  describe("Sugar penalty", () => {
+    it("-2.0 for sugar > 20g", () => {
       const product = makeProduct({ nutriments: { sugars: 21 } });
       const result = calculateScore(product);
       expect(result.score).toBe(1.0);
       expect(result.maluses).toBe(2.0);
     });
 
-    it("-1.0 für Zucker > 10g", () => {
+    it("-1.0 for sugar > 10g", () => {
       const product = makeProduct({ nutriments: { sugars: 11 } });
       const result = calculateScore(product);
       expect(result.score).toBe(2.0);
@@ -160,29 +160,29 @@ describe("calculateScore", () => {
     });
   });
 
-  describe("Salz Malus", () => {
-    it("-1.0 für Salz > 2.5g", () => {
+  describe("Salt penalty", () => {
+    it("-1.0 for salt > 2.5g", () => {
       const product = makeProduct({ nutriments: { salt: 3 } });
       const result = calculateScore(product);
       expect(result.score).toBe(2.0);
     });
 
-    it("-0.5 für Salz > 1.5g", () => {
+    it("-0.5 for salt > 1.5g", () => {
       const product = makeProduct({ nutriments: { salt: 2 } });
       const result = calculateScore(product);
       expect(result.score).toBe(2.5);
     });
   });
 
-  describe("Zutaten Malus", () => {
-    it("-0.5 für Gluten in Zutaten", () => {
+  describe("Ingredients penalty", () => {
+    it("-0.5 for gluten in ingredients", () => {
       const product = makeProduct({ ingredients: "wheat gluten, water" });
       const result = calculateScore(product);
       expect(result.score).toBe(2.5);
       expect(result.maluses).toBe(0.5);
     });
 
-    it("-0.3 für milk in Zutaten", () => {
+    it("-0.3 for milk in ingredients", () => {
       const product = makeProduct({ ingredients: "skim milk, sugar" });
       const result = calculateScore(product);
       expect(result.score).toBeCloseTo(2.7, 1);
@@ -190,8 +190,8 @@ describe("calculateScore", () => {
     });
   });
 
-  describe("Zusatzstoffe Malus", () => {
-    it("-0.5 für mehr als 5 Zusatzstoffe", () => {
+  describe("Additives penalty", () => {
+    it("-0.5 for more than 5 additives", () => {
       const product = makeProduct({
         additives: ["en:e100", "en:e200", "en:e300", "en:e400", "en:e500", "en:e600"],
       });
@@ -199,7 +199,7 @@ describe("calculateScore", () => {
       expect(result.score).toBe(2.5);
     });
 
-    it("kein Malus für genau 5 Zusatzstoffe", () => {
+    it("no penalty for exactly 5 additives", () => {
       const product = makeProduct({
         additives: ["en:e100", "en:e200", "en:e300", "en:e400", "en:e500"],
       });
@@ -209,7 +209,7 @@ describe("calculateScore", () => {
   });
 
   describe("Score Clamping", () => {
-    it("Score wird auf 5.0 geclampt", () => {
+    it("score is clamped to 5.0", () => {
       const product = makeProduct({
         nutriments: { fiber: 10, protein: 25 },
         labels: ["gluten-free", "organic", "omega-3"],
@@ -219,7 +219,7 @@ describe("calculateScore", () => {
       expect(result.stars).toBe(5);
     });
 
-    it("Score wird auf 1.0 geclampt", () => {
+    it("score is clamped to 1.0", () => {
       const product = makeProduct({
         nutriments: { sugars: 100, saturatedFat: 50, salt: 10 },
         ingredients: "skim milk",
@@ -230,15 +230,15 @@ describe("calculateScore", () => {
     });
   });
 
-  describe("Score Labels und Sterne", () => {
-    it("Score 4.5+ → SEHR GUT, 5 Sterne", () => {
+  describe("Score labels and stars", () => {
+    it("score 4.5+ → SEHR GUT, 5 stars", () => {
       const product = makeProduct({ nutriments: { fiber: 10, protein: 25 }, labels: ["organic"] });
       const result = calculateScore(product);
       expect(result.label).toBe("SEHR GUT");
       expect(result.stars).toBe(5);
     });
 
-    it("Score 3.5-4.4 → GUT, 4 Sterne", () => {
+    it("score 3.5-4.4 → GUT, 4 stars", () => {
       const product = makeProduct({ nutriments: { fiber: 4 } });
       const result = calculateScore(product);
       expect(result.score).toBe(3.5);
@@ -246,7 +246,7 @@ describe("calculateScore", () => {
       expect(result.stars).toBe(4);
     });
 
-    it("Score 2.5-3.4 → NEUTRAL, 3 Sterne", () => {
+    it("score 2.5-3.4 → NEUTRAL, 3 stars", () => {
       const product = makeProduct({});
       const result = calculateScore(product);
       expect(result.score).toBe(3.0);
@@ -255,71 +255,71 @@ describe("calculateScore", () => {
     });
   });
 
-  describe("Nährwert-Validierung (Issue #32)", () => {
-    it("Negative Zucker werden auf 0 geclampt", () => {
-      // sugars = -10 → clamp zu 0 → 0 > 20 = false, kein Malus
+  describe("Nutriment validation (Issue #32)", () => {
+    it("negative sugar values are clamped to 0", () => {
+      // sugars = -10 → clamped to 0 → 0 > 20 = false, no penalty
       const product = makeProduct({ nutriments: { sugars: -10 } });
       const result = calculateScore(product);
       expect(result.maluses).toBe(0);
       expect(result.score).toBe(3.0);
     });
 
-    it("Hohe Zuckerwerte (>100g) werden auf 100 geclampt", () => {
-      // sugars = 200 → clamp zu 100 → 100 > 20 = true → Malus 2.0
+    it("high sugar values (>100g) are clamped to 100", () => {
+      // sugars = 200 → clamped to 100 → 100 > 20 = true → penalty 2.0
       const product = makeProduct({ nutriments: { sugars: 200 } });
       const result = calculateScore(product);
       expect(result.maluses).toBe(2.0);
       expect(result.score).toBe(1.0);
     });
 
-    it("Negative Fiber werden auf 0 geclampt", () => {
+    it("negative fiber values are clamped to 0", () => {
       const product = makeProduct({ nutriments: { fiber: -5 } });
       const result = calculateScore(product);
       expect(result.bonuses).toBe(0);
       expect(result.score).toBe(3.0);
     });
 
-    it("Hohe Fiber-Werte (>100g) werden auf 100 geclampt", () => {
-      // fiber = 150 → clamp zu 100 → 100 > 6 = true → Bonus 1.0
+    it("high fiber values (>100g) are clamped to 100", () => {
+      // fiber = 150 → clamped to 100 → 100 > 6 = true → bonus 1.0
       const product = makeProduct({ nutriments: { fiber: 150 } });
       const result = calculateScore(product);
       expect(result.bonuses).toBe(1.0);
     });
 
-    it("Negative Salt werden auf 0 geclampt", () => {
+    it("negative salt values are clamped to 0", () => {
       const product = makeProduct({ nutriments: { salt: -10 } });
       const result = calculateScore(product);
       expect(result.maluses).toBe(0);
       expect(result.score).toBe(3.0);
     });
 
-    it("Hohe Salt-Werte (>100g) werden auf 100 geclampt", () => {
-      // salt = 500 → clamp zu 100 → 100 > 2.5 = true → Malus 1.0
+    it("high salt values (>100g) are clamped to 100", () => {
+      // salt = 500 → clamped to 100 → 100 > 2.5 = true → penalty 1.0
       const product = makeProduct({ nutriments: { salt: 500 } });
       const result = calculateScore(product);
       expect(result.maluses).toBe(1.0);
     });
 
-    it("Energie > 4000 kcal wird auf 4000 geclampt", () => {
+    it("energy > 4000 kcal is clamped to 4000", () => {
       // energyKcal currently not used in scoring, but should be clamped
       const product = makeProduct({ nutriments: { energyKcal: 5000 } });
       const result = calculateScore(product);
       expect(result.score).toBe(3.0); // No scoring impact, but no crash
     });
 
-    it("Negative Protein werden auf 0 geclampt", () => {
+    it("negative protein values are clamped to 0", () => {
       const product = makeProduct({ nutriments: { protein: -10 } });
       const result = calculateScore(product);
       expect(result.bonuses).toBe(0);
     });
 
-    it("Negative SaturatedFat werden auf 0 geclampt", () => {
+    it("negative saturated fat values are clamped to 0", () => {
       const product = makeProduct({ nutriments: { saturatedFat: -5 } });
       const result = calculateScore(product);
       expect(result.maluses).toBe(0);
     });
 
-    it("Kombination: alle Nährwerte negativ oder unrealistisch hoch", () => {
+    it("combination: all nutriments negative or unrealistically high", () => {
       const product = makeProduct({
         nutriments: {
           sugars: -50,
@@ -330,11 +330,11 @@ describe("calculateScore", () => {
         },
       });
       const result = calculateScore(product);
-      // sugars: -50 → 0, kein Malus
-      // fiber: 200 → 100 → 100 > 6 → Bonus 1.0
-      // saturatedFat: -20 → 0, kein Malus
-      // salt: 500 → 100 → 100 > 2.5 → Malus 1.0
-      // protein: -30 → 0, kein Bonus
+      // sugars: -50 → 0, no penalty
+      // fiber: 200 → 100 → 100 > 6 → bonus 1.0
+      // saturatedFat: -20 → 0, no penalty
+      // salt: 500 → 100 → 100 > 2.5 → penalty 1.0
+      // protein: -30 → 0, no bonus
       // Score: 3.0 + 1.0 - 1.0 = 3.0
       expect(result.score).toBe(3.0);
       expect(result.bonuses).toBe(1.0);
@@ -342,7 +342,7 @@ describe("calculateScore", () => {
     });
   });
 
-  describe("Echte Produkt-Fixtures", () => {
+  describe("Real product fixtures", () => {
     it("Green lentils → SEHR GUT", () => {
       const product = makeProduct({
         name: "Green lentils",
@@ -364,79 +364,79 @@ describe("calculateScore", () => {
   });
 });
 
-describe("Nährwert-Validierung (Bugfix #32)", () => {
-  describe("Negative Werte werden korrigiert", () => {
-    it("negative Zuckerwerte geben keinen Bonus", () => {
-      // Bug: sugars = -5 würde als "gut" gelten weil -5 nicht > 20
-      // aber negativer Zucker sollte nicht negativ in Berechnungen einfließen
+describe("Nutriment validation (Bugfix #32)", () => {
+  describe("Negative values are corrected", () => {
+    it("negative sugar values give no bonus", () => {
+      // Bug: sugars = -5 would be treated as "good" since -5 is not > 20
+      // but negative sugar should not influence calculations as negative
       const product = makeProduct({ nutriments: { sugars: -5 } });
       const result = calculateScore(product);
-      // Ohne clamp: sugars=-5 → kein Malus → 3.0
-      // Mit clamp: sugars=0 → kein Malus → 3.0 → gleiches Ergebnis, ABER
-      // es darf KEIN Bonus sein, nur weil der Wert fehlerhaft negativ ist
+      // Without clamp: sugars=-5 → no penalty → 3.0
+      // With clamp: sugars=0 → no penalty → 3.0 → same result, BUT
+      // there must be NO bonus just because the value is erroneously negative
       expect(result.maluses).toBe(0);
-      expect(result.score).toBe(3.0); // neutral da kein Bonus
+      expect(result.score).toBe(3.0); // neutral — no bonus
     });
 
-    it("negativer Zucker darf nicht als niedrig interpretiert werden (Bonus)", () => {
-      // sugars=-30 ist ein Fehlerwert - darf keinen Zucker-Malus geben
+    it("negative sugar must not be interpreted as low (bonus)", () => {
+      // sugars=-30 is an invalid value — must not produce a sugar penalty
       const product = makeProduct({ nutriments: { sugars: -30 } });
       const result = calculateScore(product);
-      // Ohne clamp: sugars=-30 → -30 > 20? nein → kein Malus ✓
-      // aber auch: -30 > 10? nein → kein Malus ✓
-      // Das ist zufällig richtig, ABER bei zukünftigen thresholds wird es falsch
+      // Without clamp: sugars=-30 → -30 > 20? no → no penalty ✓
+      // also: -30 > 10? no → no penalty ✓
+      // Accidentally correct now, BUT will break if thresholds change
       expect(result.maluses).toBe(0);
     });
 
-    it("negative Faserwerte werden nicht als Ballaststoff-Bonus gewertet", () => {
+    it("negative fiber values are not counted as fiber bonus", () => {
       const product = makeProduct({ nutriments: { fiber: -10 } });
       const result = calculateScore(product);
-      // Ohne clamp: fiber=-10 → -10 > 6? nein → kein Bonus ✓
-      // Ohne clamp: fiber=-10 → -10 > 3? nein → kein Bonus ✓
-      // Auch zufällig richtig, aber semantisch falsch
+      // Without clamp: fiber=-10 → -10 > 6? no → no bonus ✓
+      // Without clamp: fiber=-10 → -10 > 3? no → no bonus ✓
+      // Also accidentally correct, but semantically wrong
       expect(result.bonuses).toBe(0);
     });
 
-    it("negative Proteine geben keinen Bonus", () => {
+    it("negative protein gives no bonus", () => {
       const product = makeProduct({ nutriments: { protein: -5 } });
       const result = calculateScore(product);
       expect(result.bonuses).toBe(0);
     });
   });
 
-  describe("Unrealistisch hohe Werte werden geclampt", () => {
-    it("Energie > 4000 kcal wird geclampt", () => {
+  describe("Unrealistically high values are clamped", () => {
+    it("energy > 4000 kcal is clamped", () => {
       const product = makeProduct({ nutriments: { energyKcal: 9000 } });
       const result = calculateScore(product);
-      // Sollte keinen Bonus geben weil unrealistisch
-      // Achtung: energyKcal wird aktuell NICHT im Scoring verwendet
-      // Daher nur prüfen dass kein Crash
+      // Should not produce a bonus because value is unrealistic
+      // Note: energyKcal is currently NOT used in scoring
+      // Only verify no crash occurs
       expect(result.score).toBeDefined();
     });
 
-    it("Zucker > 100g wird geclampt auf 100g", () => {
-      // 100g Zucker = 2.0 malus → score 1.0
-      // 200g Zucker = sollte ebenfalls 2.0 malus weil geclampt
+    it("sugar > 100g is clamped to 100g", () => {
+      // 100g sugar = 2.0 penalty → score 1.0
+      // 200g sugar = should also give 2.0 penalty because clamped
       const product100 = makeProduct({ nutriments: { sugars: 100 } });
       const product200 = makeProduct({ nutriments: { sugars: 200 } });
       const result100 = calculateScore(product100);
       const result200 = calculateScore(product200);
       expect(result200.score).toBe(result100.score);
-      expect(result100.score).toBe(1.0); // 3.0 - 2.0 malus
+      expect(result100.score).toBe(1.0); // 3.0 - 2.0 penalty
     });
 
-    it("Ballaststoffe > 100g werden geclampt", () => {
+    it("fiber > 100g is clamped", () => {
       const product = makeProduct({ nutriments: { fiber: 150 } });
       const result = calculateScore(product);
-      // fiber=150 → clamp auf 100 → >6 → bonus +1.0
-      // Ohne clamp: >6 → bonus +1.0 (funktioniert zufällig richtig)
-      // ABER: fiber=150 ist unrealistisch und sollte clamped werden
+      // fiber=150 → clamped to 100 → >6 → bonus +1.0
+      // Without clamp: >6 → bonus +1.0 (accidentally correct)
+      // BUT: fiber=150 is unrealistic and should be clamped
       expect(result.score).toBe(4.0); // 3.0 + 1.0
     });
   });
 
-  describe("Kombinierte Validierung", () => {
-    it("Alle Werte gleichzeitig negativ/hoch → korrektes Scoring", () => {
+  describe("Combined validation", () => {
+    it("all values simultaneously negative/high → correct scoring", () => {
       const product = makeProduct({
         nutriments: {
           sugars: -20,
@@ -447,7 +447,7 @@ describe("Nährwert-Validierung (Bugfix #32)", () => {
         }
       });
       const result = calculateScore(product);
-      // Alle Werte auf 0 geclampt → keine Boni/Mali → score 3.0
+      // All values clamped to 0 → no bonuses or penalties → score 3.0
       expect(result.score).toBe(3.0);
       expect(result.bonuses).toBe(0);
       expect(result.maluses).toBe(0);
@@ -456,13 +456,13 @@ describe("Nährwert-Validierung (Bugfix #32)", () => {
     it("Mixed valid and invalid values", () => {
       const product = makeProduct({
         nutriments: {
-          sugars: -5,     // ungültig → 0
-          fiber: 7,       // gültig → bonus +1.0
-          salt: 3,        // gültig → malus -1.0
+          sugars: -5,     // invalid → 0
+          fiber: 7,       // valid → bonus +1.0
+          salt: 3,        // valid → penalty -1.0
         }
       });
       const result = calculateScore(product);
-      // sugars=-5 → 0 (kein malus), fiber=7 → +1.0, salt=3 → -1.0
+      // sugars=-5 → 0 (no penalty), fiber=7 → +1.0, salt=3 → -1.0
       // score = 3.0 + 1.0 - 1.0 = 3.0
       expect(result.score).toBe(3.0);
     });
@@ -472,36 +472,35 @@ describe("Nährwert-Validierung (Bugfix #32)", () => {
 // =============================================================================
 // EXPLICIT VALIDATION TESTS (Bugfix #32)
 // =============================================================================
-// Die validateNutriments() Funktion muss negative/unrealistische Werte clampen.
-// Diese Tests scheitern OHNE Implementierung.
+// The validateNutriments() function must clamp negative/unrealistic values.
+// These tests fail WITHOUT the implementation.
 describe("validateNutriments (Bugfix #32)", () => {
-  // Da validateNutriments noch nicht existiert, müssen diese Tests explizit
-  // die clamps prüfen die im scoring passieren - oder prüfen dass die Funktion
-  // existiert und korrekt arbeitet
-  
-  it("sollte negative Zucker auf 0 geclampt behandeln (Bonus-Logik)", () => {
-    // Achtung: sugars=-5 führt zufällig zu keinem Malus weil -5>20 false
-    // ABER: sugars=-5 ist fehlerhafte Daten und sollte nicht als "0" behandelt werden
-    // für zukünftige Features die "niedrigen zucker" als Bonus sehen wollen
-    // Wir testen hier das gewünschte Verhalten: validateNutriments clampet auf 0
+  // Since validateNutriments now exists, these tests verify clamping behavior
+  // explicitly — checking both that the function exists and works correctly.
+
+  it("should treat negative sugar as clamped to 0 (bonus logic)", () => {
+    // Note: sugars=-5 accidentally produces no penalty because -5>20 is false
+    // BUT: sugars=-5 is invalid data and must not be treated as "0" for
+    // future features that award a bonus for low sugar
+    // We test the desired behavior: validateNutriments clamps to 0
     const product = makeProduct({ nutriments: { sugars: -5 } });
     const result = calculateScore(product);
-    // Erwünscht: sugars wird auf 0 geclampt → kein Malus
-    // Realität: sugars=-5 → kein Malus (zufällig richtig)
-    // ABER: Das Problem ist semantisch - die Daten sind ungültig
-    expect(result.score).toBe(3.0); // neutral da kein Bonus und kein Malus
+    // Expected: sugars clamped to 0 → no penalty
+    // Reality: sugars=-5 → no penalty (accidentally correct)
+    // BUT: the issue is semantic — the data is invalid
+    expect(result.score).toBe(3.0); // neutral — no bonus and no penalty
   });
 
-  it("Zucker > 100g muss auf 100g geclampt sein (nicht 200g=mehr Malus)", () => {
+  it("sugar > 100g must be clamped to 100g (not 200g=more penalty)", () => {
     const product = makeProduct({ nutriments: { sugars: 200 } });
     const result = calculateScore(product);
-    // Erwünscht: sugars=200 → clamp auf 100 → malus 2.0 → score 1.0
-    // Ohne clamp: sugars=200 → malus 2.0 → score 1.0 (zufällig richtig)
-    // Das Problem tritt auf wenn thresholds sich ändern
-    expect(result.score).toBe(1.0); // clamped auf 100g = malus 2.0
+    // Expected: sugars=200 → clamped to 100 → penalty 2.0 → score 1.0
+    // Without clamp: sugars=200 → penalty 2.0 → score 1.0 (accidentally correct)
+    // Problem becomes visible when thresholds change
+    expect(result.score).toBe(1.0); // clamped to 100g = penalty 2.0
   });
 
-  it("Alle negativen Makronährwerte auf 0", () => {
+  it("all negative macronutrients clamped to 0", () => {
     const product = makeProduct({
       nutriments: {
         fat: -50,
@@ -513,11 +512,11 @@ describe("validateNutriments (Bugfix #32)", () => {
       }
     });
     const result = calculateScore(product);
-    // Alles auf 0 → kein Bonus, kein Malus → 3.0
+    // All clamped to 0 → no bonus, no penalty → 3.0
     expect(result.score).toBe(3.0);
   });
 
-  it("Unrealistisch hohe Energie wird nicht gecrasht", () => {
+  it("unrealistically high energy does not crash", () => {
     const product = makeProduct({ nutriments: { energyKcal: 99999 } });
     const result = calculateScore(product);
     expect(result.score).toBeDefined();
@@ -526,14 +525,14 @@ describe("validateNutriments (Bugfix #32)", () => {
 });
 
 // =============================================================================
-// calculateScore MIT NUTZERPROFIL
+// calculateScore WITH USER PROFILE
 // =============================================================================
-describe("calculateScore mit Nutzerprofil", () => {
+describe("calculateScore with user profile", () => {
   // -------------------------------------------------------------------------
   // 1. Generic mode regression
   // -------------------------------------------------------------------------
   describe("Generic mode regression", () => {
-    it("alle Breakdown-Items haben condition === undefined ohne Profil", () => {
+    it("all breakdown items have condition === undefined without profile", () => {
       const product = makeProduct({
         nutriments: { sugars: 11, fiber: 7, protein: 25 },
         labels: ["gluten-free", "organic"],
@@ -549,14 +548,14 @@ describe("calculateScore mit Nutzerprofil", () => {
   // -------------------------------------------------------------------------
   // 2. Hashimoto profile — threshold verification
   // -------------------------------------------------------------------------
-  describe("Hashimoto profil — Schwellenwerte", () => {
+  describe("Hashimoto profile — thresholds", () => {
     const hashimotoProfile: import("../domain/user-profile").UserProfile = {
       condition: "hashimoto",
       glutenSensitive: false,
       lactoseIntolerant: false,
     };
 
-    it("Gluten in Zutaten → Malus -1.5, condition: hashimoto", () => {
+    it("gluten in ingredients → penalty -1.5, condition: hashimoto", () => {
       const product = makeProduct({ ingredients: "wheat gluten, water" });
       const result = calculateScore(product, hashimotoProfile);
       // 3.0 - 1.5 = 1.5
@@ -567,7 +566,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("hashimoto");
     });
 
-    it("Ballaststoffe > 6g → Bonus +1.0, condition NICHT gesetzt (identisch mit generic)", () => {
+    it("fiber > 6g → bonus +1.0, condition NOT set (same as generic)", () => {
       const product = makeProduct({ nutriments: { fiber: 7 } });
       const result = calculateScore(product, hashimotoProfile);
       // 3.0 + 1.0 = 4.0
@@ -578,7 +577,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBeUndefined();
     });
 
-    it("Protein > 20g → Bonus +0.5, condition NICHT gesetzt (identisch mit generic)", () => {
+    it("protein > 20g → bonus +0.5, condition NOT set (same as generic)", () => {
       const product = makeProduct({ nutriments: { protein: 21 } });
       const result = calculateScore(product, hashimotoProfile);
       // 3.0 + 0.5 = 3.5
@@ -589,7 +588,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBeUndefined();
     });
 
-    it("Bio-Label → Bonus +0.5, condition NICHT gesetzt (identisch mit generic)", () => {
+    it("organic label → bonus +0.5, condition NOT set (same as generic)", () => {
       const product = makeProduct({ labels: ["organic"] });
       const result = calculateScore(product, hashimotoProfile);
       // 3.0 + 0.5 = 3.5
@@ -600,7 +599,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBeUndefined();
     });
 
-    it("Glutenfrei-Label → Bonus +0.5, condition NICHT gesetzt (identisch mit generic)", () => {
+    it("gluten-free label → bonus +0.5, condition NOT set (same as generic)", () => {
       const product = makeProduct({ labels: ["gluten-free"] });
       const result = calculateScore(product, hashimotoProfile);
       // 3.0 + 0.5 = 3.5
@@ -611,7 +610,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBeUndefined();
     });
 
-    it("Zucker > 20g → Malus -2.0, condition NICHT gesetzt (identisch mit generic)", () => {
+    it("sugar > 20g → penalty -2.0, condition NOT set (same as generic)", () => {
       const product = makeProduct({ nutriments: { sugars: 21 } });
       const result = calculateScore(product, hashimotoProfile);
       // 3.0 - 2.0 = 1.0
@@ -622,7 +621,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBeUndefined();
     });
 
-    it("Zucker > 10g ≤ 20g → Malus -1.0, condition NICHT gesetzt (identisch mit generic)", () => {
+    it("sugar > 10g ≤ 20g → penalty -1.0, condition NOT set (same as generic)", () => {
       const product = makeProduct({ nutriments: { sugars: 11 } });
       const result = calculateScore(product, hashimotoProfile);
       // 3.0 - 1.0 = 2.0
@@ -633,7 +632,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBeUndefined();
     });
 
-    it("Zucker > 5g ≤ 10g → Malus -0.5, condition: hashimoto (neue Stufe)", () => {
+    it("sugar > 5g ≤ 10g → penalty -0.5, condition: hashimoto (new tier)", () => {
       const product = makeProduct({ nutriments: { sugars: 7 } });
       const result = calculateScore(product, hashimotoProfile);
       // 3.0 - 0.5 = 2.5
@@ -648,14 +647,14 @@ describe("calculateScore mit Nutzerprofil", () => {
   // -------------------------------------------------------------------------
   // 3. PCOS profile — threshold verification
   // -------------------------------------------------------------------------
-  describe("PCOS profil — Schwellenwerte", () => {
+  describe("PCOS profile — thresholds", () => {
     const pcosProfile: import("../domain/user-profile").UserProfile = {
       condition: "pcos",
       glutenSensitive: false,
       lactoseIntolerant: false,
     };
 
-    it("Ballaststoffe > 6g → Bonus +1.5, condition: pcos", () => {
+    it("fiber > 6g → bonus +1.5, condition: pcos", () => {
       const product = makeProduct({ nutriments: { fiber: 7 } });
       const result = calculateScore(product, pcosProfile);
       // 3.0 + 1.5 = 4.5
@@ -666,7 +665,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("pcos");
     });
 
-    it("Protein > 20g → Bonus +1.0, condition: pcos", () => {
+    it("protein > 20g → bonus +1.0, condition: pcos", () => {
       const product = makeProduct({ nutriments: { protein: 21 } });
       const result = calculateScore(product, pcosProfile);
       // 3.0 + 1.0 = 4.0
@@ -677,7 +676,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("pcos");
     });
 
-    it("Bio-Label → Bonus +0.3, condition: pcos", () => {
+    it("organic label → bonus +0.3, condition: pcos", () => {
       const product = makeProduct({ labels: ["organic"] });
       const result = calculateScore(product, pcosProfile);
       // 3.0 + 0.3 = 3.3
@@ -688,7 +687,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("pcos");
     });
 
-    it("Glutenfrei-Label → Bonus +0.2, condition: pcos", () => {
+    it("gluten-free label → bonus +0.2, condition: pcos", () => {
       const product = makeProduct({ labels: ["gluten-free"] });
       const result = calculateScore(product, pcosProfile);
       // 3.0 + 0.2 = 3.2
@@ -699,7 +698,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("pcos");
     });
 
-    it("Zucker > 5g ≤ 10g → Malus -1.5, condition: pcos", () => {
+    it("sugar > 5g ≤ 10g → penalty -1.5, condition: pcos", () => {
       const product = makeProduct({ nutriments: { sugars: 7 } });
       const result = calculateScore(product, pcosProfile);
       // 3.0 - 1.5 = 1.5
@@ -710,7 +709,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("pcos");
     });
 
-    it("Zucker > 10g ≤ 20g → Malus -2.5, condition: pcos", () => {
+    it("sugar > 10g ≤ 20g → penalty -2.5, condition: pcos", () => {
       const product = makeProduct({ nutriments: { sugars: 11 } });
       const result = calculateScore(product, pcosProfile);
       // 3.0 - 2.5 = 0.5 → clamped to 1.0
@@ -721,7 +720,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("pcos");
     });
 
-    it("Zucker > 20g → Malus -3.5, condition: pcos", () => {
+    it("sugar > 20g → penalty -3.5, condition: pcos", () => {
       const product = makeProduct({ nutriments: { sugars: 21 } });
       const result = calculateScore(product, pcosProfile);
       // 3.0 - 3.5 = -0.5 → clamped to 1.0
@@ -736,14 +735,14 @@ describe("calculateScore mit Nutzerprofil", () => {
   // -------------------------------------------------------------------------
   // 4. Both profile — stricter values
   // -------------------------------------------------------------------------
-  describe("Both profil — strengere Werte", () => {
+  describe("Both profile — stricter values", () => {
     const bothProfile: import("../domain/user-profile").UserProfile = {
       condition: "both",
       glutenSensitive: false,
       lactoseIntolerant: false,
     };
 
-    it("Zucker > 5g ≤ 10g → Malus -2.0, condition: both", () => {
+    it("sugar > 5g ≤ 10g → penalty -2.0, condition: both", () => {
       const product = makeProduct({ nutriments: { sugars: 7 } });
       const result = calculateScore(product, bothProfile);
       // 3.0 - 2.0 = 1.0
@@ -754,7 +753,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("both");
     });
 
-    it("Zucker > 10g → Malus -3.0, condition: both", () => {
+    it("sugar > 10g → penalty -3.0, condition: both", () => {
       const product = makeProduct({ nutriments: { sugars: 11 } });
       const result = calculateScore(product, bothProfile);
       // 3.0 - 3.0 = 0 → clamped to 1.0
@@ -765,7 +764,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("both");
     });
 
-    it("Gluten in Zutaten → Malus -2.0, condition: both", () => {
+    it("gluten in ingredients → penalty -2.0, condition: both", () => {
       const product = makeProduct({ ingredients: "wheat gluten, water" });
       const result = calculateScore(product, bothProfile);
       // 3.0 - 2.0 = 1.0
@@ -776,7 +775,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("both");
     });
 
-    it("Glutenfrei-Label → Bonus +0.8, condition: both", () => {
+    it("gluten-free label → bonus +0.8, condition: both", () => {
       const product = makeProduct({ labels: ["gluten-free"] });
       const result = calculateScore(product, bothProfile);
       // 3.0 + 0.8 = 3.8
@@ -791,8 +790,8 @@ describe("calculateScore mit Nutzerprofil", () => {
   // -------------------------------------------------------------------------
   // 5. glutenSensitive multiplier
   // -------------------------------------------------------------------------
-  describe("glutenSensitive Multiplikator", () => {
-    it("Hashimoto + glutenSensitive=true: Gluten-Malus = -3.0 (1.5 × 2), condition: hashimoto", () => {
+  describe("glutenSensitive multiplier", () => {
+    it("Hashimoto + glutenSensitive=true: gluten penalty = -3.0 (1.5 × 2), condition: hashimoto", () => {
       const profile: import("../domain/user-profile").UserProfile = {
         condition: "hashimoto",
         glutenSensitive: true,
@@ -808,7 +807,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("hashimoto");
     });
 
-    it("Hashimoto + glutenSensitive=false: Gluten-Malus = -1.5, condition: hashimoto", () => {
+    it("Hashimoto + glutenSensitive=false: gluten penalty = -1.5, condition: hashimoto", () => {
       const profile: import("../domain/user-profile").UserProfile = {
         condition: "hashimoto",
         glutenSensitive: false,
@@ -828,8 +827,8 @@ describe("calculateScore mit Nutzerprofil", () => {
   // -------------------------------------------------------------------------
   // 6. lactoseIntolerant multiplier
   // -------------------------------------------------------------------------
-  describe("lactoseIntolerant Multiplikator", () => {
-    it("PCOS + lactoseIntolerant=true: Milch-Malus = -0.6 (0.3 × 2), condition: pcos", () => {
+  describe("lactoseIntolerant multiplier", () => {
+    it("PCOS + lactoseIntolerant=true: dairy penalty = -0.6 (0.3 × 2), condition: pcos", () => {
       const profile: import("../domain/user-profile").UserProfile = {
         condition: "pcos",
         glutenSensitive: false,
@@ -845,7 +844,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("pcos");
     });
 
-    it("PCOS + lactoseIntolerant=false: Milch-Malus = -0.3, condition NICHT gesetzt", () => {
+    it("PCOS + lactoseIntolerant=false: dairy penalty = -0.3, condition NOT set", () => {
       const profile: import("../domain/user-profile").UserProfile = {
         condition: "pcos",
         glutenSensitive: false,
@@ -866,7 +865,7 @@ describe("calculateScore mit Nutzerprofil", () => {
   // 7. ScoreBreakdownItem condition tagging
   // -------------------------------------------------------------------------
   describe("ScoreBreakdownItem condition tagging", () => {
-    it("Profilmodus aktiv + abweichender Wert → item.condition entspricht profile.condition", () => {
+    it("profile mode active + differing value → item.condition matches profile.condition", () => {
       const profile: import("../domain/user-profile").UserProfile = {
         condition: "pcos",
         glutenSensitive: false,
@@ -880,7 +879,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       expect(item!.condition).toBe("pcos");
     });
 
-    it("Zucker > 5g hat immer condition gesetzt, auch bei hashimoto (-0.5)", () => {
+    it("sugar > 5g always has condition set, even for hashimoto (-0.5)", () => {
       const profile: import("../domain/user-profile").UserProfile = {
         condition: "hashimoto",
         glutenSensitive: false,
@@ -900,13 +899,13 @@ describe("calculateScore mit Nutzerprofil", () => {
 // This test will FAIL until we implement the function
 // =============================================================================
 describe("validateNutriments function (RED phase test)", () => {
-  it("sollte als exportierte Funktion existieren", async () => {
+  it("should exist as an exported function", async () => {
     // This import will fail at compile/run time if function doesn't exist
     const { validateNutriments } = await import("./scoring-service");
     expect(typeof validateNutriments).toBe("function");
   });
 
-  it("sollte negative Werte auf 0 clampen", async () => {
+  it("should clamp negative values to 0", async () => {
     const { validateNutriments } = await import("./scoring-service");
     const result = validateNutriments({
       sugars: -20,
@@ -918,7 +917,7 @@ describe("validateNutriments function (RED phase test)", () => {
     expect(result.protein).toBe(0);
   });
 
-  it("sollte unrealistische Werte clampen", async () => {
+  it("should clamp unrealistic values", async () => {
     const { validateNutriments } = await import("./scoring-service");
     const result = validateNutriments({
       energyKcal: 5000,
@@ -930,7 +929,7 @@ describe("validateNutriments function (RED phase test)", () => {
     expect(result.fat).toBe(100);
   });
 
-  it("sollte gültige Werte unverändert lassen", async () => {
+  it("should leave valid values unchanged", async () => {
     const { validateNutriments } = await import("./scoring-service");
     const input = { sugars: 15, fiber: 5, protein: 20 };
     const result = validateNutriments(input);

@@ -29,34 +29,34 @@ const mockResult: SearchResult = {
 };
 
 describe("SearchProductsUseCase", () => {
-  it("gibt Ergebnisse aus Primary-Repo zurück", async () => {
+  it("returns results from primary repo", async () => {
     const useCase = new SearchProductsUseCase(makeRepo(mockResult), makeRepo(emptyResult));
     const result = await useCase.execute({ terms: "test", page: 1, pageSize: 20 });
     expect(result.total).toBe(1);
     expect(result.products[0].name).toBe("Test Produkt");
   });
 
-  it("fällt auf Fallback zurück wenn Primary leer ist", async () => {
+  it("falls back to fallback when primary is empty", async () => {
     const fallbackResult: SearchResult = { ...mockResult, total: 5 };
     const useCase = new SearchProductsUseCase(makeRepo(emptyResult), makeRepo(fallbackResult));
     const result = await useCase.execute({ terms: "test", page: 1, pageSize: 20 });
     expect(result.total).toBe(5);
   });
 
-  it("gibt leeres Ergebnis zurück wenn beide Repos leer sind", async () => {
+  it("returns empty result when both repos are empty", async () => {
     const useCase = new SearchProductsUseCase(makeRepo(emptyResult), makeRepo(emptyResult));
     const result = await useCase.execute({ terms: "xyz", page: 1, pageSize: 20 });
     expect(result.products).toHaveLength(0);
     expect(result.total).toBe(0);
   });
 
-  it("übergibt query-Parameter korrekt an Primary-Repo", async () => {
+  it("passes query parameters correctly to primary repo", async () => {
     const primary = makeRepo(mockResult);
     const useCase = new SearchProductsUseCase(primary, makeRepo(emptyResult));
-    await useCase.execute({ terms: "linsen", category: "gemüse", page: 2, pageSize: 10 });
+    await useCase.execute({ terms: "linsen", category: "vegetables", page: 2, pageSize: 10 });
     expect(primary.search).toHaveBeenCalledWith({
       terms: "linsen",
-      category: "gemüse",
+      category: "vegetables",
       page: 2,
       pageSize: 10,
     });

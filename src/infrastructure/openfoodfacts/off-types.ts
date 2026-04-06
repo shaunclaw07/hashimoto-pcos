@@ -1,5 +1,5 @@
 // src/infrastructure/openfoodfacts/off-types.ts
-// Interne OFf-Typen — nur innerhalb des off-Adapters verwenden.
+// Internal OFF types — use only within the off-adapter.
 
 export interface OffNutriments {
   "energy-kcal_100g"?: number;

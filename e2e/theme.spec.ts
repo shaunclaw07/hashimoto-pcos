@@ -26,7 +26,7 @@ test.describe('Theme / Dark Mode', () => {
     await page.goto('/scanner');
     await expect(page.locator('html')).toHaveClass(/dark/);
 
-    await page.goto('/lebensmittel');
+    await page.goto('/products');
     await expect(page.locator('html')).toHaveClass(/dark/);
   });
 });

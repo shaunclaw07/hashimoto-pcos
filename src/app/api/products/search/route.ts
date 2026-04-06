@@ -1,4 +1,4 @@
-// src/app/api/products/search/route.ts — vollständige Datei
+// src/app/api/products/search/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { SearchProductsUseCase } from "@/core/use-cases/search-products";
 import {

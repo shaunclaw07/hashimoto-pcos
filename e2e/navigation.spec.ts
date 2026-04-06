@@ -15,10 +15,10 @@ test.describe('Navigation & Routing', () => {
     await expect(page).toHaveURL('/scanner');
   });
 
-  test('homepage_navigates_to_lebensmittel', async ({ page }) => {
+  test('homepage_navigates_to_products', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('link', { name: /liste/i }).click();
-    await expect(page).toHaveURL('/lebensmittel');
+    await expect(page).toHaveURL('/products');
   });
 
   test('bottom_nav_highlights_active_route', async ({ page }) => {
@@ -29,12 +29,12 @@ test.describe('Navigation & Routing', () => {
     await page.goto('/scanner');
     await expect(page.getByRole('link', { name: /scanner/i })).toHaveAttribute('aria-current', 'page');
 
-    await page.goto('/lebensmittel');
+    await page.goto('/products');
     await expect(page.getByRole('link', { name: /liste/i })).toHaveAttribute('aria-current', 'page');
   });
 
   test('all_routes_return_200', async ({ page }) => {
-    const routes = ['/', '/scanner', '/lebensmittel', '/einstellungen'];
+    const routes = ['/', '/scanner', '/products', '/settings'];
     for (const route of routes) {
       const response = await page.goto(route);
       expect(response?.status()).toBe(200);

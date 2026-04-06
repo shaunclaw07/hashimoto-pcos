@@ -29,7 +29,7 @@ test.describe('BottomNav Component', () => {
   });
 
   test('navigation_works_via_nav', async ({ page }) => {
-    // Set a full profile so /einstellungen renders without errors
+    // Set a full profile so /settings renders without errors
     await page.addInitScript((key) => {
       localStorage.setItem(key, JSON.stringify({
         condition: 'hashimoto',
@@ -45,11 +45,11 @@ test.describe('BottomNav Component', () => {
 
     await page.goto('/');
     await page.getByRole('link', { name: /liste/i }).click();
-    await expect(page).toHaveURL('/lebensmittel');
+    await expect(page).toHaveURL('/products');
 
     await page.goto('/');
     await page.getByRole('link', { name: /profil/i }).click();
-    await expect(page).toHaveURL('/einstellungen');
+    await expect(page).toHaveURL('/settings');
 
     await page.goto('/scanner');
     // The Next.js dev tools portal (bottom-left) overlaps the Home nav link in dev mode.

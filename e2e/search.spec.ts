@@ -13,12 +13,12 @@ const toSearchProduct = (f: typeof gut) => ({ ...f, code: f.barcode });
 
 const MOCK_PRODUCTS = [gut, neutral, vermeiden, sehrGut, wenigerGut].map(toSearchProduct);
 
-test.describe('Suchseite (/lebensmittel)', () => {
+test.describe('Search page (/products)', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript((key) => {
       localStorage.setItem(key, 'true');
     }, SKIPPED_KEY);
-    await page.goto('/lebensmittel');
+    await page.goto('/products');
   });
 
   test('empty_state_before_search', async ({ page }) => {

@@ -1,4 +1,4 @@
-// src/app/api/products/[barcode]/route.ts — vollständige Datei
+// src/app/api/products/[barcode]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { GetProductUseCase } from "@/core/use-cases/get-product";
 import {

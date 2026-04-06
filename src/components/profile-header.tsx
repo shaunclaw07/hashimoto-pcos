@@ -27,7 +27,7 @@ export function ProfileHeader() {
           </Link>
           {isLoaded && profile && (
             <Link
-              href="/einstellungen"
+              href="/settings"
               className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary transition-colors hover:bg-primary/20"
             >
               {CONDITION_LABELS[profile.condition]}

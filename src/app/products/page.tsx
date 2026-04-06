@@ -10,13 +10,13 @@ import Link from "next/link";
 import { useUserProfile } from "@/hooks/use-user-profile";
 
 const CATEGORIES = [
-  { key: "alle", label: "Alle" },
-  { key: "gemüse", label: "Gemüse" },
-  { key: "obst", label: "Obst" },
-  { key: "fleisch", label: "Fleisch" },
-  { key: "fisch", label: "Fisch" },
-  { key: "milchprodukte", label: "Milchprodukte" },
-  { key: "getreide", label: "Getreide" },
+  { key: "all", label: "Alle" },
+  { key: "vegetables", label: "Gemüse" },
+  { key: "fruits", label: "Obst" },
+  { key: "meat", label: "Fleisch" },
+  { key: "fish", label: "Fisch" },
+  { key: "dairy", label: "Milchprodukte" },
+  { key: "grains", label: "Getreide" },
   { key: "snacks", label: "Snacks" },
 ];
 
@@ -38,7 +38,7 @@ async function searchProducts(
     page: String(page),
     page_size: "20",
   });
-  if (category && category !== "alle") {
+  if (category && category !== "all") {
     params.set("tag_0", category);
   }
 
@@ -57,10 +57,10 @@ async function searchProducts(
   return response.json() as Promise<ApiSearchResponse>;
 }
 
-export default function LebensmittelPage() {
+export default function ProductsPage() {
   const { profile } = useUserProfile();
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("alle");
+  const [category, setCategory] = useState("all");
   const [results, setResults] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searched, setSearched] = useState(false);

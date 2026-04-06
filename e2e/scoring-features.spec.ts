@@ -13,7 +13,7 @@ const PROFILE_KEY = 'hashimoto-pcos-user-profile';
 const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
 
 // ============================================================================
-// Hilfsfunktion: konvertiert OFF-Format (proteins_100g) → Domain-Format
+// Helper: converts OFF format (proteins_100g) → domain format
 // ============================================================================
 function fromOff(n: Record<string, unknown>) {
   return {
@@ -29,10 +29,10 @@ function fromOff(n: Record<string, unknown>) {
 }
 
 // ============================================================================
-// Issue #53 — Omega-3 differenziert
+// Issue #53 — Omega-3 differentiated
 // ============================================================================
-test.describe('Issue #53 — Omega-3 differenziert', () => {
-  test('Lachs zeigt Omega-3 (EPA/DHA, mariner Ursprung) im Breakdown', async ({ page }) => {
+test.describe('Issue #53 — Omega-3 differentiated', () => {
+  test('salmon shows Omega-3 (EPA/DHA, marine source) in breakdown', async ({ page }) => {
     const lachs = {
       barcode: '0040668004156',
       name: 'Wild Salmon Jerky',
@@ -50,7 +50,7 @@ test.describe('Issue #53 — Omega-3 differenziert', () => {
     await expect(page.getByText(/Omega-3.*EPA.*DHA.*mariner/i)).toBeVisible({ timeout: 8000 });
   });
 
-  test('Walnussöl zeigt Omega-3 (ALA, pflanzlich) im Breakdown', async ({ page }) => {
+  test('walnut oil shows Omega-3 (ALA, plant-based) in breakdown', async ({ page }) => {
     const walnuss = {
       barcode: '0032481395269',
       name: 'Walnussöl',
@@ -70,11 +70,11 @@ test.describe('Issue #53 — Omega-3 differenziert', () => {
 });
 
 // ============================================================================
-// Issue #50 — Soja / Phytoöstrogen-Erkennung
+// Issue #50 — Soy / Phytoestrogen detection
 // ============================================================================
-test.describe('Issue #50 — Soja / Phytoöstrogen-Erkennung', () => {
-  test('Tofu/Sojaprodukt zeigt Soja (Phytoöstrogene) im Breakdown bei Hashimoto-Profil', async ({ page }) => {
-    // Produkt mit Sojaprotein
+test.describe('Issue #50 — Soy / Phytoestrogen detection', () => {
+  test('tofu/soy product shows soy (phytoestrogens) in breakdown for Hashimoto profile', async ({ page }) => {
+    // Product with soy protein
     const tofu = {
       barcode: '0010044540400',
       name: 'Vegane Mühlen Frikadellen aus Sojaprotein',
@@ -98,7 +98,7 @@ test.describe('Issue #50 — Soja / Phytoöstrogen-Erkennung', () => {
     await expect(page.getByText(/Soja.*Phytoöstrogene/i)).toBeVisible({ timeout: 8000 });
   });
 
-  test('Fermentiertes Soja (Miso) zeigt Fermentiertes Soja im Breakdown bei Hashimoto', async ({ page }) => {
+  test('fermented soy (miso) shows fermented soy in breakdown for Hashimoto', async ({ page }) => {
     const miso = {
       barcode: '0619286802002',
       name: 'Migthy Miso Soup',
@@ -124,10 +124,10 @@ test.describe('Issue #50 — Soja / Phytoöstrogen-Erkennung', () => {
 });
 
 // ============================================================================
-// Issue #54 — Erweiterte Milchprodukt-Erkennung
+// Issue #54 — Extended dairy detection
 // ============================================================================
-test.describe('Issue #54 — Milchprodukte tiered', () => {
-  test('Whey Protein zeigt Molkenprotein (Whey) im Breakdown', async ({ page }) => {
+test.describe('Issue #54 — Dairy tiered detection', () => {
+  test('whey protein shows whey protein (Whey) in breakdown', async ({ page }) => {
     const whey = {
       barcode: '0000470322800',
       name: 'Whey Protein aus Molke Vanilla',
@@ -145,7 +145,7 @@ test.describe('Issue #54 — Milchprodukte tiered', () => {
     await expect(page.getByText(/Molkenprotein.*Whey/i)).toBeVisible({ timeout: 8000 });
   });
 
-  test('Ghee zeigt KEINE Milchbestandteile im Breakdown (neutral)', async ({ page }) => {
+  test('ghee shows NO dairy components in breakdown (neutral)', async ({ page }) => {
     const ghee = {
       barcode: '4068134119254',
       name: 'Ghee - clarified Butter',
@@ -160,12 +160,12 @@ test.describe('Issue #54 — Milchprodukte tiered', () => {
     }, SKIPPED_KEY);
     await mockProductApi(page, ghee.barcode, ghee);
     await page.goto(`/result/${ghee.barcode}`);
-    // Ghee sollte keinen Milchbestandteile-Eintrag haben
+    // Ghee should have no dairy components entry
     const milchText = page.getByText(/Milchbestandteile/i);
     await expect(milchText).not.toBeVisible({ timeout: 5000 });
   });
 
-  test('Casein-haltiges Produkt zeigt Casein (A1) im Breakdown bei Hashimoto', async ({ page }) => {
+  test('casein product shows casein (A1) in breakdown for Hashimoto', async ({ page }) => {
     const caseinProd = {
       barcode: '0049405242721',
       name: 'no sugar added chocolate powder',
@@ -191,10 +191,10 @@ test.describe('Issue #54 — Milchprodukte tiered', () => {
 });
 
 // ============================================================================
-// Issue #51 — Goitrogen-Warnung
+// Issue #51 — Goitrogen warning
 // ============================================================================
-test.describe('Issue #51 — Goitrogen-Warnung', () => {
-  test('Rohes Brokkoli zeigt Kreuzblütler (roh, Goitrogene) bei Hashimoto-Profil', async ({ page }) => {
+test.describe('Issue #51 — Goitrogen warning', () => {
+  test('raw broccoli shows cruciferous (raw, goitrogens) for Hashimoto profile', async ({ page }) => {
     const rawBrokkoli = {
       barcode: '0000000000001',
       name: 'Frischer Brokkoli Salat',

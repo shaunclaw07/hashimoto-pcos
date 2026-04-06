@@ -44,7 +44,7 @@ export class GetProductUseCase {
       return { success: true, product: fallback };
     }
 
-    // Produkt lokal vorhanden aber ohne Nährwerte → anreichern
+    // Product found locally but without nutriments → enrich
     if (!hasNutriments(product)) {
       const enriched = await this.fallbackRepo.findByBarcode(barcode);
       if (enriched) {

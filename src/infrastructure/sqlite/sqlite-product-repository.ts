@@ -39,12 +39,12 @@ export function sanitizeFtsInput(input: string): string {
 }
 
 const CATEGORY_TAGS: Record<string, string> = {
-  gemüse: "en:vegetables",
-  obst: "en:fruits",
-  fleisch: "en:meats",
-  fisch: "en:fish",
-  milchprodukte: "en:dairy",
-  getreide: "en:cereals",
+  vegetables: "en:vegetables",
+  fruits: "en:fruits",
+  meat: "en:meats",
+  fish: "en:fish",
+  dairy: "en:dairy",
+  grains: "en:cereals",
   snacks: "en:snacks",
 };
 

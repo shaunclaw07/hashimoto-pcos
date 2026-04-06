@@ -6,7 +6,7 @@ const VALID_BARCODE = vermeiden.barcode;       // 0009800895007 — Hazelnut Spr
 const INVALID_BARCODE = '9999999999999';
 const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
 
-test.describe('Ergebnisseite (/result/[barcode])', () => {
+test.describe('Result page (/result/[barcode])', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript((key) => {
       localStorage.setItem(key, 'true');

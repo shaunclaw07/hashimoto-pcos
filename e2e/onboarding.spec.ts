@@ -118,7 +118,7 @@ test.describe('Settings Page', () => {
     }, PROFILE_KEY);
     await page.goto('/');
     await page.getByRole('link', { name: /profil/i }).click();
-    await expect(page).toHaveURL('/einstellungen', { timeout: 5000 });
+    await expect(page).toHaveURL('/settings', { timeout: 5000 });
   });
 
   test('settings_page_shows_current_profile', async ({ page }) => {
@@ -129,7 +129,7 @@ test.describe('Settings Page', () => {
         lactoseIntolerant: true,
       }));
     }, PROFILE_KEY);
-    await page.goto('/einstellungen');
+    await page.goto('/settings');
     await expect(page.getByRole('heading', { name: /profil/i })).toBeVisible({ timeout: 5000 });
   });
 
@@ -141,7 +141,7 @@ test.describe('Settings Page', () => {
         lactoseIntolerant: false,
       }));
     }, PROFILE_KEY);
-    await page.goto('/einstellungen');
+    await page.goto('/settings');
     // Change to Hashimoto
     await page.getByRole('button', { name: /hashimoto-thyreoiditis/i }).click();
     await page.getByRole('button', { name: /speichern/i }).click();
@@ -165,7 +165,7 @@ test.describe('Settings Page', () => {
     await expect(page.getByText(/🔵 pcos/i)).toBeVisible({ timeout: 5000 });
 
     await page.getByRole('link', { name: /profil/i }).click();
-    await expect(page).toHaveURL('/einstellungen', { timeout: 5000 });
+    await expect(page).toHaveURL('/settings', { timeout: 5000 });
 
     // Change to Hashimoto and save
     await page.getByRole('button', { name: /hashimoto-thyreoiditis/i }).click();

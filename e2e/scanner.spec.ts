@@ -4,7 +4,7 @@ import vermeiden from '../tests/fixtures/products/vermeiden.json';
 
 const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
 
-test.describe('Scanner-Seite (/scanner)', () => {
+test.describe('Scanner page (/scanner)', () => {
   test.beforeEach(async ({ page }) => {
     await page.addInitScript((key) => {
       localStorage.setItem(key, 'true');
