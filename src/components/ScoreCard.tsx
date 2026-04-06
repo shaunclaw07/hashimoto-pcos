@@ -1,9 +1,12 @@
 "use client";
 
-import { Star, RotateCcw, Save, Check, AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import { Star, RotateCcw, Save, Check, AlertTriangle, Info } from "lucide-react";
 import type { Product } from "@/core/domain/product";
-import type { ScoreResult } from "@/core/domain/score";
+import type { ScoreResult, ScoreBreakdownItem } from "@/core/domain/score";
 import type { UserProfile, Condition } from "@/core/domain/user-profile";
+import { getExplanation } from "@/core/domain/explanations";
+import { ExplanationSheet } from "./ExplanationSheet";
 
 interface ScoreCardProps {
   product: Product;
@@ -82,6 +85,7 @@ export function ScoreCard({
 }: ScoreCardProps) {
   const config = SCORE_CONFIG[scoreResult.label];
   if (!config) throw new Error(`Unknown score label: ${scoreResult.label}`);
+  const [activeItem, setActiveItem] = useState<ScoreBreakdownItem | null>(null);
   const n = product.nutriments;
 
   return (
@@ -141,31 +145,43 @@ export function ScoreCard({
             )}
           </h3>
           <div className="space-y-3">
-            {scoreResult.breakdown.map((item, i) => (
-              <div key={i} className="flex items-center gap-3 text-base">
-                <span
-                  className={item.points >= 0 ? "text-green-600" : "text-red-500"}
-                >
-                  {item.points >= 0 ? (
-                    <Check className="h-5 w-5" />
-                  ) : (
-                    <AlertTriangle className="h-5 w-5" />
+            {scoreResult.breakdown.map((item, i) => {
+              const hasExplanation = getExplanation(item.reason) !== null;
+              return (
+                <div key={i} className="flex items-center gap-3 text-base">
+                  <span
+                    className={item.points >= 0 ? "text-green-600" : "text-red-500"}
+                  >
+                    {item.points >= 0 ? (
+                      <Check className="h-5 w-5" />
+                    ) : (
+                      <AlertTriangle className="h-5 w-5" />
+                    )}
+                  </span>
+                  <span className="flex-1 text-foreground">
+                    {item.condition && <span className="mr-1">{CONDITION_ICON[item.condition]}</span>}
+                    {item.reason}
+                  </span>
+                  <span
+                    className={`font-semibold ${
+                      item.points >= 0 ? "text-green-600" : "text-red-500"
+                    }`}
+                  >
+                    {item.points >= 0 ? "+" : ""}
+                    {item.points.toFixed(1)}
+                  </span>
+                  {hasExplanation && (
+                    <button
+                      onClick={() => setActiveItem(item)}
+                      className="shrink-0 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-primary transition-colors touch-target"
+                      aria-label={`Erklärung zu ${item.reason}`}
+                    >
+                      <Info className="h-4 w-4" />
+                    </button>
                   )}
-                </span>
-                <span className="flex-1 text-foreground">
-                  {item.condition && <span className="mr-1">{CONDITION_ICON[item.condition]}</span>}
-                  {item.reason}
-                </span>
-                <span
-                  className={`font-semibold ${
-                    item.points >= 0 ? "text-green-600" : "text-red-500"
-                  }`}
-                >
-                  {item.points >= 0 ? "+" : ""}
-                  {item.points.toFixed(1)}
-                </span>
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -209,6 +225,18 @@ export function ScoreCard({
           </button>
         )}
       </div>
+
+      {/* Explanation Bottom Sheet */}
+      {activeItem && (() => {
+        const explanation = getExplanation(activeItem.reason, profile?.condition);
+        return explanation ? (
+          <ExplanationSheet
+            explanation={explanation}
+            condition={profile?.condition}
+            onClose={() => setActiveItem(null)}
+          />
+        ) : null;
+      })()}
     </div>
   );
 }
