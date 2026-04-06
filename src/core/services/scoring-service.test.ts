@@ -90,17 +90,37 @@ describe("calculateScore", () => {
     });
   });
 
-  describe("Omega-3 Bonus", () => {
-    it("+1.0 für omega-3 in categories", () => {
-      const product = makeProduct({ categories: ["omega-3 fatty acids"] });
+  describe("Omega-3 Bonus (Issue #53 — source-differentiated)", () => {
+    it("+1.5 für Omega-3 marine source (EPA/DHA)", () => {
+      const product = makeProduct({ ingredients: "lachs, salt" });
       const result = calculateScore(product);
-      expect(result.score).toBe(4.0);
+      // 3.0 + 1.5 = 4.5 → clamped to 5? No, 4.5 < 5.0, so 4.5
+      // Wait: 3.0 + 1.5 = 4.5. stars=5, label=SEHR GUT
+      expect(result.score).toBe(4.5);
     });
 
-    it("+1.0 für omega-3 in labels", () => {
+    it("+0.5 für Omega-3 plant source (ALA)", () => {
+      const product = makeProduct({ ingredients: "leinsamen, fiber" });
+      const result = calculateScore(product);
+      // 3.0 + 0.5 = 3.5
+      expect(result.score).toBe(3.5);
+    });
+
+    it("+0.7 für Omega-3 label-only (unknown source)", () => {
+      const product = makeProduct({ categories: ["omega-3 fatty acids"] });
+      const result = calculateScore(product);
+      // 3.0 + 0.7 = 3.7
+      expect(result.score).toBe(3.7);
+      const item = result.breakdown.find((i) => i.reason.includes("Omega-3"));
+      expect(item).toBeDefined();
+      expect(item!.points).toBe(0.7);
+    });
+
+    it("+0.7 für Omega-3 label (unknown source)", () => {
       const product = makeProduct({ labels: ["omega-3"] });
       const result = calculateScore(product);
-      expect(result.score).toBe(4.0);
+      // 3.0 + 0.7 = 3.7
+      expect(result.score).toBe(3.7);
     });
   });
 
@@ -809,7 +829,7 @@ describe("calculateScore mit Nutzerprofil", () => {
   // 6. lactoseIntolerant multiplier
   // -------------------------------------------------------------------------
   describe("lactoseIntolerant Multiplikator", () => {
-    it("PCOS + lactoseIntolerant=true: Laktose-Malus = -0.6 (0.3 × 2), condition: pcos", () => {
+    it("PCOS + lactoseIntolerant=true: Milch-Malus = -0.6 (0.3 × 2), condition: pcos", () => {
       const profile: import("../domain/user-profile").UserProfile = {
         condition: "pcos",
         glutenSensitive: false,
@@ -819,13 +839,13 @@ describe("calculateScore mit Nutzerprofil", () => {
       const result = calculateScore(product, profile);
       // 3.0 - 0.6 = 2.4
       expect(result.score).toBeCloseTo(2.4, 1);
-      const item = result.breakdown.find((i) => i.reason === "Laktose in Zutaten");
+      const item = result.breakdown.find((i) => i.reason === "Milchbestandteile");
       expect(item).toBeDefined();
       expect(item!.points).toBeCloseTo(-0.6, 1);
       expect(item!.condition).toBe("pcos");
     });
 
-    it("PCOS + lactoseIntolerant=false: Laktose-Malus = -0.3, condition NICHT gesetzt", () => {
+    it("PCOS + lactoseIntolerant=false: Milch-Malus = -0.3, condition NICHT gesetzt", () => {
       const profile: import("../domain/user-profile").UserProfile = {
         condition: "pcos",
         glutenSensitive: false,
@@ -835,7 +855,7 @@ describe("calculateScore mit Nutzerprofil", () => {
       const result = calculateScore(product, profile);
       // 3.0 - 0.3 = 2.7
       expect(result.score).toBeCloseTo(2.7, 1);
-      const item = result.breakdown.find((i) => i.reason === "Laktose in Zutaten");
+      const item = result.breakdown.find((i) => i.reason === "Milchbestandteile");
       expect(item).toBeDefined();
       expect(item!.points).toBeCloseTo(-0.3, 1);
       expect(item!.condition).toBeUndefined();

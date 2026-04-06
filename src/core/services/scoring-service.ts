@@ -45,6 +45,147 @@ function containsIgnoreCase(str: string | undefined, search: string): boolean {
   return str.toLowerCase().includes(search.toLowerCase());
 }
 
+function containsAnyIgnoreCase(str: string | undefined, keywords: string[]): boolean {
+  if (!str) return false;
+  const lower = str.toLowerCase();
+  return keywords.some((kw) => lower.includes(kw.toLowerCase()));
+}
+
+// =====================================================================
+// Issue #50 helpers
+// =====================================================================
+
+/**
+ * Detects soy type in product.
+ * Returns 'fermented' | 'non-fermented' | 'lecithin' | null
+ * Fermented is hierarchical (overrides non-fermented).
+ * Lecithin is independent.
+ */
+function detectSoyType(
+  ingredients: string | undefined,
+  categories: string[]
+): { type: "fermented" | "non-fermented" | "lecithin"; reason: string }[] {
+  const results: { type: "fermented" | "non-fermented" | "lecithin"; reason: string }[] = [];
+
+  // Lecithin first (independent)
+  if (containsAnyIgnoreCase(ingredients, SOY_LECITHIN_KEYWORDS)) {
+    results.push({ type: "lecithin", reason: "Sojalecithin" });
+  }
+
+  // Fermented overrides non-fermented
+  const hasFermented = containsAnyIgnoreCase(ingredients, SOY_FERMENTED_KEYWORDS);
+  if (hasFermented) {
+    results.push({ type: "fermented", reason: "Fermentiertes Soja" });
+  } else if (containsAnyIgnoreCase(ingredients, SOY_NON_FERMENTED_KEYWORDS)) {
+    results.push({ type: "non-fermented", reason: "Soja (Phytoöstrogene)" });
+  }
+
+  return results;
+}
+
+// =====================================================================
+// Issue #51 helpers
+// =====================================================================
+
+type BrassicaState = "raw" | "cooked" | "unknown";
+
+function detectBrassicaState(
+  ingredients: string | undefined,
+  name: string | undefined,
+  categories: string[]
+): BrassicaState {
+  const text = [ingredients, name].filter(Boolean).join(" ").toLowerCase();
+  const cats = categories.map((c) => c.toLowerCase());
+
+  // Check cooked first
+  const isCooked =
+    BRASSICA_COOKED_SIGNALS.some((s) => text.includes(s)) ||
+    BRASSICA_COOKED_CATEGORIES.some((c) => cats.includes(c));
+  if (isCooked) return "cooked";
+
+  // Check raw
+  const isRaw =
+    BRASSICA_RAW_SIGNALS.some((s) => text.includes(s)) ||
+    BRASSICA_RAW_CATEGORIES.some((c) => cats.includes(c));
+  if (isRaw) return "raw";
+
+  return "unknown";
+}
+
+function hasBrassica(ingredients: string | undefined, name: string | undefined, categories: string[]): boolean {
+  const text = [ingredients, name].filter(Boolean).join(" ").toLowerCase();
+  const cats = categories.map((c) => c.toLowerCase());
+  return (
+    BRASSICA_KEYWORDS.some((kw) => text.includes(kw.toLowerCase())) ||
+    cats.some((c) => BRASSICA_KEYWORDS.some((kw) => c.includes(kw.toLowerCase())))
+  );
+}
+
+// =====================================================================
+// Issue #53 helpers
+// =====================================================================
+
+type Omega3Source = "marine" | "plant" | "unknown";
+
+function detectOmega3Source(
+  ingredients: string | undefined,
+  categories: string[],
+  labels: string[]
+): Omega3Source | null {
+  const text = (ingredients ?? "").toLowerCase();
+  const cats = categories.map((c) => c.toLowerCase());
+  const lbls = labels.map((l) => l.toLowerCase());
+
+  // Marine has priority
+  if (OMEGA3_MARINE_KEYWORDS.some((kw) => text.includes(kw.toLowerCase()))) {
+    return "marine";
+  }
+  // Plant-based
+  if (OMEGA3_PLANT_KEYWORDS.some((kw) => text.includes(kw.toLowerCase()))) {
+    return "plant";
+  }
+  // Label/category only (unknown source)
+  if (
+    lbls.some((l) => l.includes("omega")) ||
+    cats.some((c) => c.includes("omega"))
+  ) {
+    return "unknown";
+  }
+
+  return null;
+}
+
+// =====================================================================
+// Issue #54 helpers
+// =====================================================================
+
+type DairyTier = "a1-casein" | "whey" | "fermented" | "general" | "ghee" | null;
+
+/**
+ * Detects highest applicable dairy tier.
+ * Hierarchical: A1-casein > Whey > Fermented > General > Ghee (neutral)
+ * Returns null if no dairy detected.
+ * Exceptions return null.
+ */
+function detectDairyTier(ingredients: string | undefined): DairyTier {
+  if (!ingredients) return null;
+
+  // First check exceptions
+  if (containsAnyIgnoreCase(ingredients, DAIRY_EXCEPTION_KEYWORDS)) {
+    return null;
+  }
+
+  const lower = ingredients.toLowerCase();
+
+  if (DAIRY_A1_CASEIN_KEYWORDS.some((kw) => lower.includes(kw))) return "a1-casein";
+  if (DAIRY_WHEY_KEYWORDS.some((kw) => lower.includes(kw))) return "whey";
+  if (DAIRY_FERMENTED_KEYWORDS.some((kw) => lower.includes(kw))) return "fermented";
+  if (DAIRY_GHEE_KEYWORDS.some((kw) => lower.includes(kw))) return "ghee";
+  if (DAIRY_GENERAL_KEYWORDS.some((kw) => lower.includes(kw))) return "general";
+
+  return null;
+}
+
 // =====================================================================
 // Lookup tables for profile-aware scoring
 // =====================================================================
@@ -131,6 +272,132 @@ const LACTOSE_MALUS: Record<ConditionKey, number> = {
   both:      0.3,
 };
 
+// =====================================================================
+// Issue #50: Soy / Phytoestrogen detection
+// =====================================================================
+
+/** Non-fermented soy malus per condition */
+const SOY_NON_FERMENTED_MALUS: Record<ConditionKey, number> = {
+  generic:   0,
+  hashimoto: 0.8,
+  pcos:      0.2,
+  both:      0.8,
+};
+
+/** Soy lecithin malus per condition */
+const SOY_LECITHIN_MALUS: Record<ConditionKey, number> = {
+  generic:   0.1,
+  hashimoto: 0.2,
+  pcos:      0.2,
+  both:      0.2,
+};
+
+/** Fermented soy malus per condition */
+const SOY_FERMENTED_MALUS: Record<ConditionKey, number> = {
+  generic:   0,
+  hashimoto: 0.3,
+  pcos:      0,
+  both:      0.3,
+};
+
+const SOY_NON_FERMENTED_KEYWORDS = [
+  "soja", "soy", "soybeans", "tofu", "sojaprotein", "soy protein",
+  "soja-isolat", "soy isolate", "edamame",
+];
+const SOY_FERMENTED_KEYWORDS = ["tempeh", "miso"];
+const SOY_LECITHIN_KEYWORDS = ["sojalecithin", "soy lecithin", "e322"];
+
+// =====================================================================
+// Issue #51: Goitrogen / Cruciferous vegetable warning
+// =====================================================================
+
+/** Raw brassica malus per condition */
+const GOITROGEN_RAW_MALUS: Record<ConditionKey, number> = {
+  generic:   0,
+  hashimoto: 0.5,
+  pcos:      0,
+  both:      0.5,
+};
+
+const BRASSICA_KEYWORDS = [
+  "broccoli", "brokkoli", "kohl", "kale", "grünkohl", "rosenkohl",
+  "blumenkohl", "kohlrabi", "rucola", "rukola", "rettich", "radieschen",
+  "mehrrettich", "wasabi", "senf", "mustard", "raps", "canola", "pak choi",
+];
+const BRASSICA_RAW_SIGNALS = ["roh", "frisch", "smoothie", "saft", "juice", "rohkost", "salat"];
+const BRASSICA_RAW_CATEGORIES = ["en:fresh-vegetables", "en:juices", "en:smoothies"];
+const BRASSICA_COOKED_SIGNALS = ["gegart", "gekocht", "gefroren", "gedünstet", "blanchiert"];
+const BRASSICA_COOKED_CATEGORIES = ["en:frozen-vegetables", "en:cooked-vegetables"];
+
+// =====================================================================
+// Issue #53: Differentiated Omega-3 detection (replaces flat +1.0)
+// =====================================================================
+
+const OMEGA3_MARINE_KEYWORDS = [
+  "lachs", "salmon", "makrele", "mackerel", "hering", "herring",
+  "sardine", "thunfisch", "tuna", "forelle", "trout",
+  "fischöl", "fish oil", "krillöl", "krill oil",
+  "algenöl", "algae oil", "epa", "dha",
+];
+const OMEGA3_PLANT_KEYWORDS = [
+  "leinsamen", "linseed", "flaxseed", "leinöl", "linseed oil",
+  "chiasamen", "chia seeds", "hanföl", "hemp oil",
+  "walnuss", "walnut", "rapsöl", "canola oil", "ala",
+];
+
+// =====================================================================
+// Issue #54: Tiered dairy detection
+// =====================================================================
+
+/** A1-Casein malus per condition */
+const DAIRY_A1_CASEIN_MALUS: Record<ConditionKey, number> = {
+  generic:   0.3,
+  hashimoto: 0.5,
+  pcos:      0.3,
+  both:      0.5,
+};
+
+/** Whey malus per condition */
+const DAIRY_WHEY_MALUS: Record<ConditionKey, number> = {
+  generic:   0.3,
+  hashimoto: 0.3,
+  pcos:      0.3,
+  both:      0.3,
+};
+
+/** Fermented dairy malus per condition */
+const DAIRY_FERMENTED_MALUS: Record<ConditionKey, number> = {
+  generic:   0.1,
+  hashimoto: 0.2,
+  pcos:      0.1,
+  both:      0.2,
+};
+
+/** General dairy malus per condition */
+const DAIRY_GENERAL_MALUS: Record<ConditionKey, number> = {
+  generic:   0.3,
+  hashimoto: 0.3,
+  pcos:      0.3,
+  both:      0.3,
+};
+
+const DAIRY_A1_CASEIN_KEYWORDS = [
+  "casein", "caseinat", "natriumcaseinat", "kaliumcaseinat",
+  "calcium caseinate", "casein hydrolysate", "micellar casein",
+];
+const DAIRY_WHEY_KEYWORDS = [
+  "whey", "molke", "molkenprotein", "whey protein",
+  "whey concentrate", "whey isolate", "lactalbumin", "lactoglobulin",
+];
+const DAIRY_FERMENTED_KEYWORDS = ["kefir", "joghurt", "yogurt", "yoghurt"];
+const DAIRY_GENERAL_KEYWORDS = [
+  "milk", "milch", "vollmilch", "magermilch", "buttermilk",
+  "sahne", "rahm", "cream", "butter", "käse", "cheese", "quark",
+  "lactose", "laktose", "milchzucker",
+];
+const DAIRY_GHEE_KEYWORDS = ["ghee"];
+const DAIRY_EXCEPTION_KEYWORDS = ["milchsäure", "lactic acid", "calciumlactat", "calcium lactate"];
+
 /**
  * Calculates health score for a product (1.0–5.0).
  *
@@ -177,17 +444,21 @@ export function calculateScore(product: Product, profile?: UserProfile): ScoreRe
     breakdown.push(item);
   }
 
-  const hasOmega3 =
-    product.categories.some(
-      (c) => containsIgnoreCase(c, "omega-3") || containsIgnoreCase(c, "omega 3")
-    ) ||
-    product.labels.some(
-      (l) => containsIgnoreCase(l, "omega-3") || containsIgnoreCase(l, "omega 3")
-    );
-
-  if (hasOmega3) {
-    bonusPoints += 1.0;
-    breakdown.push({ reason: "Omega-3 vorhanden", points: 1.0 });
+  // Issue #53: Differentiated Omega-3 detection
+  const omega3Source = detectOmega3Source(
+    product.ingredients,
+    product.categories,
+    product.labels
+  );
+  if (omega3Source === "marine") {
+    bonusPoints += 1.5;
+    breakdown.push({ reason: "Omega-3 (EPA/DHA, mariner Ursprung)", points: 1.5 });
+  } else if (omega3Source === "plant") {
+    bonusPoints += 0.5;
+    breakdown.push({ reason: "Omega-3 (ALA, pflanzlicher Ursprung)", points: 0.5 });
+  } else if (omega3Source === "unknown") {
+    bonusPoints += 0.7;
+    breakdown.push({ reason: "Omega-3 (Quelle unbekannt)", points: 0.7 });
   }
 
   // === LABEL BONUS ===
@@ -267,17 +538,71 @@ export function calculateScore(product: Product, profile?: UserProfile): ScoreRe
     breakdown.push(item);
   }
 
-  const hasLactose =
-    containsIgnoreCase(product.ingredients, "lactose") ||
-    containsIgnoreCase(product.ingredients, "milk") ||
-    containsIgnoreCase(product.ingredients, "milch");
+  // Issue #50: Soy / Phytoestrogen detection
+  const soyTypes = detectSoyType(product.ingredients, product.categories);
+  for (const soy of soyTypes) {
+    const malus =
+      soy.type === "non-fermented"
+        ? SOY_NON_FERMENTED_MALUS[conditionKey]
+        : soy.type === "fermented"
+        ? SOY_FERMENTED_MALUS[conditionKey]
+        : SOY_LECITHIN_MALUS[conditionKey];
 
-  if (hasLactose) {
-    const baseLactoseMalus = LACTOSE_MALUS[conditionKey];
+    if (malus !== 0) {
+      malusPoints += malus;
+      const item: ScoreBreakdownItem = { reason: soy.reason, points: -malus };
+      if (profile && malus !== (soy.type === "non-fermented" ? SOY_NON_FERMENTED_MALUS.generic : soy.type === "fermented" ? SOY_FERMENTED_MALUS.generic : SOY_LECITHIN_MALUS.generic)) {
+        item.condition = profile.condition;
+      }
+      breakdown.push(item);
+    }
+  }
+
+  // Issue #51: Goitrogen warning for cruciferous vegetables
+  const hasBrassicaResult = hasBrassica(product.ingredients, product.name, product.categories);
+  if (hasBrassicaResult) {
+    const state = detectBrassicaState(product.ingredients, product.name, product.categories);
+    if (state === "raw") {
+      const malus = GOITROGEN_RAW_MALUS[conditionKey];
+      malusPoints += malus;
+      const item: ScoreBreakdownItem = { reason: "Kreuzblütler (roh, Goitrogene)", points: -malus };
+      if (profile && malus !== GOITROGEN_RAW_MALUS.generic) {
+        item.condition = profile.condition;
+      }
+      breakdown.push(item);
+    } else if (state === "unknown") {
+      // Informational: 0 points but shown in breakdown
+      breakdown.push({ reason: "Kreuzblütler (Zubereitungsart unbekannt)", points: 0 });
+    }
+    // Cooked: no penalty, no breakdown item
+  }
+
+  // Issue #54: Tiered dairy detection
+  const dairyTier = detectDairyTier(product.ingredients);
+  if (dairyTier && dairyTier !== "ghee") {
+    const baseDairyMalus =
+      dairyTier === "a1-casein"
+        ? DAIRY_A1_CASEIN_MALUS[conditionKey]
+        : dairyTier === "whey"
+        ? DAIRY_WHEY_MALUS[conditionKey]
+        : dairyTier === "fermented"
+        ? DAIRY_FERMENTED_MALUS[conditionKey]
+        : DAIRY_GENERAL_MALUS[conditionKey];
+
     const multiplier = profile?.lactoseIntolerant ? 2 : 1;
-    const effectiveLactoseMalus = baseLactoseMalus * multiplier;
-    malusPoints += effectiveLactoseMalus;
-    const item: ScoreBreakdownItem = { reason: "Laktose in Zutaten", points: -effectiveLactoseMalus };
+    const effectiveMalus = baseDairyMalus * multiplier;
+    malusPoints += effectiveMalus;
+
+    const reasonMap: Record<string, string> = {
+      "a1-casein": "Casein (A1, entzündungsrelevant)",
+      whey: "Molkenprotein (Whey)",
+      fermented: "Fermentierte Milchprodukte",
+      general: "Milchbestandteile",
+    };
+    const item: ScoreBreakdownItem = {
+      reason: reasonMap[dairyTier] ?? "Milchbestandteile",
+      points: -effectiveMalus,
+    };
     if (profile?.lactoseIntolerant) {
       item.condition = profile.condition;
     }
