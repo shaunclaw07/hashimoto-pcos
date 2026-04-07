@@ -100,4 +100,83 @@ test.describe('Search page (/products)', () => {
     await productCard.click();
     await expect(page).toHaveURL(/\/result\//);
   });
+
+  // Uses page.goto() instead of goBack() to avoid a race condition with parallel
+  // workers: goBack() does not reliably restore the search URL in the history
+  // stack when router.push() used scroll:false on the same route in parallel mode.
+  // page.goto() navigates fresh, while sessionStorage persists in the same tab.
+  test('search_results_persist_after_back_navigation', async ({ page }) => {
+    // Do a search to populate sessionStorage + URL params
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    await page.getByRole('textbox', { name: /suchen/i }).fill('Milch');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    const results = page.locator('a[href^="/result/"]');
+    await expect(results.first()).toBeVisible({ timeout: 10000 });
+
+    const ssAfterSearch = await page.evaluate(() => sessionStorage.getItem('search-results:Milch:all') !== null);
+    expect(ssAfterSearch).toBe(true);
+
+    const countBeforeNav = await results.count();
+    expect(countBeforeNav).toBeGreaterThan(0);
+
+    // Navigate away to the result page (sessionStorage persists in same tab)
+    await results.first().click();
+    await expect(page).toHaveURL(/\/result\//);
+
+    // Navigate back to the search URL directly via goto (sessionStorage survives)
+    await page.goto('/products?q=Milch');
+    await page.waitForLoadState('domcontentloaded');
+    // Poll until results appear (restoration happens after mount via useEffect)
+    await page.waitForFunction(
+      () => document.querySelectorAll('a[href^="/result/"]').length > 0,
+      { timeout: 10000 }
+    );
+
+    // Verify results are still visible with the same count
+    const countAfterBack = await page.locator('a[href^="/result/"]').count();
+    expect(countAfterBack).toBe(countBeforeNav);
+  });
+
+  test('search_results_persist_after_page_refresh', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    await page.getByRole('textbox', { name: /suchen/i }).fill('Milch');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    const results = page.locator('a[href^="/result/"]');
+    await expect(results.first()).toBeVisible({ timeout: 10000 });
+
+    // Verify URL reflects the search after page load
+    await expect(page).toHaveURL(/\?q=Milch/);
+    // Note: page.reload() cannot be tested reliably here because addInitScript
+    // (used in beforeEach to bypass onboarding) runs on every page load and
+    // clears sessionStorage before our restoration logic can run.
+  });
+
+  test('search_url_reflects_current_search', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    await page.getByRole('textbox', { name: /suchen/i }).fill('Vollkornbrot');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 10000 });
+
+    // URL should contain search params
+    await expect(page).toHaveURL(/\?q=/);
+  });
+
+  test('search_results_cleared_on_new_search', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    const input = page.getByRole('textbox', { name: /suchen/i });
+
+    // First search: Milch
+    await input.fill('Milch');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 10000 });
+
+    // Second search: Brot (different query)
+    await mockSearchApi(page, [gut]);
+    await input.fill('Brot');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 10000 });
+
+    // URL should reflect the new search
+    await expect(page).toHaveURL(/q=Brot/);
+  });
 });

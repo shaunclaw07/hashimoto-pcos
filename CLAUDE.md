@@ -464,6 +464,7 @@ All source code must be in **English**. User-facing content stays in **German**.
 - User profile: `localStorage` key `"hashimoto-pcos-user-profile"` — `UserProfile` JSON (see `src/hooks/use-user-profile.ts`)
 - Onboarding skipped: `localStorage` key `"hashimoto-pcos-onboarding-skipped"` — `"true"` string; cleared when a profile is saved
 - Route state: URL params (`[barcode]` dynamic route, query string in `/products`)
+- **Search results:** `sessionStorage` keyed by `search-results:${query}:${category}` — persists across back/forward navigation and same-tab page reloads; cleared when a new search is submitted or reset
 - **No server-side session, no cookies**
 - **Hydration safety:** `useUserProfile()` sets `isLoaded = true` after the first `useEffect` — all profile-dependent UI waits for `isLoaded` before rendering to prevent SSR/client mismatches
 
