@@ -98,12 +98,12 @@ function ProductsPageContent() {
     return `${SESSION_STORAGE_KEY_PREFIX}:${q}:${cat}`;
   }
 
-  // Store format: { products: Product[], count: number, maxPage: number }
+  // Store format: { products: Product[], count: number, maxPage: number, hasMore: boolean }
   function getStoredData(q: string, cat: string) {
     try {
       const raw = sessionStorage.getItem(getSessionStorageKey(q, cat));
       if (!raw) return null;
-      return JSON.parse(raw) as { products: Product[]; count: number; maxPage: number };
+      return JSON.parse(raw) as { products: Product[]; count: number; maxPage: number; hasMore: boolean };
     } catch {
       return null;
     }
@@ -131,7 +131,7 @@ function ProductsPageContent() {
         setResults(stored.products);
         setTotalCount(stored.count);
         setSearched(true);
-        setHasMore(stored.products.length === 20);
+        setHasMore(stored.hasMore ?? false);
       } else {
         setSearched(true);
       }
@@ -162,7 +162,7 @@ function ProductsPageContent() {
       setResults(stored.products);
       setTotalCount(stored.count);
       setSearched(true);
-      setHasMore(stored.products.length === 20);
+      setHasMore(stored.hasMore ?? false);
     } else {
       setSearched(true); // URL has query but no cache — mark as searched so empty-state shows correctly
     }
@@ -179,7 +179,7 @@ function ProductsPageContent() {
       if (stored && newPage <= stored.maxPage) {
         setResults(stored.products);
         setPage(stored.maxPage);
-        setHasMore(stored.products.length === 20);
+        setHasMore(stored.hasMore ?? false);
         setTotalCount(stored.count);
         setSearched(true);
         setIsLoading(false);
@@ -199,11 +199,12 @@ function ProductsPageContent() {
 
     try {
       const result = await searchProducts(query.trim(), category, newPage);
+      const pageHasMore = result.products.length === 20;
       if (newPage === 1) {
         setResults(result.products);
         sessionStorage.setItem(
           getSessionStorageKey(query.trim(), category),
-          JSON.stringify({ products: result.products, count: result.count, maxPage: 1 })
+          JSON.stringify({ products: result.products, count: result.count, maxPage: 1, hasMore: pageHasMore })
         );
       } else {
         setResults((prev) => [...prev, ...result.products]);
@@ -215,10 +216,11 @@ function ProductsPageContent() {
             products: [...(stored?.products ?? []), ...result.products],
             count: result.count,
             maxPage: Math.max(currentMaxPage, newPage),
+            hasMore: pageHasMore,
           })
         );
       }
-      setHasMore(result.products.length === 20);
+      setHasMore(pageHasMore);
       setTotalCount(result.count);
 
       // Update URL params
