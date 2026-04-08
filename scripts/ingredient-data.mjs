@@ -472,7 +472,7 @@ const ENGLISH = new Set([
   'ascorbyl palmitate','vitamin c ester',
   'omega-3','omega-6','omega-9','dha','epa','ala','linoleic acid','cla',
   'fish oil','fish oil concentrate','cod liver oil','algal oil','algae oil',
-  ' conjugated linoleic acid','clara',
+  'conjugated linoleic acid','clara',
   'calcium','calcium carbonate','calcium citrate','calcium phosphate',
   'magnesium','magnesium citrate','magnesium carbonate','magnesium oxide',
   'iron','ferrous fumarate','ferrous gluconate','iron bisglycinate',

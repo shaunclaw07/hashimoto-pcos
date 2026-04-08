@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { mockProductApi } from '../tests/helpers/mock-api';
 import vermeiden from '../tests/fixtures/products/vermeiden.json';
-import gut from '../tests/fixtures/products/gut.json' with { type: 'json' };
+import gut from '../tests/fixtures/products/gut.json';
 
 const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
 
