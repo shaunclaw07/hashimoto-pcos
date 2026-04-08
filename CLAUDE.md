@@ -8,7 +8,7 @@ A **nutrition guidance web app** for women with Hashimoto-Thyreoiditis and PCOS.
 - **UI language:** German (all user-facing strings are in German)
 - **Local SQLite database** (`data/products.db`) with 460k+ DACH products as primary data source; OpenFoodFacts REST API as fallback
 - **Next.js API routes** serve product data server-side (`/api/products/[barcode]`, `/api/products/search`)
-- **Persistence:** Browser `localStorage` only (saved favorites + user profile)
+- **Persistence:** Browser `localStorage` (saved favorites + user profile) and `sessionStorage` (search result cache)
 - **No authentication** — fully public app
 
 ---
@@ -46,7 +46,7 @@ Browser
   └── Next.js 16 App Router  (Presentation Layer)
         ├── /                        → Landing page (server component)
         ├── /scanner                 → Barcode scanner (camera + manual input)
-        ├── /lebensmittel            → Product search with infinite scroll
+        ├── /products                → Product search with infinite scroll
         ├── /result/[barcode]        → Product detail + score + save
         ├── /onboarding              → 2-step profile wizard (first-run)
         └── /einstellungen           → Profile settings (view + edit)
@@ -112,7 +112,7 @@ Browser
 | `src/app/layout.tsx` | Root layout: ThemeProvider, ProfileHeader, OnboardingGuard, BottomNav |
 | `src/app/page.tsx` | Landing page (server component) |
 | `src/app/scanner/page.tsx` | Scanner — dual mode: QuaggaJS camera & manual EAN-13 input |
-| `src/app/lebensmittel/page.tsx` | Search page — calls `/api/products/search`, category filters, infinite scroll |
+| `src/app/products/page.tsx` | Search page — calls `/api/products/search`, category filters, infinite scroll |
 | `src/app/result/[barcode]/page.tsx` | Result page — calls `/api/products/[barcode]`, profile-aware scoring, save to localStorage |
 | `src/app/onboarding/page.tsx` | 2-step profile wizard: condition selection → sensitivities; skip supported |
 | `src/app/einstellungen/page.tsx` | Settings page — view/edit/delete user profile |
@@ -340,6 +340,12 @@ Always pattern-match on `result.success` before accessing `result.product`.
 - **API mocking:** `page.route()` intercepts `/api/products/*` — no real network calls; fixtures from `tests/fixtures/products/`
 - **Onboarding bypass:** Tests that need to skip the onboarding flow must use `page.addInitScript()` to set `hashimoto-pcos-onboarding-skipped = "true"` (or a full profile) in localStorage **before** `page.goto()`. Never use `page.evaluate()` for this — it runs after page load and the OnboardingGuard redirect fires first.
 
+**E2E test accuracy rules:**
+- A test named `*back_navigation*` MUST use `page.goBack()` — `page.goto(url)` tests the mount-effect path, not popstate.
+- A test named `*page_refresh*` or `*reload*` MUST call `page.reload()` — asserting URL without reloading tests nothing about persistence.
+- URL assertions must include the specific value: `toHaveURL(/\?q=Vollkornbrot/)` not `toHaveURL(/\?q=/)`.
+- `sessionStorage` persists across `page.reload()` in Playwright — `addInitScript` only sets `localStorage` and does not clear sessionStorage, so reload-persistence tests work without extra setup.
+
 **Unit test coverage:**
 | File | Area |
 |------|------|
@@ -455,6 +461,13 @@ All source code must be in **English**. User-facing content stays in **German**.
 - **Icons:** Lucide React only
 - **No axios** — native `fetch` API
 
+### React Hooks Rules
+
+- **useEffect restore pattern:** Never guard a restore effect with `if (stateVar !== urlParam) return` — the guard fires on initial mount before state syncs, making the effect a no-op. Use empty-deps `[]` mount effects for one-time URL/storage restoration.
+- **useCallback deps:** Any plain function inside a component that closes over state and is used as an event/observer callback must be wrapped in `useCallback` and listed in the dependent `useCallback`'s deps array. Missing deps cause stale closures that silently write to wrong cache keys.
+- **State capture before setters:** Capture storage keys or state-derived values in a local `const` *before* calling any `setState` — e.g. `const oldKey = getKey(query, category)` then `setQuery("")`. Relying on React batching to preserve the old value is fragile.
+- **popstate must clear state:** Every `popstate` handler must explicitly clear all related state when the new URL has no query (not just early-return) — otherwise stale results remain on screen when the user navigates back past the search URL to the empty page.
+
 ---
 
 ## State & Persistence
@@ -464,7 +477,14 @@ All source code must be in **English**. User-facing content stays in **German**.
 - User profile: `localStorage` key `"hashimoto-pcos-user-profile"` — `UserProfile` JSON (see `src/hooks/use-user-profile.ts`)
 - Onboarding skipped: `localStorage` key `"hashimoto-pcos-onboarding-skipped"` — `"true"` string; cleared when a profile is saved
 - Route state: URL params (`[barcode]` dynamic route, query string in `/products`)
+- **Search results:** `sessionStorage` keyed by `search-results:${encodeURIComponent(query)}:${encodeURIComponent(category)}` — persists across back/forward navigation and same-tab page reloads; cleared on new search or reset
 - **No server-side session, no cookies**
+
+**sessionStorage rules (learned from PR #60 review):**
+- **Key encoding:** Always `encodeURIComponent()` every user-derived segment — raw strings containing `:` create ambiguous, colliding keys.
+- **Explicit booleans:** Store `hasMore: boolean` in the payload at write time. Never re-derive it from `stored.products.length === PAGE_SIZE` — the array grows across pages and the equality breaks after page 1.
+- **Module-scope helpers:** Define key-builder and reader functions at module scope, not inside components — they close over nothing and are recreated on every render otherwise.
+- **Ref accumulator for pagination:** Use a `useRef` to buffer all loaded items and write from the ref. Never read-then-extend sessionStorage in a paginated loop — concurrent fetches read stale snapshots and silently drop pages from the cache.
 - **Hydration safety:** `useUserProfile()` sets `isLoaded = true` after the first `useEffect` — all profile-dependent UI waits for `isLoaded` before rendering to prevent SSR/client mismatches
 
 ---

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import { Search, Loader2, PackageX, ServerCrash } from "lucide-react";
 import { calculateScore } from "@/core/services/scoring-service";
 import type { Product } from "@/core/domain/product";
@@ -21,6 +22,22 @@ const CATEGORIES = [
 ];
 
 const SEARCH_URL = "/api/products/search";
+
+const SESSION_STORAGE_KEY_PREFIX = "search-results";
+
+function getSessionStorageKey(q: string, cat: string): string {
+  return `${SESSION_STORAGE_KEY_PREFIX}:${encodeURIComponent(q)}:${encodeURIComponent(cat)}`;
+}
+
+function getStoredData(q: string, cat: string) {
+  try {
+    const raw = sessionStorage.getItem(getSessionStorageKey(q, cat));
+    if (!raw) return null;
+    return JSON.parse(raw) as { products: Product[]; count: number; maxPage: number; hasMore: boolean };
+  } catch {
+    return null;
+  }
+}
 
 interface ApiSearchResponse {
   products: Product[];
@@ -58,7 +75,28 @@ async function searchProducts(
 }
 
 export default function ProductsPage() {
+  return (
+    <Suspense fallback={<ProductsPageLoading />}>
+      <ProductsPageContent />
+    </Suspense>
+  );
+}
+
+function ProductsPageLoading() {
+  return (
+    <div className="min-h-screen px-5 py-8">
+      <h1 className="mb-8 text-3xl font-bold text-foreground">Lebensmittel</h1>
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    </div>
+  );
+}
+
+function ProductsPageContent() {
   const { profile } = useUserProfile();
+  const router = useRouter();
+
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const [results, setResults] = useState<Product[]>([]);
@@ -69,10 +107,100 @@ export default function ProductsPage() {
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const accumulatedProductsRef = useRef<Product[]>([]);
 
-  async function handleSearch(e?: React.FormEvent, newPage = 1) {
+  // Restore search from sessionStorage on back/forward navigation.
+  // Browser back/forward (popstate) does NOT trigger useSearchParams() updates in
+  // Next.js App Router, so we detect it via a dedicated popstate listener.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const restoreFromSessionStorage = () => {
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get("q") ?? "";
+      const cat = params.get("category") ?? "all";
+      if (!q) {
+        // User navigated back to the empty search page — clear all search state
+        setResults([]);
+        setSearched(false);
+        setQuery("");
+        setCategory("all");
+        setPage(1);
+        setHasMore(false);
+        setTotalCount(0);
+        return;
+      }
+
+      setQuery(q);
+      setCategory(cat);
+      const pageParam = params.get("page") ? Number(params.get("page")) : 1;
+      setPage(pageParam);
+
+      const stored = getStoredData(q, cat);
+      if (stored) {
+        setResults(stored.products);
+        setTotalCount(stored.count);
+        setSearched(true);
+        setHasMore(stored.hasMore ?? false);
+      } else {
+        setSearched(true);
+      }
+    };
+
+    window.addEventListener("popstate", restoreFromSessionStorage);
+    return () => window.removeEventListener("popstate", restoreFromSessionStorage);
+  }, []);
+
+  // Sync query/category/page from URL on initial mount and restore results from
+  // sessionStorage if available. Runs once — use window.location directly since
+  // searchParams may not be populated on first render in Next.js App Router.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("q") ?? "";
+    const cat = params.get("category") ?? "all";
+    if (!q) return;
+
+    setQuery(q);
+    setCategory(cat);
+    const pageParam = params.get("page") ? Number(params.get("page")) : 1;
+    setPage(pageParam);
+
+    // Restore results from sessionStorage if available (persisted from a previous visit)
+    const stored = getStoredData(q, cat);
+    if (stored) {
+      setResults(stored.products);
+      setTotalCount(stored.count);
+      setSearched(true);
+      setHasMore(stored.hasMore ?? false);
+    } else {
+      setSearched(true); // URL has query but no cache — mark as searched so empty-state shows correctly
+    }
+  }, []); // mount only — runs once on initial page load
+
+  const handleSearch = useCallback(async (e?: React.FormEvent, newPage = 1) => {
     e?.preventDefault();
     if (!query.trim()) return;
+
+    // If this page is already in sessionStorage, restore from there instead of
+    // re-fetching (avoids duplicates when user scrolls back up after going forward)
+    if (newPage > 1) {
+      const stored = getStoredData(query.trim(), category);
+      if (stored && newPage <= stored.maxPage) {
+        setResults(stored.products);
+        setPage(stored.maxPage);
+        setHasMore(stored.hasMore ?? false);
+        setTotalCount(stored.count);
+        setSearched(true);
+        setIsLoading(false);
+        const params = new URLSearchParams();
+        params.set("q", query.trim());
+        if (category !== "all") params.set("category", category);
+        params.set("page", String(stored.maxPage));
+        router.push(`/products?${params}`, { scroll: false });
+        return;
+      }
+    }
 
     setIsLoading(true);
     setSearched(true);
@@ -81,13 +209,38 @@ export default function ProductsPage() {
 
     try {
       const result = await searchProducts(query.trim(), category, newPage);
+      const pageHasMore = result.products.length === 20;
       if (newPage === 1) {
+        // Reset accumulator on new search
+        accumulatedProductsRef.current = result.products;
         setResults(result.products);
+        sessionStorage.setItem(
+          getSessionStorageKey(query.trim(), category),
+          JSON.stringify({ products: accumulatedProductsRef.current, count: result.count, maxPage: 1, hasMore: pageHasMore })
+        );
       } else {
+        // Append to accumulator — avoids stale sessionStorage read race condition
+        accumulatedProductsRef.current = [...accumulatedProductsRef.current, ...result.products];
         setResults((prev) => [...prev, ...result.products]);
+        sessionStorage.setItem(
+          getSessionStorageKey(query.trim(), category),
+          JSON.stringify({
+            products: accumulatedProductsRef.current,
+            count: result.count,
+            maxPage: newPage,
+            hasMore: pageHasMore,
+          })
+        );
       }
-      setHasMore(result.products.length === 20);
+      setHasMore(pageHasMore);
       setTotalCount(result.count);
+
+      // Update URL params
+      const params = new URLSearchParams();
+      params.set("q", query.trim());
+      if (category !== "all") params.set("category", category);
+      if (newPage > 1) params.set("page", String(newPage));
+      router.push(`/products?${params}`, { scroll: false });
     } catch (err) {
       const isServerBusy =
         (err instanceof Error && err.message === "SERVER_BUSY") ||
@@ -97,7 +250,7 @@ export default function ProductsPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [query, category, router]);
 
   const lastProductRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -110,10 +263,11 @@ export default function ProductsPage() {
       });
       if (node) observerRef.current.observe(node);
     },
-    [isLoading, hasMore, page]
+    [isLoading, hasMore, page, handleSearch]
   );
 
   function handleReset() {
+    const oldKey = getSessionStorageKey(query.trim(), category); // capture before setters
     setQuery("");
     setResults([]);
     setSearched(false);
@@ -121,6 +275,9 @@ export default function ProductsPage() {
     setHasMore(false);
     setTotalCount(0);
     setServerBusy(false);
+    accumulatedProductsRef.current = [];
+    sessionStorage.removeItem(oldKey);
+    router.push("/products", { scroll: false });
   }
 
   return (

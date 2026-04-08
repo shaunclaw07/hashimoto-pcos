@@ -100,4 +100,99 @@ test.describe('Search page (/products)', () => {
     await productCard.click();
     await expect(page).toHaveURL(/\/result\//);
   });
+
+  test('search_results_persist_after_back_navigation', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    const input = page.getByRole('textbox', { name: /suchen/i });
+    await input.fill('Milch');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    const results = page.locator('a[href^="/result/"]');
+    await expect(results.first()).toBeVisible({ timeout: 10000 });
+
+    // Verify sessionStorage is populated
+    const ssAfterSearch = await page.evaluate(() =>
+      sessionStorage.getItem('search-results:Milch:all') !== null
+    );
+    expect(ssAfterSearch).toBe(true);
+
+    const countBeforeNav = await results.count();
+    expect(countBeforeNav).toBeGreaterThan(0);
+
+    // Navigate to a product detail page
+    await results.first().click();
+    await expect(page).toHaveURL(/\/result\//);
+
+    // Press browser Back — this triggers popstate, NOT a full page reload
+    await page.goBack();
+    await expect(page).toHaveURL(/\/products/);
+
+    // Popstate listener restores results from sessionStorage
+    await page.waitForFunction(
+      () => document.querySelectorAll('a[href^="/result/"]').length > 0,
+      { timeout: 10000 }
+    );
+    const countAfterBack = await page.locator('a[href^="/result/"]').count();
+    expect(countAfterBack).toBe(countBeforeNav);
+  });
+
+  test('search_url_updated_after_search', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    await page.getByRole('textbox', { name: /suchen/i }).fill('Milch');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    const results = page.locator('a[href^="/result/"]');
+    await expect(results.first()).toBeVisible({ timeout: 10000 });
+    // URL should contain the search query
+    await expect(page).toHaveURL(/\?q=Milch/);
+  });
+
+  test('search_results_persist_after_page_reload', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    await page.getByRole('textbox', { name: /suchen/i }).fill('Milch');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    const results = page.locator('a[href^="/result/"]');
+    await expect(results.first()).toBeVisible({ timeout: 10000 });
+
+    const countBeforeReload = await results.count();
+
+    // Reload the page — sessionStorage persists across reloads in the same tab
+    // The mount effect reads ?q=Milch from URL and restores from sessionStorage
+    await page.reload();
+
+    // Results should be restored from sessionStorage (C3 fix)
+    await page.waitForFunction(
+      () => document.querySelectorAll('a[href^="/result/"]').length > 0,
+      { timeout: 10000 }
+    );
+    const countAfterReload = await page.locator('a[href^="/result/"]').count();
+    expect(countAfterReload).toBe(countBeforeReload);
+  });
+
+  test('search_url_reflects_current_search', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    await page.getByRole('textbox', { name: /suchen/i }).fill('Vollkornbrot');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 10000 });
+
+    // URL should contain search params
+    await expect(page).toHaveURL(/\?q=Vollkornbrot/);
+  });
+
+  test('search_results_cleared_on_new_search', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    const input = page.getByRole('textbox', { name: /suchen/i });
+
+    // First search: Milch
+    await input.fill('Milch');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 10000 });
+
+    // Second search: Brot (different query)
+    await mockSearchApi(page, [gut]);
+    await input.fill('Brot');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 10000 });
+
+    // URL should reflect the new search
+    await expect(page).toHaveURL(/q=Brot/);
+  });
 });
