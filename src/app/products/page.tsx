@@ -23,6 +23,22 @@ const CATEGORIES = [
 
 const SEARCH_URL = "/api/products/search";
 
+const SESSION_STORAGE_KEY_PREFIX = "search-results";
+
+function getSessionStorageKey(q: string, cat: string): string {
+  return `${SESSION_STORAGE_KEY_PREFIX}:${encodeURIComponent(q)}:${encodeURIComponent(cat)}`;
+}
+
+function getStoredData(q: string, cat: string) {
+  try {
+    const raw = sessionStorage.getItem(getSessionStorageKey(q, cat));
+    if (!raw) return null;
+    return JSON.parse(raw) as { products: Product[]; count: number; maxPage: number; hasMore: boolean };
+  } catch {
+    return null;
+  }
+}
+
 interface ApiSearchResponse {
   products: Product[];
   count: number;
@@ -91,23 +107,6 @@ function ProductsPageContent() {
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const observerRef = useRef<IntersectionObserver | null>(null);
-
-  const SESSION_STORAGE_KEY_PREFIX = "search-results";
-
-  function getSessionStorageKey(q: string, cat: string) {
-    return `${SESSION_STORAGE_KEY_PREFIX}:${q}:${cat}`;
-  }
-
-  // Store format: { products: Product[], count: number, maxPage: number, hasMore: boolean }
-  function getStoredData(q: string, cat: string) {
-    try {
-      const raw = sessionStorage.getItem(getSessionStorageKey(q, cat));
-      if (!raw) return null;
-      return JSON.parse(raw) as { products: Product[]; count: number; maxPage: number; hasMore: boolean };
-    } catch {
-      return null;
-    }
-  }
 
   // Restore search from sessionStorage on back/forward navigation.
   // Browser back/forward (popstate) does NOT trigger useSearchParams() updates in
