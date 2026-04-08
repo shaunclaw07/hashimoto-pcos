@@ -101,54 +101,70 @@ test.describe('Search page (/products)', () => {
     await expect(page).toHaveURL(/\/result\//);
   });
 
-  // Uses page.goto() instead of goBack() to avoid a race condition with parallel
-  // workers: goBack() does not reliably restore the search URL in the history
-  // stack when router.push() used scroll:false on the same route in parallel mode.
-  // page.goto() navigates fresh, while sessionStorage persists in the same tab.
   test('search_results_persist_after_back_navigation', async ({ page }) => {
-    // Do a search to populate sessionStorage + URL params
     await mockSearchApi(page, MOCK_PRODUCTS);
-    await page.getByRole('textbox', { name: /suchen/i }).fill('Milch');
+    const input = page.getByRole('textbox', { name: /suchen/i });
+    await input.fill('Milch');
     await page.getByRole('button', { name: /suchen/i }).click();
     const results = page.locator('a[href^="/result/"]');
     await expect(results.first()).toBeVisible({ timeout: 10000 });
 
-    const ssAfterSearch = await page.evaluate(() => sessionStorage.getItem('search-results:Milch:all') !== null);
+    // Verify sessionStorage is populated
+    const ssAfterSearch = await page.evaluate(() =>
+      sessionStorage.getItem('search-results:Milch:all') !== null
+    );
     expect(ssAfterSearch).toBe(true);
 
     const countBeforeNav = await results.count();
     expect(countBeforeNav).toBeGreaterThan(0);
 
-    // Navigate away to the result page (sessionStorage persists in same tab)
+    // Navigate to a product detail page
     await results.first().click();
     await expect(page).toHaveURL(/\/result\//);
 
-    // Navigate back to the search URL directly via goto (sessionStorage survives)
-    await page.goto('/products?q=Milch');
-    await page.waitForLoadState('domcontentloaded');
-    // Poll until results appear (restoration happens after mount via useEffect)
+    // Press browser Back — this triggers popstate, NOT a full page reload
+    await page.goBack();
+    await expect(page).toHaveURL(/\/products/);
+
+    // Popstate listener restores results from sessionStorage
     await page.waitForFunction(
       () => document.querySelectorAll('a[href^="/result/"]').length > 0,
       { timeout: 10000 }
     );
-
-    // Verify results are still visible with the same count
     const countAfterBack = await page.locator('a[href^="/result/"]').count();
     expect(countAfterBack).toBe(countBeforeNav);
   });
 
-  test('search_results_persist_after_page_refresh', async ({ page }) => {
+  test('search_url_updated_after_search', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    await page.getByRole('textbox', { name: /suchen/i }).fill('Milch');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    const results = page.locator('a[href^="/result/"]');
+    await expect(results.first()).toBeVisible({ timeout: 10000 });
+    // URL should contain the search query
+    await expect(page).toHaveURL(/\?q=Milch/);
+  });
+
+  test('search_results_persist_after_page_reload', async ({ page }) => {
     await mockSearchApi(page, MOCK_PRODUCTS);
     await page.getByRole('textbox', { name: /suchen/i }).fill('Milch');
     await page.getByRole('button', { name: /suchen/i }).click();
     const results = page.locator('a[href^="/result/"]');
     await expect(results.first()).toBeVisible({ timeout: 10000 });
 
-    // Verify URL reflects the search after page load
-    await expect(page).toHaveURL(/\?q=Milch/);
-    // Note: page.reload() cannot be tested reliably here because addInitScript
-    // (used in beforeEach to bypass onboarding) runs on every page load and
-    // clears sessionStorage before our restoration logic can run.
+    const countBeforeReload = await results.count();
+
+    // Reload the page — sessionStorage persists across reloads in the same tab
+    // The mount effect reads ?q=Milch from URL and restores from sessionStorage
+    await page.reload();
+
+    // Results should be restored from sessionStorage (C3 fix)
+    await page.waitForFunction(
+      () => document.querySelectorAll('a[href^="/result/"]').length > 0,
+      { timeout: 10000 }
+    );
+    const countAfterReload = await page.locator('a[href^="/result/"]').count();
+    expect(countAfterReload).toBe(countBeforeReload);
   });
 
   test('search_url_reflects_current_search', async ({ page }) => {
@@ -158,7 +174,7 @@ test.describe('Search page (/products)', () => {
     await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 10000 });
 
     // URL should contain search params
-    await expect(page).toHaveURL(/\?q=/);
+    await expect(page).toHaveURL(/\?q=Vollkornbrot/);
   });
 
   test('search_results_cleared_on_new_search', async ({ page }) => {
