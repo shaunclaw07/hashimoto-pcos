@@ -185,8 +185,7 @@ db.exec(`
   );
   CREATE TABLE ingredients (
     id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    name      TEXT NOT NULL UNIQUE,
-    raw_forms TEXT NOT NULL DEFAULT '[]'
+    name      TEXT NOT NULL UNIQUE
   );
   CREATE TABLE product_ingredients (
     barcode        TEXT NOT NULL,
@@ -221,7 +220,7 @@ const stmtFts = db.prepare(`
 // Pre-load existing ingredients for O(1) lookup (populated during bulk insert)
 const ingredientIdByName = new Map();
 const stmtUpsertIngredient = db.prepare(`
-  INSERT OR IGNORE INTO ingredients(name, raw_forms) VALUES (?, ?)
+  INSERT OR IGNORE INTO ingredients(name) VALUES (?)
 `);
 const stmtGetIngredientId = db.prepare(`SELECT id FROM ingredients WHERE name = ?`);
 const stmtInsertPI = db.prepare(`
@@ -229,15 +228,11 @@ const stmtInsertPI = db.prepare(`
   VALUES (?, ?, ?, ?)
 `);
 
-function upsertIngredient(canonical, raw) {
+function upsertIngredient(canonical) {
   let id = ingredientIdByName.get(canonical);
-  if (id !== undefined) {
-    // Update raw_forms: append raw variant if not already present
-    const row = stmtGetIngredientId.get(canonical);
-    id = row.id;
-    return id;
-  }
-  stmtUpsertIngredient.run(canonical, JSON.stringify([raw]));
+  if (id !== undefined) return id;
+
+  stmtUpsertIngredient.run(canonical);
   const row = stmtGetIngredientId.get(canonical);
   id = row.id;
   ingredientIdByName.set(canonical, id);
@@ -258,7 +253,7 @@ const insertBatch = db.transaction((rows) => {
       const parsed = parseIngredients(row.ingredients_text);
       for (let i = 0; i < parsed.length; i++) {
         const { raw, canonical } = parsed[i];
-        const ingId = upsertIngredient(canonical, raw);
+        const ingId = upsertIngredient(canonical);
         stmtInsertPI.run(row.barcode, ingId, raw, i);
       }
       ingredientTotal += parsed.length;
@@ -341,8 +336,8 @@ if (batch.length > 0) {
 }
 
 db.close();
-console.log(`\n\nFertig!`);
-console.log(`  CSV-Zeilen verarbeitet      : ${total.toLocaleString('de-DE')}`);
-console.log(`  DACH-Produkte inserted      : ${inserted.toLocaleString('de-DE')} (≥${MIN_NUTRIMENTS} Nährwerte, gültiger Name)`);
-console.log(`  Ingredient mappings         : ${ingredientTotal.toLocaleString('de-DE')}`);
-console.log(`  Datenbank                   : ${DB_PATH}`);
+console.log(`\n\nDone!`);
+console.log(`  CSV rows processed          : ${total.toLocaleString()}`);
+console.log(`  DACH products inserted      : ${inserted.toLocaleString()} (≥${MIN_NUTRIMENTS} nutriments, valid name)`);
+console.log(`  Ingredient mappings         : ${ingredientTotal.toLocaleString()}`);
+console.log(`  Database                    : ${DB_PATH}`);
