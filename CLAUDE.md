@@ -8,7 +8,7 @@ A **nutrition guidance web app** for women with Hashimoto-Thyreoiditis and PCOS.
 - **UI language:** German (all user-facing strings are in German)
 - **Local SQLite database** (`data/products.db`) with 460k+ DACH products as primary data source; OpenFoodFacts REST API as fallback
 - **Next.js API routes** serve product data server-side (`/api/products/[barcode]`, `/api/products/search`)
-- **Persistence:** Browser `localStorage` only (saved favorites + user profile)
+- **Persistence:** Browser `localStorage` (saved favorites + user profile) and `sessionStorage` (search result cache)
 - **No authentication** — fully public app
 
 ---
@@ -46,7 +46,7 @@ Browser
   └── Next.js 16 App Router  (Presentation Layer)
         ├── /                        → Landing page (server component)
         ├── /scanner                 → Barcode scanner (camera + manual input)
-        ├── /lebensmittel            → Product search with infinite scroll
+        ├── /products                → Product search with infinite scroll
         ├── /result/[barcode]        → Product detail + score + save
         ├── /onboarding              → 2-step profile wizard (first-run)
         └── /einstellungen           → Profile settings (view + edit)
@@ -112,7 +112,7 @@ Browser
 | `src/app/layout.tsx` | Root layout: ThemeProvider, ProfileHeader, OnboardingGuard, BottomNav |
 | `src/app/page.tsx` | Landing page (server component) |
 | `src/app/scanner/page.tsx` | Scanner — dual mode: QuaggaJS camera & manual EAN-13 input |
-| `src/app/lebensmittel/page.tsx` | Search page — calls `/api/products/search`, category filters, infinite scroll |
+| `src/app/products/page.tsx` | Search page — calls `/api/products/search`, category filters, infinite scroll |
 | `src/app/result/[barcode]/page.tsx` | Result page — calls `/api/products/[barcode]`, profile-aware scoring, save to localStorage |
 | `src/app/onboarding/page.tsx` | 2-step profile wizard: condition selection → sensitivities; skip supported |
 | `src/app/einstellungen/page.tsx` | Settings page — view/edit/delete user profile |
