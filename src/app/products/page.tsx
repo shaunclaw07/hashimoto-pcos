@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Search, Loader2, PackageX, ServerCrash } from "lucide-react";
 import { calculateScore } from "@/core/services/scoring-service";
 import type { Product } from "@/core/domain/product";
@@ -80,7 +80,6 @@ function ProductsPageLoading() {
 function ProductsPageContent() {
   const { profile } = useUserProfile();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -142,21 +141,22 @@ function ProductsPageContent() {
     return () => window.removeEventListener("popstate", restoreFromSessionStorage);
   }, []);
 
-  // Restore from URL + sessionStorage when searchParams change (but NOT on back/forward
-  // since popstate already handled it above)
+  // Sync query/category/page from URL on initial mount and restore results from
+  // sessionStorage if available. Runs once — use window.location directly since
+  // searchParams may not be populated on first render in Next.js App Router.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const q = params.get("q") ?? "";
     const cat = params.get("category") ?? "all";
-    const pageParam = params.get("page") ? Number(params.get("page")) : 1;
-
     if (!q) return;
 
-    if (isLoading || q !== query || cat !== category) return;
-
+    setQuery(q);
+    setCategory(cat);
+    const pageParam = params.get("page") ? Number(params.get("page")) : 1;
     setPage(pageParam);
 
+    // Restore results from sessionStorage if available (persisted from a previous visit)
     const stored = getStoredData(q, cat);
     if (stored) {
       setResults(stored.products);
@@ -164,23 +164,9 @@ function ProductsPageContent() {
       setSearched(true);
       setHasMore(stored.products.length === 20);
     } else {
-      setSearched(true);
+      setSearched(true); // URL has query but no cache — mark as searched so empty-state shows correctly
     }
-  }, [searchParams, query, category, isLoading]);
-
-  // Sync query/category from URL on initial mount (runs once)
-  // Use window.location directly — searchParams may not be populated on first
-  // render after a full page reload in Next.js App Router.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const q = params.get("q") ?? "";
-    const cat = params.get("category") ?? "all";
-    if (!q) return;
-    if (q === query && cat === category) return;
-    setQuery(q);
-    setCategory(cat);
-  }, []); // intentionally empty — only on mount
+  }, []); // mount only — runs once on initial page load
 
   async function handleSearch(e?: React.FormEvent, newPage = 1) {
     e?.preventDefault();
