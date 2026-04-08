@@ -194,7 +194,8 @@ db.exec(`
     position       INTEGER NOT NULL,
     FOREIGN KEY (barcode) REFERENCES products(barcode) ON DELETE CASCADE,
     FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE,
-    PRIMARY KEY (barcode, ingredient_id)
+    PRIMARY KEY (barcode, position),
+    UNIQUE (barcode, ingredient_id)
   );
 `);
 
