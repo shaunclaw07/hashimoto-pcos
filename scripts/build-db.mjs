@@ -8,6 +8,7 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { isKnownIngredient } from './ingredient-data.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CSV_PATH = process.argv[2] ?? path.join(__dirname, '..', 'en.openfoodfacts.org.products.csv');
@@ -16,7 +17,104 @@ const DB_PATH = path.join(__dirname, '..', 'data', 'products.db');
 const DACH_TAGS = new Set(['en:germany', 'en:austria', 'en:switzerland']);
 
 // Minimum number of nutriment fields that must have a valid numeric value
-const MIN_NUTRIMENTS = 3;
+const MIN_NUTRIMENTS = 5;
+
+// Known placeholder names to reject
+const PLACEHOLDER_NAMES = new Set(['xxx', 'unknown', 'none', 'n/a', 'to be completed', '-']);
+
+// Stop-words — fragments from nutrition tables that survive normalization
+const STOP_WORDS = new Set([
+  'nhrwerte', 'nahrwerte', 'zutaten', 'ingredients', 'inhaltsstoffe',
+  'producent', 'hersteller', 'filledby', 'filled by', 'hinweis', 'portion',
+  'serviervorschlag', 'durchschnitt', 'per 100', 'per portion', 'nr', 'art',
+  'charge', 'mindesthaltbarkeit', 'verbraucher', 'konsumenten', 'erstellt',
+  'hergestellt', 'importeur', 'imported by', 'imported', 'distributed',
+  'distributeur', 'produit en', 'fabrique', 'fabriqué', 'hergestellt',
+]);
+
+function isValidProductName(name) {
+  if (!name || typeof name !== 'string') return false;
+  const t = name.trim();
+  if (t.length < 2) return false;
+  if (PLACEHOLDER_NAMES.has(t.toLowerCase())) return false;
+  return true;
+}
+
+// ── Ingredient Parsing ──────────────────────────────────────────────────────────
+
+/**
+ * Parses an ingredients_text string into normalized ingredient segments.
+ * Strategy: aggressive normalization + whitelist validation.
+ * Only segments matching a known ingredient are kept.
+ */
+function parseIngredients(text) {
+  if (!text || typeof text !== 'string') return [];
+
+  // Split on comma, semicolon, or colon (used in "Säuerungsmittel: Citronensäure" patterns)
+  const segments = text.split(/[,;:]/);
+  const seen = new Set();
+  const result = [];
+
+  for (const rawSegment of segments) {
+    let seg = rawSegment.trim();
+    if (!seg) continue;
+
+    // Step 1: Strip parenthetical content (quantities, percentages, descriptions)
+    // Handles nested parens by repeating until stable
+    let prev;
+    do {
+      prev = seg;
+      seg = seg.replace(/\s*\([^)]*\)\s*/g, ' ').trim();
+    } while (seg !== prev && seg.includes('('));
+
+    // Step 2: Remove trailing percentages: "13,8%", "4.1%", "5 %", "0,0%"
+    seg = seg.replace(/\d+[,.]?\d*\s*%\s*/g, '').trim();
+
+    // Step 3: Normalize internal hyphens: "Soja - protein" → "Sojaprotein"
+    seg = seg.replace(/([a-zäöüß])\s*-\s+([a-zäöüß])/gi, '$1$2').trim();
+    // Also handle "Raps - Öl" → "RapsÖl" (uppercase-lowercase)
+    seg = seg.replace(/([a-zäöüß])\s+-\s+([A-ZÄÖÜ])/g, '$1$2').trim();
+
+    // Step 4: Remove encoding artifacts — isolated hyphen between lowercase chars
+    // "ent - ölt" → "entölt", "4% - protein" → "protein"
+    seg = seg.replace(/([a-zäöüß])\s*-\s+(?=[a-zäöüß])/gi, '$1').trim();
+
+    // Step 5: Collapse multiple spaces, dashes, underscores
+    seg = seg.replace(/\s{2,}/g, ' ').replace(/[_—–-]{2,}/g, ' ').trim();
+
+    // Step 6: Clean Unicode artifacts: ×, •, °, ©, ®, ™, ¹, ², ³, etc.
+    seg = seg.replace(/[×•°©®™¹²³⁴⁵⁶⁷⁸⁹@#$%^&®]+/g, ' ').trim();
+
+    // Step 7: Strip E-number format: "E 412", "e 500" → "e412"
+    seg = seg.replace(/^e\s*(\d+[a-z]?)\s*$/i, 'e$1').trim();
+
+    // Step 8: Remove any remaining digits-only or digit-starting tokens
+    // These are nutrition table fragments
+    seg = seg.replace(/^[\d,.]+\s*/g, '').trim();
+    if (!seg || /^\d+$/.test(seg)) continue;
+
+    // Step 9: Remove segments that are clearly garbage
+    if (seg.length < 2) continue;
+    if (/^[^a-zäöüß]+$/i.test(seg)) continue; // only symbols/letters
+
+    // Step 10: Lowercase for canonical form
+    const canonical = seg.toLowerCase();
+
+    // Step 11: Quick stop-word guard for nutrition-table fragments
+    if (STOP_WORDS.has(canonical)) continue;
+
+    // Step 12: Deduplicate
+    if (seen.has(canonical)) continue;
+    seen.add(canonical);
+
+    // Step 13: Whitelist check — the primary filter
+    if (!isKnownIngredient(canonical)) continue;
+
+    result.push({ raw: rawSegment.trim(), canonical });
+  }
+
+  return result;
+}
 
 const NUTRIMENT_FIELDS = [
   'energy-kcal_100g',
@@ -66,7 +164,7 @@ db.pragma('synchronous = NORMAL');
 db.exec(`
   CREATE TABLE products (
     barcode          TEXT PRIMARY KEY,
-    product_name     TEXT,
+    product_name     TEXT NOT NULL,
     brands           TEXT,
     image_url        TEXT,
     nutriscore_grade TEXT,
@@ -84,6 +182,20 @@ db.exec(`
     brands,
     content='products',
     content_rowid='rowid'
+  );
+  CREATE TABLE ingredients (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    name      TEXT NOT NULL UNIQUE,
+    raw_forms TEXT NOT NULL DEFAULT '[]'
+  );
+  CREATE TABLE product_ingredients (
+    barcode        TEXT NOT NULL,
+    ingredient_id  INTEGER NOT NULL,
+    raw_text       TEXT NOT NULL,
+    position       INTEGER NOT NULL,
+    FOREIGN KEY (barcode) REFERENCES products(barcode) ON DELETE CASCADE,
+    FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE,
+    PRIMARY KEY (barcode, ingredient_id)
   );
 `);
 
@@ -106,6 +218,32 @@ const stmtFts = db.prepare(`
   )
 `);
 
+// Pre-load existing ingredients for O(1) lookup (populated during bulk insert)
+const ingredientIdByName = new Map();
+const stmtUpsertIngredient = db.prepare(`
+  INSERT OR IGNORE INTO ingredients(name, raw_forms) VALUES (?, ?)
+`);
+const stmtGetIngredientId = db.prepare(`SELECT id FROM ingredients WHERE name = ?`);
+const stmtInsertPI = db.prepare(`
+  INSERT OR IGNORE INTO product_ingredients(barcode, ingredient_id, raw_text, position)
+  VALUES (?, ?, ?, ?)
+`);
+
+function upsertIngredient(canonical, raw) {
+  let id = ingredientIdByName.get(canonical);
+  if (id !== undefined) {
+    // Update raw_forms: append raw variant if not already present
+    const row = stmtGetIngredientId.get(canonical);
+    id = row.id;
+    return id;
+  }
+  stmtUpsertIngredient.run(canonical, JSON.stringify([raw]));
+  const row = stmtGetIngredientId.get(canonical);
+  id = row.id;
+  ingredientIdByName.set(canonical, id);
+  return id;
+}
+
 const insertBatch = db.transaction((rows) => {
   for (const row of rows) {
     stmtInsert.run(row);
@@ -114,17 +252,29 @@ const insertBatch = db.transaction((rows) => {
       product_name: row.product_name ?? '',
       brands: row.brands ?? '',
     });
+
+    // Parse and insert normalized ingredients
+    if (row.ingredients_text) {
+      const parsed = parseIngredients(row.ingredients_text);
+      for (let i = 0; i < parsed.length; i++) {
+        const { raw, canonical } = parsed[i];
+        const ingId = upsertIngredient(canonical, raw);
+        stmtInsertPI.run(row.barcode, ingId, raw, i);
+      }
+      ingredientTotal += parsed.length;
+    }
   }
 });
 
 // ── Stream CSV ────────────────────────────────────────────────────────────────
 let total = 0;
 let inserted = 0;
+let ingredientTotal = 0;
 const batch = [];
 const BATCH_SIZE = 1000;
 
 console.log(`Reading: ${CSV_PATH}`);
-console.log(`Filtering DACH products (DE/AT/CH) with valid EAN-13 barcodes and ≥${MIN_NUTRIMENTS} nutriments...\n`);
+console.log(`Filtering DACH products (DE/AT/CH) with valid EAN-13 barcodes, ≥${MIN_NUTRIMENTS} nutriments, and non-empty product name...\n`);
 
 const parser = createReadStream(CSV_PATH).pipe(
   parse({
@@ -145,6 +295,10 @@ for await (const r of parser) {
   if (!isValidEan13(r.code)) continue;
   if (!isDach(r.countries_tags)) continue;
 
+  // Use German product name if available, else fallback
+  const productName = r.product_name_de || r.product_name || null;
+  if (!isValidProductName(productName)) continue;
+
   const { values, count } = parseNutriments(r);
   if (count < MIN_NUTRIMENTS) continue;
 
@@ -161,7 +315,7 @@ for await (const r of parser) {
 
   batch.push({
     barcode:          r.code,
-    product_name:     r.product_name_de || r.product_name || null,
+    product_name:     productName,
     brands:           r.brands          || null,
     image_url:        r.image_front_small_url || r.image_small_url || r.image_url || null,
     nutriscore_grade: r.nutriscore_grade || null,
@@ -189,5 +343,6 @@ if (batch.length > 0) {
 db.close();
 console.log(`\n\nFertig!`);
 console.log(`  CSV-Zeilen verarbeitet      : ${total.toLocaleString('de-DE')}`);
-console.log(`  DACH-Produkte inserted      : ${inserted.toLocaleString('de-DE')} (≥${MIN_NUTRIMENTS} Nährwerte)`);
+console.log(`  DACH-Produkte inserted      : ${inserted.toLocaleString('de-DE')} (≥${MIN_NUTRIMENTS} Nährwerte, gültiger Name)`);
+console.log(`  Ingredient mappings         : ${ingredientTotal.toLocaleString('de-DE')}`);
 console.log(`  Datenbank                   : ${DB_PATH}`);

@@ -146,6 +146,23 @@ export class SqliteProductRepository implements IProductRepository {
     }
   }
 
+  async findIngredientsByBarcode(barcode: string): Promise<string[]> {
+    try {
+      const rows = getDb()
+        .prepare(
+          `SELECT i.name FROM ingredients i
+           JOIN product_ingredients pi ON i.id = pi.ingredient_id
+           WHERE pi.barcode = ?
+           ORDER BY pi.position`
+        )
+        .all(barcode) as { name: string }[];
+      return rows.map((r) => r.name);
+    } catch (err) {
+      console.error("[SqliteProductRepository] findIngredientsByBarcode failed:", err);
+      return [];
+    }
+  }
+
   async updateNutriments(barcode: string, nutriments: Nutriments): Promise<void> {
     const raw = {
       "energy-kcal_100g": nutriments.energyKcal,
