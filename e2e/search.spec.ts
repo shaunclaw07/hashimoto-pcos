@@ -118,6 +118,9 @@ test.describe('Search page (/products)', () => {
     const countBeforeNav = await results.count();
     expect(countBeforeNav).toBeGreaterThan(0);
 
+    // Wait for URL to reflect the search (router.push is async in Next.js App Router)
+    await expect(page).toHaveURL(/\?q=Milch/);
+
     // Navigate to a product detail page
     await results.first().click();
     await expect(page).toHaveURL(/\/result\//);
@@ -153,6 +156,9 @@ test.describe('Search page (/products)', () => {
     await expect(results.first()).toBeVisible({ timeout: 10000 });
 
     const countBeforeReload = await results.count();
+
+    // Wait for URL to reflect the search (router.push is async in Next.js App Router)
+    await expect(page).toHaveURL(/\?q=Milch/);
 
     // Reload the page — sessionStorage persists across reloads in the same tab
     // The mount effect reads ?q=Milch from URL and restores from sessionStorage
