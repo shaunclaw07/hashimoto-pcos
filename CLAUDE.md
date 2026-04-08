@@ -345,6 +345,7 @@ Always pattern-match on `result.success` before accessing `result.product`.
 - A test named `*page_refresh*` or `*reload*` MUST call `page.reload()` — asserting URL without reloading tests nothing about persistence.
 - URL assertions must include the specific value: `toHaveURL(/\?q=Vollkornbrot/)` not `toHaveURL(/\?q=/)`.
 - `sessionStorage` persists across `page.reload()` in Playwright — `addInitScript` only sets `localStorage` and does not clear sessionStorage, so reload-persistence tests work without extra setup.
+- **`router.push()` is async in Next.js App Router** — the URL update (`pushState`) completes slightly after the React DOM update from `setState`. Any test that navigates away or reloads after a `router.push()` MUST first `await expect(page).toHaveURL(...)` to confirm the URL has been committed before proceeding. Without this, the reload/back-navigation operates on the stale pre-push URL and the mount effect finds no query params.
 
 **Unit test coverage:**
 | File | Area |
