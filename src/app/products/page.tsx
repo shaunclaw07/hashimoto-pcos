@@ -107,6 +107,7 @@ function ProductsPageContent() {
   const [hasMore, setHasMore] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const accumulatedProductsRef = useRef<Product[]>([]);
 
   // Restore search from sessionStorage on back/forward navigation.
   // Browser back/forward (popstate) does NOT trigger useSearchParams() updates in
@@ -210,21 +211,23 @@ function ProductsPageContent() {
       const result = await searchProducts(query.trim(), category, newPage);
       const pageHasMore = result.products.length === 20;
       if (newPage === 1) {
+        // Reset accumulator on new search
+        accumulatedProductsRef.current = result.products;
         setResults(result.products);
         sessionStorage.setItem(
           getSessionStorageKey(query.trim(), category),
-          JSON.stringify({ products: result.products, count: result.count, maxPage: 1, hasMore: pageHasMore })
+          JSON.stringify({ products: accumulatedProductsRef.current, count: result.count, maxPage: 1, hasMore: pageHasMore })
         );
       } else {
+        // Append to accumulator — avoids stale sessionStorage read race condition
+        accumulatedProductsRef.current = [...accumulatedProductsRef.current, ...result.products];
         setResults((prev) => [...prev, ...result.products]);
-        const stored = getStoredData(query.trim(), category);
-        const currentMaxPage = stored?.maxPage ?? newPage - 1;
         sessionStorage.setItem(
           getSessionStorageKey(query.trim(), category),
           JSON.stringify({
-            products: [...(stored?.products ?? []), ...result.products],
+            products: accumulatedProductsRef.current,
             count: result.count,
-            maxPage: Math.max(currentMaxPage, newPage),
+            maxPage: newPage,
             hasMore: pageHasMore,
           })
         );
@@ -271,6 +274,7 @@ function ProductsPageContent() {
     setHasMore(false);
     setTotalCount(0);
     setServerBusy(false);
+    accumulatedProductsRef.current = [];
     sessionStorage.removeItem(getSessionStorageKey(query.trim(), category));
     router.push("/products", { scroll: false });
   }
