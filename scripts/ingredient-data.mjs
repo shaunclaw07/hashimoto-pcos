@@ -5,10 +5,10 @@
 // ── German ingredient names ────────────────────────────────────────────────────
 const GERMAN = new Set([
   // Zucker & Süßungsmittel
-  'zucker','saccharose','glucose','dextrose','fruktose',' fructose','lactose','maltose',
+  'zucker','saccharose','glucose','dextrose','fruktose','fruktose','lactose','maltose',
   'raffinierter zucker','rohrzucker','rohrzuckersirup','zuckersirup','invertzuckersirup',
   'glukosesirup','glukose-fruktose-sirup','fruktosesirup','maisstärkesirup','reissirup',
-  'agavendicksaft','agavensirup','honig','bienenhonig',' Birnenmost','birnendicksaft',
+  'agavendicksaft','agavensirup','honig','bienenhonig','birnenmost','birnendicksaft',
   'apfeldicksaft','apfelsaftkonzentrat','malzextrakt','malzodextrin','malz',
   'stevia','steviolglycoside','erythrit','xylit','birkenzucker','sorbit','mannit',
   'isomalt','maltit','tagatose','süßungsmittel','süßstoff',
@@ -42,8 +42,8 @@ const GERMAN = new Set([
   'milchkonzentrat','molkepulver','molke','molkenprotein','molkenproteinpulver',
   'casein','natriumcaseinat','calciumcaseinat','caseinat','micellar casein',
   'käse','hartkäse','weichkäse','schnittkäse','schmelzkäse','käsepulver',
-  ' parmesan','pecorino','grana padano','gouda','emmentaler','bergkäse',
-  'brie','camembert','mozzarella','ricotta','quark',' körnig','hüttenkäse',
+  'parmesan','pecorino','grana padano','gouda','emmentaler','bergkäse',
+  'brie','camembert','mozzarella','ricotta','quark','körnig','hüttenkäse',
   'schichtkäse','smetana','crème fraîche','saure sahne','sauerrahm',
   'joghurt','naturjoghurt','griechischer joghurt','joghurtpulver','joghurtkultur',
   'kefir','kefirpilz','buttermilch','buttermilchpulver','ayran',
@@ -88,7 +88,7 @@ const GERMAN = new Set([
   'zwiebel','zwiebeln','schalotte','schalotten','lauch','porree','lauchzwiebel',
   'knoblauch','knoblauchpulver','knoblauchgranulat',
   'kohl','weißkohl','rotkohl','sauerkraut','krauts','blumenkohl','brokkoli',
-  ' Rosenkohl','wirsing','kopfkohl','rotkohl','staudensellerie','sellerie',
+  'rosenkohl','wirsing','kopfkohl','rotkohl','staudensellerie','sellerie',
   'sellerie','sellerieblätter','selleria','staudenselleriesaft',
   'spargel','chicoree','endivie','radieschen','rettich','meldung','mangold',
   'spinat','tiefkühlspinat','spinatpulver',
@@ -103,7 +103,7 @@ const GERMAN = new Set([
   'kichererbsen','kichererbsenmehl','humus','humus','tahini','sesampaste',
   'sojabohnen','sojabohnenmehl','edamame','sojakeime','sojasprossen',
   'mungobohnen','adzukibohnen','limabohnen','kidneybohnen',
-  'pilze','champignons','pfifferlinge',' Steinpilze','maronen','trüffel',
+  'pilze','champignons','pfifferlinge','steinpilze','maronen','trüffel',
   'sprossen','keimlinge','samen','sprossenmix',
 
   // Obst (roh & verarbeitet)
@@ -116,7 +116,7 @@ const GERMAN = new Set([
   'traube','trauben','traubensaft','weintrauben','rosinen','korinthen',
   'kernen','cranberry','cranberrysaft','preiselbeeren','preiselbeermarmelade',
   'heidelbeere','heidelbeeren','blauberry','brombeere','brombeeren',
-  'himbeere','himbeeren','erdbeere','erdbeeren',' Erdbeermark',
+  'himbeere','himbeeren','erdbeere','erdbeeren','erdbeermark',
   'kirschbaum','kirschen','sauerkirschen','morellen',
   'pfirsich','pfirsiche','nektarine','nectarines','aprikose','aprikosen',
   'pflaume','pflaumen','zwetschge','zwetschgen','mirabelle','mirabellen',
@@ -149,7 +149,7 @@ const GERMAN = new Set([
   'pfeffer','pfefferkorn','schwarzer pfeffer','weißer pfeffer','grüner pfeffer',
   'chili','chiliflocken','chilipulver','cayennepfeffer','chilischote',
   'paprika','edelsüßpaprika','rosenscharfem paprika','paprikapulver',
-  'kurkuma','kurkumaextrakt','curcuma',' curcumin',
+  'kurkuma','kurkumaextrakt','curcuma','curcumin',
   'ingwer','ingwerwurzel','ingwerpulver','ingwerextrakt','candied ginger',
   'knoblauch','knoblauchpulver','knoblauchgranulat',
   'zwiebel','zwiebelpulver','onion powder',
@@ -162,10 +162,10 @@ const GERMAN = new Set([
   'kümmel','kümmelsamen','caraway','kmín',
   'thyme','thymian','rosemary','rosmarin','oregano','basilikum','basil',
   'petersilie','petersil','dill','schnittlauch','baguette','lovage','liebstöckel',
-  'majoran','salbei','minze',' Pfefferminze','menthe','peppermint',
+  'majoran','salbei','minze','pfefferminze','menthe','peppermint',
   'bergkümmel','schwarzkümmel','cumé','cumino',
   'safran','saffron','vanille','vanilleschote','vanilleextrakt','vanillin',
-  'sumach','sumak','agretti','',
+  'sumach','sumak','agretti',
 
   // Gewürzmischungen
   'gewürze','gewürzextrakte','gewürzmischung','curry','masala','garam masala',
@@ -306,7 +306,7 @@ const GERMAN = new Set([
   'rauch','rauch aroma','smoke','wood smoke','rauchflüssigkeit','rauchkondensat',
 
   // Farbstoffe
-  'farbstoff','farbstoffe','lebensmittelfarbe',' lebensmittelfarbstoff',
+  'farbstoff','farbstoffe','lebensmittelfarbe','lebensmittelfarbstoff',
   'annatto','annattoextrakt','bixin','norbixin','e160b',
   'karmin','cochineal','cochinealextrakt','e120','czerw',
   'paprikaextrakt','paprikafarbstoff','capsanthin','e160c',
@@ -314,7 +314,7 @@ const GERMAN = new Set([
   'beta-carotin','betacarotin','e160a','carotin','carotene',
   'lycopin','lycopen','e160d','tomatenfarbstoff',
   'chlorophyll','chlorophyllin','e140','spirulina','e140',
-  'zuckerkulör','caramel','e150a','e150b','e150c','e150d',' ammoniak',
+  'zuckerkulör','caramel','e150a','e150b','e150c','e150d','ammoniak',
   'titandioxid','titanium dioxide','e171','tio2',
   'eisenoxid','eisenoxide','e172','rouge','rot','gelb',
   'riboflavin','vitamin b2','e101','lactoflavin',
@@ -338,7 +338,7 @@ const GERMAN = new Set([
 
   // Sonstige Lebensmittelzutaten
   'backpulver','hefebackpulver','natron','natriumbicarbonat',
-  'ammoniumcarbonat','hirse','ammoniumbicarbonat',' Hirschhornsalz',
+  'ammoniumcarbonat','hirse','ammoniumbicarbonat','hirschhornsalz',
   'stärke','maisstärke','kartoffelstärke','tapiokastärke',
   'tinte','sepia','calamari','calamaritinte',
   'essig','weinessig','apfelessig','balsamico','reissessig',
@@ -370,7 +370,7 @@ const GERMAN = new Set([
   // Meeresalgen (significant for this project)
   'algen','algenmehl','algenextrakt','algenpulver','spirulina','spirulinapulver',
   'chlorella','chlorellapulver','wakame','wakamemehl','nori','norialgen',
-  'dulse',' Irish moss','kelp','kombu','seagrass','seegras',
+  'dulse','irish moss','kelp','kombu','seagrass','seegras',
   'Agar','agar agar','agarine','ascophyllum','ascophyllumm',
 
   // Begleitstoffe / Träger
@@ -626,6 +626,7 @@ function generateENumbers() {
   for (let n = 500; n <= 599; n++) s.add('e' + n);
   for (let n = 600; n <= 699; n++) s.add('e' + n);
   for (let n = 700; n <= 799; n++) s.add('e' + n);
+  for (let n = 800; n <= 899; n++) s.add('e' + n);
   for (let n = 900; n <= 999; n++) s.add('e' + n);
   for (let n = 1100; n <= 1799; n++) s.add('e' + n);
   return s;

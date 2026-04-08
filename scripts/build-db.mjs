@@ -22,16 +22,6 @@ const MIN_NUTRIMENTS = 5;
 // Known placeholder names to reject
 const PLACEHOLDER_NAMES = new Set(['xxx', 'unknown', 'none', 'n/a', 'to be completed', '-']);
 
-// Stop-words — fragments from nutrition tables that survive normalization
-const STOP_WORDS = new Set([
-  'nhrwerte', 'nahrwerte', 'zutaten', 'ingredients', 'inhaltsstoffe',
-  'producent', 'hersteller', 'filledby', 'filled by', 'hinweis', 'portion',
-  'serviervorschlag', 'durchschnitt', 'per 100', 'per portion', 'nr', 'art',
-  'charge', 'mindesthaltbarkeit', 'verbraucher', 'konsumenten', 'erstellt',
-  'hergestellt', 'importeur', 'imported by', 'imported', 'distributed',
-  'distributeur', 'produit en', 'fabrique', 'fabriqué', 'hergestellt',
-]);
-
 function isValidProductName(name) {
   if (!name || typeof name !== 'string') return false;
   const t = name.trim();
@@ -100,10 +90,7 @@ function parseIngredients(text) {
     // Step 10: Lowercase for canonical form
     const canonical = seg.toLowerCase();
 
-    // Step 11: Quick stop-word guard for nutrition-table fragments
-    if (STOP_WORDS.has(canonical)) continue;
-
-    // Step 12: Deduplicate
+    // Step 11: Deduplicate
     if (seen.has(canonical)) continue;
     seen.add(canonical);
 
