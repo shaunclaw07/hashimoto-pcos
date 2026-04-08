@@ -178,7 +178,7 @@ function ProductsPageContent() {
     }
   }, []); // mount only — runs once on initial page load
 
-  async function handleSearch(e?: React.FormEvent, newPage = 1) {
+  const handleSearch = useCallback(async (e?: React.FormEvent, newPage = 1) => {
     e?.preventDefault();
     if (!query.trim()) return;
 
@@ -250,7 +250,7 @@ function ProductsPageContent() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [query, category, router]);
 
   const lastProductRef = useCallback(
     (node: HTMLDivElement | null) => {
@@ -263,10 +263,11 @@ function ProductsPageContent() {
       });
       if (node) observerRef.current.observe(node);
     },
-    [isLoading, hasMore, page]
+    [isLoading, hasMore, page, handleSearch]
   );
 
   function handleReset() {
+    const oldKey = getSessionStorageKey(query.trim(), category); // capture before setters
     setQuery("");
     setResults([]);
     setSearched(false);
@@ -275,7 +276,7 @@ function ProductsPageContent() {
     setTotalCount(0);
     setServerBusy(false);
     accumulatedProductsRef.current = [];
-    sessionStorage.removeItem(getSessionStorageKey(query.trim(), category));
+    sessionStorage.removeItem(oldKey);
     router.push("/products", { scroll: false });
   }
 
