@@ -9,6 +9,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { isKnownIngredient } from './ingredient-data.mjs';
+import { isValidProductName, parseIngredients } from './ingredient-parser.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CSV_PATH = process.argv[2] ?? path.join(__dirname, '..', 'en.openfoodfacts.org.products.csv');
@@ -18,90 +19,6 @@ const DACH_TAGS = new Set(['en:germany', 'en:austria', 'en:switzerland']);
 
 // Minimum number of nutriment fields that must have a valid numeric value
 const MIN_NUTRIMENTS = 5;
-
-// Known placeholder names to reject
-const PLACEHOLDER_NAMES = new Set(['xxx', 'unknown', 'none', 'n/a', 'to be completed', '-']);
-
-function isValidProductName(name) {
-  if (!name || typeof name !== 'string') return false;
-  const t = name.trim();
-  if (t.length < 2) return false;
-  if (PLACEHOLDER_NAMES.has(t.toLowerCase())) return false;
-  return true;
-}
-
-// ── Ingredient Parsing ──────────────────────────────────────────────────────────
-
-/**
- * Parses an ingredients_text string into normalized ingredient segments.
- * Strategy: aggressive normalization + whitelist validation.
- * Only segments matching a known ingredient are kept.
- */
-function parseIngredients(text) {
-  if (!text || typeof text !== 'string') return [];
-
-  // Split on comma, semicolon, or colon (used in "Säuerungsmittel: Citronensäure" patterns)
-  const segments = text.split(/[,;:]/);
-  const seen = new Set();
-  const result = [];
-
-  for (const rawSegment of segments) {
-    let seg = rawSegment.trim();
-    if (!seg) continue;
-
-    // Step 1: Strip parenthetical content (quantities, percentages, descriptions)
-    // Handles nested parens by repeating until stable
-    let prev;
-    do {
-      prev = seg;
-      seg = seg.replace(/\s*\([^)]*\)\s*/g, ' ').trim();
-    } while (seg !== prev && seg.includes('('));
-
-    // Step 2: Remove trailing percentages: "13,8%", "4.1%", "5 %", "0,0%"
-    seg = seg.replace(/\d+[,.]?\d*\s*%\s*/g, '').trim();
-
-    // Step 3: Normalize internal hyphens: "Soja - protein" → "Sojaprotein"
-    seg = seg.replace(/([a-zäöüß])\s*-\s+([a-zäöüß])/gi, '$1$2').trim();
-    // Also handle "Raps - Öl" → "RapsÖl" (uppercase-lowercase)
-    seg = seg.replace(/([a-zäöüß])\s+-\s+([A-ZÄÖÜ])/g, '$1$2').trim();
-
-    // Step 4: Remove encoding artifacts — isolated hyphen between lowercase chars
-    // "ent - ölt" → "entölt", "4% - protein" → "protein"
-    seg = seg.replace(/([a-zäöüß])\s*-\s+(?=[a-zäöüß])/gi, '$1').trim();
-
-    // Step 5: Collapse multiple spaces, dashes, underscores
-    seg = seg.replace(/\s{2,}/g, ' ').replace(/[_—–-]{2,}/g, ' ').trim();
-
-    // Step 6: Clean Unicode artifacts: ×, •, °, ©, ®, ™, ¹, ², ³, etc.
-    seg = seg.replace(/[×•°©®™¹²³⁴⁵⁶⁷⁸⁹@#$%^&®]+/g, ' ').trim();
-
-    // Step 7: Strip E-number format: "E 412", "e 500" → "e412"
-    seg = seg.replace(/^e\s*(\d+[a-z]?)\s*$/i, 'e$1').trim();
-
-    // Step 8: Remove any remaining digits-only or digit-starting tokens
-    // These are nutrition table fragments
-    seg = seg.replace(/^[\d,.]+\s*/g, '').trim();
-    if (!seg || /^\d+$/.test(seg)) continue;
-
-    // Step 9: Remove segments that are clearly garbage
-    if (seg.length < 2) continue;
-    if (/^[^a-zäöüß]+$/i.test(seg)) continue; // only symbols/letters
-
-    // Step 10: Lowercase for canonical form
-    const canonical = seg.toLowerCase();
-
-    // Step 11: Deduplicate
-    if (seen.has(canonical)) continue;
-    seen.add(canonical);
-
-    // Step 13: Whitelist check — the primary filter
-    if (!isKnownIngredient(canonical)) continue;
-
-    result.push({ raw: rawSegment.trim(), canonical });
-  }
-
-  return result;
-}
 
 const NUTRIMENT_FIELDS = [
   'energy-kcal_100g',
