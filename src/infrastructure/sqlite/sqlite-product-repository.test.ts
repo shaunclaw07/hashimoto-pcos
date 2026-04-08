@@ -130,4 +130,42 @@ describe("SqliteProductRepository", () => {
       consoleSpy.mockRestore();
     });
   });
+
+  describe("findIngredientsByBarcode", () => {
+    it("returns ingredient names in position order", async () => {
+      const rows = [{ name: "zucker" }, { name: "wasser" }, { name: "salz" }];
+      mockPrepare.mockReturnValue({ all: vi.fn(() => rows) });
+
+      repo = new SqliteProductRepository();
+      const result = await repo.findIngredientsByBarcode("1234567890123");
+
+      expect(result).toEqual(["zucker", "wasser", "salz"]);
+    });
+
+    it("returns empty array when no ingredients found", async () => {
+      mockPrepare.mockReturnValue({ all: vi.fn(() => []) });
+
+      repo = new SqliteProductRepository();
+      const result = await repo.findIngredientsByBarcode("0000000000000");
+
+      expect(result).toEqual([]);
+    });
+
+    it("returns empty array and logs error when DB throws", async () => {
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      mockPrepare.mockReturnValue({
+        all: vi.fn(() => { throw new Error("DB error"); }),
+      });
+
+      repo = new SqliteProductRepository();
+      const result = await repo.findIngredientsByBarcode("1234567890123");
+
+      expect(result).toEqual([]);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining("findIngredientsByBarcode"),
+        expect.any(Error)
+      );
+      consoleSpy.mockRestore();
+    });
+  });
 });

@@ -8,6 +8,7 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { parseIngredients } from './ingredient-parser.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CSV_PATH = process.argv[2] ?? path.join(__dirname, '..', 'en.openfoodfacts.org.products.csv');
@@ -16,7 +17,7 @@ const DB_PATH = path.join(__dirname, '..', 'data', 'products.db');
 const DACH_TAGS = new Set(['en:germany', 'en:austria', 'en:switzerland']);
 
 // Minimum number of nutriment fields that must have a valid numeric value
-const MIN_NUTRIMENTS = 3;
+const MIN_NUTRIMENTS = 5;
 
 const NUTRIMENT_FIELDS = [
   'energy-kcal_100g',
@@ -66,7 +67,7 @@ db.pragma('synchronous = NORMAL');
 db.exec(`
   CREATE TABLE products (
     barcode          TEXT PRIMARY KEY,
-    product_name     TEXT,
+    product_name     TEXT NOT NULL,
     brands           TEXT,
     image_url        TEXT,
     nutriscore_grade TEXT,
@@ -84,6 +85,20 @@ db.exec(`
     brands,
     content='products',
     content_rowid='rowid'
+  );
+  CREATE TABLE ingredients (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    name      TEXT NOT NULL UNIQUE
+  );
+  CREATE TABLE product_ingredients (
+    barcode        TEXT NOT NULL,
+    ingredient_id  INTEGER NOT NULL,
+    raw_text       TEXT NOT NULL,
+    position       INTEGER NOT NULL,
+    FOREIGN KEY (barcode) REFERENCES products(barcode) ON DELETE CASCADE,
+    FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE,
+    PRIMARY KEY (barcode, position),
+    UNIQUE (barcode, ingredient_id)
   );
 `);
 
@@ -106,6 +121,28 @@ const stmtFts = db.prepare(`
   )
 `);
 
+// Pre-load existing ingredients for O(1) lookup (populated during bulk insert)
+const ingredientIdByName = new Map();
+const stmtUpsertIngredient = db.prepare(`
+  INSERT OR IGNORE INTO ingredients(name) VALUES (?)
+`);
+const stmtGetIngredientId = db.prepare(`SELECT id FROM ingredients WHERE name = ?`);
+const stmtInsertPI = db.prepare(`
+  INSERT OR IGNORE INTO product_ingredients(barcode, ingredient_id, raw_text, position)
+  VALUES (?, ?, ?, ?)
+`);
+
+function upsertIngredient(canonical) {
+  let id = ingredientIdByName.get(canonical);
+  if (id !== undefined) return id;
+
+  stmtUpsertIngredient.run(canonical);
+  const row = stmtGetIngredientId.get(canonical);
+  id = row.id;
+  ingredientIdByName.set(canonical, id);
+  return id;
+}
+
 const insertBatch = db.transaction((rows) => {
   for (const row of rows) {
     stmtInsert.run(row);
@@ -114,17 +151,29 @@ const insertBatch = db.transaction((rows) => {
       product_name: row.product_name ?? '',
       brands: row.brands ?? '',
     });
+
+    // Parse and insert normalized ingredients
+    if (row.ingredients_text) {
+      const parsed = parseIngredients(row.ingredients_text);
+      for (let i = 0; i < parsed.length; i++) {
+        const { raw, canonical } = parsed[i];
+        const ingId = upsertIngredient(canonical);
+        stmtInsertPI.run(row.barcode, ingId, raw, i);
+      }
+      ingredientTotal += parsed.length;
+    }
   }
 });
 
 // ── Stream CSV ────────────────────────────────────────────────────────────────
 let total = 0;
 let inserted = 0;
+let ingredientTotal = 0;
 const batch = [];
 const BATCH_SIZE = 1000;
 
 console.log(`Reading: ${CSV_PATH}`);
-console.log(`Filtering DACH products (DE/AT/CH) with valid EAN-13 barcodes and ≥${MIN_NUTRIMENTS} nutriments...\n`);
+console.log(`Filtering DACH products (DE/AT/CH) with valid EAN-13 barcodes, ≥${MIN_NUTRIMENTS} nutriments, and non-empty product name...\n`);
 
 const parser = createReadStream(CSV_PATH).pipe(
   parse({
@@ -145,6 +194,10 @@ for await (const r of parser) {
   if (!isValidEan13(r.code)) continue;
   if (!isDach(r.countries_tags)) continue;
 
+  // Use German product name if available, else fallback
+  const productName = r.product_name_de || r.product_name || null;
+  if (!isValidProductName(productName)) continue;
+
   const { values, count } = parseNutriments(r);
   if (count < MIN_NUTRIMENTS) continue;
 
@@ -161,7 +214,7 @@ for await (const r of parser) {
 
   batch.push({
     barcode:          r.code,
-    product_name:     r.product_name_de || r.product_name || null,
+    product_name:     productName,
     brands:           r.brands          || null,
     image_url:        r.image_front_small_url || r.image_small_url || r.image_url || null,
     nutriscore_grade: r.nutriscore_grade || null,
@@ -187,7 +240,8 @@ if (batch.length > 0) {
 }
 
 db.close();
-console.log(`\n\nFertig!`);
-console.log(`  CSV-Zeilen verarbeitet      : ${total.toLocaleString('de-DE')}`);
-console.log(`  DACH-Produkte inserted      : ${inserted.toLocaleString('de-DE')} (≥${MIN_NUTRIMENTS} Nährwerte)`);
-console.log(`  Datenbank                   : ${DB_PATH}`);
+console.log(`\n\nDone!`);
+console.log(`  CSV rows processed          : ${total.toLocaleString()}`);
+console.log(`  DACH products inserted      : ${inserted.toLocaleString()} (≥${MIN_NUTRIMENTS} nutriments, valid name)`);
+console.log(`  Ingredient mappings         : ${ingredientTotal.toLocaleString()}`);
+console.log(`  Database                    : ${DB_PATH}`);

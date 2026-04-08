@@ -518,6 +518,63 @@ No secrets or API keys required. The OpenFoodFacts API is fully public.
 
 ---
 
+## Lessons Learned from PR #62 (Ingredient Normalization)
+
+These rules were added after a code review uncovered blocking issues in PR #62. Follow them to avoid repeating the same mistakes.
+
+### ESM vs CommonJS in Config Files
+
+**Never add `"type": "module"` to `package.json`** to make a script ESM-compatible. Instead, use the `.mjs` extension for scripts that need ESM features (like `import`/`export`). This avoids breaking `better-sqlite3`, Next.js config files, and other CommonJS modules that don't support ESM.
+
+- Scripts that need ESM: `scripts/*.mjs` (e.g., `ingredient-data.mjs`, `build-db.mjs`)
+- Config files (`.js` extension): always use `module.exports = ...` (CommonJS), never `export default`
+
+### Hexagonal Architecture — Port Interface Completeness
+
+**Every method on an implementation class must be declared on its port interface first.** Adding a method to `SqliteProductRepository` without declaring it on `IProductRepository` violates the dependency-inversion rule and causes TypeScript errors.
+
+Rule: `infrastructure/` implementations → `core/ports/` interfaces → `core/` domain. Never add implementation methods that aren't in the interface.
+
+### TDD for All New Code (Including Scripts)
+
+**Pure functions in `scripts/` require unit tests just like `src/` code.** When extracting functions from a script (e.g., `parseIngredients`, `isValidProductName`), create a `*.test.mjs` alongside the module and add the `scripts/**/*.test.mjs` pattern to `vitest.config.ts` include array.
+
+This ensures script logic is testable and doesn't become untested dead code.
+
+### Database Cache Pattern Correctness
+
+**When a cache hit returns the ID directly, do not do a redundant DB round-trip.** The correct pattern:
+
+```javascript
+function upsertIngredient(canonical) {
+  let id = ingredientIdByName.get(canonical);
+  if (id !== undefined) return id; // cache hit — return immediately
+  stmtUpsertIngredient.run(canonical);
+  const row = stmtGetIngredientId.get(canonical);
+  id = row.id;
+  ingredientIdByName.set(canonical, id);
+  return id;
+}
+```
+
+The wrong pattern (cache hit still does SELECT): calling `stmtGetIngredientId.get()` inside the `if (id !== undefined)` block after already having `id`.
+
+### Database Schema — Composite PK for Repeated Values
+
+**When a table models a one-to-many relationship where the "many" side can contain duplicate foreign keys (e.g., same ingredient appearing twice in a product's ingredient list), use `(parent_id, position)` as the PRIMARY KEY with a separate `UNIQUE (parent_id, foreign_key)` constraint.**
+
+Wrong: `PRIMARY KEY (barcode, ingredient_id)` — silently drops rows with duplicate `(barcode, ingredient_id)`.
+Right: `PRIMARY KEY (barcode, position)` with `UNIQUE (barcode, ingredient_id)` — allows repeated ingredients via position, deduplicates via `INSERT OR IGNORE`.
+
+### Data Hygiene — Whitelist & Enum Ranges
+
+- **No leading/trailing spaces** in set/array entries (causes entries to be missed during lookups)
+- **No empty strings** in sets (break iteration and lookups)
+- **Complete E-number ranges**: when generating E-numbers programmatically, cover all valid EU ranges (E100–E199, E200–E299, …, E800–E899, E900–E999, E1100–E1799)
+- **STOP_WORDS is dead code** when a whitelist check (step 13) already filters garbage — don't add redundant guards
+
+---
+
 ## What Does NOT Exist (Don't Add Without Discussion)
 
 - No ORM (no Prisma, no Drizzle) — raw `better-sqlite3` only
