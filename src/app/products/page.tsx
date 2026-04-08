@@ -119,7 +119,17 @@ function ProductsPageContent() {
       const params = new URLSearchParams(window.location.search);
       const q = params.get("q") ?? "";
       const cat = params.get("category") ?? "all";
-      if (!q) return;
+      if (!q) {
+        // User navigated back to the empty search page — clear all search state
+        setResults([]);
+        setSearched(false);
+        setQuery("");
+        setCategory("all");
+        setPage(1);
+        setHasMore(false);
+        setTotalCount(0);
+        return;
+      }
 
       setQuery(q);
       setCategory(cat);
