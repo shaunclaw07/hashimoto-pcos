@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { mockSearchApi } from '../tests/helpers/mock-api';
-import gut from '../tests/fixtures/products/gut.json' with { type: 'json' };
-import neutral from '../tests/fixtures/products/neutral.json' with { type: 'json' };
-import vermeiden from '../tests/fixtures/products/vermeiden.json' with { type: 'json' };
-import sehrGut from '../tests/fixtures/products/sehr-gut.json' with { type: 'json' };
-import wenigerGut from '../tests/fixtures/products/weniger-gut.json' with { type: 'json' };
+import gut from '../tests/fixtures/products/gut.json';
+import neutral from '../tests/fixtures/products/neutral.json';
+import vermeiden from '../tests/fixtures/products/vermeiden.json';
+import sehrGut from '../tests/fixtures/products/sehr-gut.json';
+import wenigerGut from '../tests/fixtures/products/weniger-gut.json';
 
 const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
 

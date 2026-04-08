@@ -67,7 +67,7 @@ export function parseIngredients(text) {
     if (seen.has(canonical)) continue;
     seen.add(canonical);
 
-    // Step 13: Whitelist check
+    // Step 12: Whitelist check
     if (!isKnownIngredient(canonical)) continue;
 
     result.push({ raw: rawSegment.trim(), canonical });
