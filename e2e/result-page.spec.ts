@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { mockProductApi, mockProductNotFound } from '../tests/helpers/mock-api';
-import vermeiden from '../tests/fixtures/products/vermeiden.json' with { type: 'json' };
+import vermeiden from '../tests/fixtures/products/vermeiden.json';
 
 const VALID_BARCODE = vermeiden.barcode;       // 0009800895007 — Hazelnut Spread (nutella)
 const INVALID_BARCODE = '9999999999999';
