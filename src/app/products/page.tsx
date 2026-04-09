@@ -44,6 +44,7 @@ interface ApiSearchResponse {
   products: Product[];
   count: number;
   page: number;
+  hasMore: boolean;
 }
 
 async function searchProducts(
@@ -223,7 +224,7 @@ function ProductsPageContent() {
 
     try {
       const result = await searchProducts(effectiveQuery, effectiveCategory, newPage);
-      const pageHasMore = result.products.length === PAGE_SIZE;
+      const pageHasMore = result.hasMore;
       if (newPage === 1) {
         // Reset accumulator on new search
         accumulatedProductsRef.current = result.products;

@@ -79,16 +79,32 @@ test.describe('Search page (/products)', () => {
   });
 
   test('infinite_scroll_loads_more', async ({ page }) => {
-    await mockSearchApi(page, MOCK_PRODUCTS);
+    // Page 1: exactly PAGE_SIZE (50) products → hasMore = true
+    const page1Products = Array.from({ length: 50 }, (_, i) => ({
+      ...gut,
+      barcode: `000000000${String(i).padStart(4, '0')}`,
+      code: `000000000${String(i).padStart(4, '0')}`,
+    }));
+    // Page 2: fewer than PAGE_SIZE → hasMore = false
+    const page2Products = [{ ...neutral, code: neutral.barcode }];
+
+    await page.route('**/api/products/search*', async (route) => {
+      const url = new URL(route.request().url());
+      const p = url.searchParams.get('page') ?? '1';
+      const products = p === '1' ? page1Products : page2Products;
+      await route.fulfill({
+        json: { products, count: 51, page: Number(p), hasMore: p === '1' },
+      });
+    });
+
     await page.getByRole('textbox', { name: /suchen/i }).fill('Milch');
     await page.getByRole('button', { name: /suchen/i }).click();
-    const firstResults = page.locator('a[href^="/result/"]');
-    await expect(firstResults.first()).toBeVisible({ timeout: 5000 });
-    const initialCount = await firstResults.count();
+    await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 5000 });
+    const initialCount = await page.locator('a[href^="/result/"]').count();
+    expect(initialCount).toBe(50);
+
     await page.locator('a[href^="/result/"]').last().scrollIntoViewIfNeeded();
-    await page.waitForTimeout(1000);
-    const finalCount = await firstResults.count();
-    expect(finalCount).toBeGreaterThanOrEqual(initialCount);
+    await expect(page.locator('a[href^="/result/"]')).toHaveCount(51, { timeout: 5000 });
   });
 
   test('product_card_navigates_to_result', async ({ page }) => {
