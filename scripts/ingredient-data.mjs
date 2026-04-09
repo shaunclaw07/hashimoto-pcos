@@ -180,7 +180,7 @@ const GERMAN = new Set([
   'kakaopulver','kakao','kakaomasse','kakaobutter','kakaogranulat','cacao',
   'cacaopulver','cacaomasse','rohkakao','kakaoextrakt',
   'schokolade','zartbitterschokolade','vollmilchschokolade','blockschokolade','schokoladenflocken','kuvertüre',
-  'kuvertüre','schokoladenkuvertüre','schokoladenmasse',
+  'schokoladenkuvertüre','schokoladenmasse',
   'malzkaffee','malzextrakt','malzkaffee','cerealienkaffee',
   'gerstenmalz','gerstenextrakt','hopfen','hopfenextrakt',
   'rosmarinnextrakt','rosmarin','rosmarin-extrakt',
@@ -243,7 +243,7 @@ const GERMAN = new Set([
   // Lebensmittelzusatzstoffe (legitim)
   'lecithin','sojalecithin','sonnenblumenlecithin','rapslecithin','raps-lecithin',
   'emulgator','emulgatoren',
-  'säuerungsmittel','säuerungsmittel: citronensäure','citronensäure','zitronensäure',
+  'säuerungsmittel','citronensäure','zitronensäure',
   'äpfelsäure','weinsäure','milchsäure','fumarsäure','phosphorsäure',
   'natriumcitrat','kaliumcitrat','calciumcitrat',
   'natriumcarbonat','natriumhydrogencarbonat','soda','natron',
