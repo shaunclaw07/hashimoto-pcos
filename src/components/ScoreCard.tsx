@@ -210,7 +210,7 @@ export function ScoreCard({
         {product.ingredientsList && product.ingredientsList.length > 0 ? (
           <>
             <p className="text-base text-foreground leading-relaxed">
-              {product.ingredientsList.join(", ")}
+              {product.ingredientsList.map(i => i.charAt(0).toUpperCase() + i.slice(1)).join(", ")}
             </p>
             <div className="flex items-start gap-2 mt-3 rounded-lg bg-muted/50 px-4 py-3">
               <Info className="h-5 w-5 shrink-0 mt-0.5 text-muted-foreground" />
