@@ -9,6 +9,8 @@ interface UsePullToRefreshOptions {
   threshold?: number;
   /** Maximum distance (in px) the indicator can be pulled */
   maxPullDistance?: number;
+  /** Resistance factor for pull (0-1, default: 0.5) - higher = more resistance */
+  resistance?: number;
   /** Whether pull-to-refresh is enabled */
   enabled?: boolean;
 }
@@ -32,6 +34,7 @@ export function usePullToRefresh({
   onRefresh,
   threshold = 80,
   maxPullDistance = 120,
+  resistance = 0.5,
   enabled = true,
 }: UsePullToRefreshOptions): {
   state: PullToRefreshState;
@@ -52,6 +55,12 @@ export function usePullToRefresh({
   const containerRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
   const isDraggingRef = useRef(false);
+  const isRefreshingRef = useRef(false);
+
+  // Keep ref in sync with state to avoid stale closures
+  useEffect(() => {
+    isRefreshingRef.current = state.isRefreshing;
+  }, [state.isRefreshing]);
 
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
@@ -82,16 +91,16 @@ export function usePullToRefresh({
       if (diff < 0) return;
 
       // Apply resistance to the pull
-      const resistedDistance = Math.min(diff * 0.5, maxPullDistance);
+      const resistedDistance = Math.min(diff * resistance, maxPullDistance);
 
       setState({
         pullDistance: resistedDistance,
         isPulling: true,
-        isRefreshing: state.isRefreshing,
+        isRefreshing: isRefreshingRef.current,
         canRelease: resistedDistance >= threshold,
       });
     },
-    [enabled, maxPullDistance, threshold, state.isRefreshing]
+    [enabled, maxPullDistance, threshold, resistance]
   );
 
   const handleTouchEnd = useCallback(async () => {
@@ -142,6 +151,8 @@ export function usePullToRefresh({
       }
     };
 
+    // Note: passive: false is required to prevent default scroll during pull gesture
+    // This is an intentional trade-off for the pull-to-refresh UX
     container.addEventListener("touchmove", preventScroll, { passive: false });
 
     return () => {

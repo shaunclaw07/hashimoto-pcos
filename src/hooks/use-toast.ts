@@ -2,6 +2,9 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 
+// Counter for generating unique toast IDs (avoids Math.random() collisions)
+let toastCounter = 0;
+
 export interface ToastOptions {
   /** Message to display */
   message: string;
@@ -58,7 +61,7 @@ export function useToast() {
         clearTimeout(timeoutRef.current);
       }
 
-      const id = Math.random().toString(36).substring(2, 9);
+      const id = `${Date.now()}-${toastCounter++}`;
       currentIdRef.current = id;
 
       setToast({

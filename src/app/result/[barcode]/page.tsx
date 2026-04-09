@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { ScoreCard } from "@/components/ScoreCard";
 import type { Product } from "@/core/domain/product";
@@ -23,6 +23,7 @@ export default function ResultPage() {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [pendingRemoval, setPendingRemoval] = useState(false);
+  const pendingRemovalRef = useRef(false);
   const { profile, isLoaded: profileLoaded } = useUserProfile();
   const { toast, show, dismiss, handleAction } = useToast();
 
@@ -71,6 +72,7 @@ export default function ResultPage() {
 
     if (saved) {
       // Show pending removal state
+      pendingRemovalRef.current = true;
       setPendingRemoval(true);
 
       // Show toast with undo option
@@ -79,6 +81,7 @@ export default function ResultPage() {
         actionLabel: "Rückgängig",
         onAction: () => {
           // Undo - restore the saved state
+          pendingRemovalRef.current = false;
           setPendingRemoval(false);
         },
         duration: 3000,
@@ -87,14 +90,12 @@ export default function ResultPage() {
 
       // Actually remove after delay if not undone
       setTimeout(() => {
-        setPendingRemoval((isPending) => {
-          if (isPending) {
-            favUseCase.remove(barcode);
-            setSaved(false);
-            return false;
-          }
-          return false;
-        });
+        if (pendingRemovalRef.current) {
+          favUseCase.remove(barcode);
+          setSaved(false);
+        }
+        pendingRemovalRef.current = false;
+        setPendingRemoval(false);
       }, 3000);
     } else {
       favUseCase.save(barcode, product, scoreResult);
