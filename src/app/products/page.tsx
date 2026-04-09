@@ -22,7 +22,7 @@ const CATEGORIES = [
 ];
 
 const SEARCH_URL = "/api/products/search";
-const PAGE_SIZE = 25;
+const PAGE_SIZE = 50;
 
 const SESSION_STORAGE_KEY_PREFIX = "search-results";
 
