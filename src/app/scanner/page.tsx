@@ -3,12 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Scanner } from "@/components/Scanner";
+import { LoadingOverlay } from "@/components/loading-overlay";
 import { Camera, Keyboard, AlertCircle, Loader2 } from "lucide-react";
 
 export default function ScannerPage() {
   const router = useRouter();
   const [scanMode, setScanMode] = useState<"camera" | "manual">("camera");
   const [barcode, setBarcode] = useState("");
+  const [detectedBarcode, setDetectedBarcode] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scannerError, setScannerError] = useState<string | null>(null);
@@ -20,6 +22,7 @@ export default function ScannerPage() {
   async function handleBarcodeDetected(code: string) {
     if (isLoading) return;
     setIsLoading(true);
+    setDetectedBarcode(code);
     setError(null);
 
     try {
@@ -35,12 +38,14 @@ export default function ScannerPage() {
             ? "Ungültiger Barcode. Bitte gib eine gültige EAN-Nummer ein."
             : "Fehler bei der Suche. Bitte erneut versuchen."
         );
+        setDetectedBarcode(null);
       } else {
         router.push(`/result/${code}`);
         return;
       }
     } catch {
       setError("Fehler bei der Suche. Bitte erneut versuchen.");
+      setDetectedBarcode(null);
     } finally {
       setIsLoading(false);
     }
@@ -58,6 +63,13 @@ export default function ScannerPage() {
 
   return (
     <div className="min-h-screen px-5 py-8">
+      {/* Loading overlay - blocks camera during product lookup */}
+      <LoadingOverlay
+        isVisible={isLoading}
+        barcode={detectedBarcode ?? undefined}
+        message="Produkt wird geladen..."
+      />
+
       <h1 className="mb-8 text-3xl font-bold text-foreground">Scanner</h1>
 
       {/* Mode Toggle */}
