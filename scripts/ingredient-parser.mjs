@@ -183,6 +183,10 @@ export function parseIngredients(text) {
     // Step 12: Whitelist check
     if (!isKnownIngredient(canonical)) continue;
 
+    // Step 12b: Skip standalone functional labels (they only have meaning
+    // alongside a specific ingredient after a colon, not as bare ingredients)
+    if (FUNCTIONAL_LABELS.has(canonical)) continue;
+
     result.push({ raw: rawSegment.trim(), canonical });
   }
 
