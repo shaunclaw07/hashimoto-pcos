@@ -121,8 +121,9 @@ export function parseIngredients(text) {
           segments.push(label, specific);
         }
       } else {
-        // Multiple colons — fall back to naive split
-        segments.push(...token.split(':'));
+        // Multiple colons — fall back to naive split, but skip functional labels
+        const parts = token.split(':').filter(p => !FUNCTIONAL_LABELS.has(p.trim().toLowerCase()));
+        segments.push(...parts);
       }
     } else {
       segments.push(token);
