@@ -94,7 +94,7 @@ test.describe('Result page (/result/[barcode])', () => {
   test('ingredients_list_displayed_when_available', async ({ page }) => {
     await mockProductApi(page, VALID_BARCODE, vermeiden);
     await page.goto(`/result/${VALID_BARCODE}`);
-    await expect(page.getByText('Zutaten')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('heading', { name: 'Zutaten' })).toBeVisible({ timeout: 5000 });
     await expect(page.getByText(/sugar, palm oil, hazelnuts/i)).toBeVisible({ timeout: 5000 });
   });
 });

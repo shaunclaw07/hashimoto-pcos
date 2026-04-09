@@ -208,9 +208,17 @@ export function ScoreCard({
           Zutaten
         </h3>
         {product.ingredientsList && product.ingredientsList.length > 0 ? (
-          <p className="text-base text-foreground leading-relaxed">
-            {product.ingredientsList.join(", ")}
-          </p>
+          <>
+            <p className="text-base text-foreground leading-relaxed">
+              {product.ingredientsList.join(", ")}
+            </p>
+            <div className="flex items-start gap-2 mt-3 rounded-lg bg-muted/50 px-4 py-3">
+              <Info className="h-5 w-5 shrink-0 mt-0.5 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Es ist nicht gewährleistet, dass die Liste der Zutaten vollständig ist. Bitte prüfen Sie im Zweifelsfall selber nochmal das Produkt.
+              </p>
+            </div>
+          </>
         ) : (
           <div className="flex items-start gap-2.5 rounded-lg bg-muted/50 px-4 py-3">
             <Info className="h-5 w-5 shrink-0 mt-0.5 text-muted-foreground" />
