@@ -208,7 +208,8 @@ test.describe('Search page (/products)', () => {
     await page.getByRole('button', { name: /suchen/i }).click();
     await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 5000 });
 
-    // Switch category — mock now returns only 1 different product
+    // Switch category — unroute the previous handler first to avoid Playwright route ordering issues
+    await page.unroute('**/api/products/search*');
     await mockSearchApi(page, [gut]);
     await page.getByRole('button', { name: 'Gemüse' }).click();
 
@@ -233,5 +234,7 @@ test.describe('Search page (/products)', () => {
     await mockSearchApi(page, MOCK_PRODUCTS);
     await page.getByRole('button', { name: 'Gemüse' }).click();
     await expect(page.getByRole('button', { name: 'Gemüse' })).toHaveClass(/bg-primary/);
+    // Ensure previously-active "Alle" loses its highlight (mutual exclusivity)
+    await expect(page.getByRole('button', { name: 'Alle' })).not.toHaveClass(/bg-primary/);
   });
 });
