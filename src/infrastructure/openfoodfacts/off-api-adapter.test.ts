@@ -165,6 +165,20 @@ describe("OffApiAdapter: mappers", () => {
     expect(product?.ingredientsList).toEqual(["Zucker", "Wasser", "Salz"]);
   });
 
+  it("mappt ingredients_text zu ingredientsList (semicolon-separated)", async () => {
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        status: 1,
+        product: { product_name: "Test", ingredients_text: "Zucker; Wasser; Salz" },
+      }),
+    } as Response);
+
+    const adapter = new OffApiAdapter();
+    const product = await adapter.findByBarcode("5000159484695");
+    expect(product?.ingredientsList).toEqual(["Zucker", "Wasser", "Salz"]);
+  });
+
   it("omits ingredientsList when ingredients_text is empty", async () => {
     global.fetch = vi.fn().mockResolvedValueOnce({
       ok: true,

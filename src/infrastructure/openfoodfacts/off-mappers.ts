@@ -17,9 +17,9 @@ function mapNutriments(off: OffNutriments | undefined): Nutriments {
 
 function parseIngredientsList(ingredientsText: string | undefined): string[] | undefined {
   if (!ingredientsText) return undefined;
-  // Split by comma or newline, trim each, filter empty strings
+  // Split by comma, semicolon, or newline, trim each, filter empty strings
   const list = ingredientsText
-    .split(/[,\n]/)
+    .split(/[,;\n]/)
     .map((s) => s.trim())
     .filter(Boolean);
   return list.length > 0 ? list : undefined;

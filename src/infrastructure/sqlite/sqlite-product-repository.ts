@@ -138,7 +138,7 @@ export class SqliteProductRepository implements IProductRepository {
       }
 
       return {
-        products: rows.map(mapDbRowToProduct),
+        products: rows.map((row) => mapDbRowToProduct(row)),
         total: count,
         page,
       };
@@ -148,7 +148,7 @@ export class SqliteProductRepository implements IProductRepository {
     }
   }
 
-  async findIngredientsByBarcode(barcode: string): Promise<string[]> {
+  private async findIngredientsByBarcode(barcode: string): Promise<string[]> {
     try {
       const rows = getDb()
         .prepare(

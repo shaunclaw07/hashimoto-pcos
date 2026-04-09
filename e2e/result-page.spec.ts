@@ -97,4 +97,14 @@ test.describe('Result page (/result/[barcode])', () => {
     await expect(page.getByRole('heading', { name: 'Zutaten' })).toBeVisible({ timeout: 5000 });
     await expect(page.getByText(/sugar, palm oil, hazelnuts/i)).toBeVisible({ timeout: 5000 });
   });
+
+  test('no_ingredients_info_message_when_ingredientslist_missing', async ({ page }) => {
+    const productWithoutIngredients = { ...vermeiden };
+    // @ts-expect-error — deliberately removing ingredientsList for test
+    delete productWithoutIngredients.ingredientsList;
+    await mockProductApi(page, VALID_BARCODE, productWithoutIngredients);
+    await page.goto(`/result/${VALID_BARCODE}`);
+    await expect(page.getByRole('heading', { name: 'Zutaten' })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/Es sind keine Zutaten zu dem Produkt gespeichert/i)).toBeVisible({ timeout: 5000 });
+  });
 });

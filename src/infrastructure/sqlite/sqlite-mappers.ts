@@ -20,8 +20,8 @@ function parseNutriments(json: string | null): Nutriments {
   }
 }
 
-export function mapDbRowToProduct(row: DbProductRow, ingredientsList?: string[] | number): Product {
-  const list = Array.isArray(ingredientsList) ? ingredientsList : undefined;
+export function mapDbRowToProduct(row: DbProductRow, ingredientsList?: string[]): Product {
+  const list = ingredientsList && ingredientsList.length > 0 ? ingredientsList : undefined;
   return {
     barcode: row.barcode,
     name: row.product_name ?? "",
