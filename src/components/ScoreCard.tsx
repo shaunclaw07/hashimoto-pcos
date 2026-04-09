@@ -203,16 +203,23 @@ export function ScoreCard({
       </div>
 
       {/* Ingredients List */}
-      {product.ingredientsList && product.ingredientsList.length > 0 && (
-        <div className="border-t border-border px-5 py-5">
-          <h3 className="mb-4 text-base font-semibold text-foreground">
-            Zutaten
-          </h3>
+      <div className="border-t border-border px-5 py-5">
+        <h3 className="mb-4 text-base font-semibold text-foreground">
+          Zutaten
+        </h3>
+        {product.ingredientsList && product.ingredientsList.length > 0 ? (
           <p className="text-base text-foreground leading-relaxed">
             {product.ingredientsList.join(", ")}
           </p>
-        </div>
-      )}
+        ) : (
+          <div className="flex items-start gap-2.5 rounded-lg bg-muted/50 px-4 py-3">
+            <Info className="h-5 w-5 shrink-0 mt-0.5 text-muted-foreground" />
+            <p className="text-base text-muted-foreground leading-relaxed">
+              Es sind keine Zutaten zu dem Produkt gespeichert! Dadurch können bestimmte Inhaltsstoffe nicht in die Bewertung einfließen.
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Action Buttons */}
       <div className="flex gap-3 border-t border-border p-5">
