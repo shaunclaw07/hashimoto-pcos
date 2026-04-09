@@ -56,7 +56,7 @@ export class SqliteProductRepository implements IProductRepository {
         .get(barcode) as DbProductRow | undefined;
       if (!row) return null;
       const ingredientsList = await this.findIngredientsByBarcode(barcode);
-      return mapDbRowToProduct(row, ingredientsList.length > 0 ? ingredientsList : undefined);
+      return mapDbRowToProduct(row, ingredientsList);
     } catch (err) {
       console.error("[SqliteProductRepository] findByBarcode failed:", err);
       return null;
