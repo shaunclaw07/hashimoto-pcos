@@ -52,7 +52,13 @@ test.describe('localStorage / Persistence', () => {
     await mockProductApi(page, vermeiden.barcode, vermeiden);
     await page.goto(`/result/${vermeiden.barcode}`);
     await page.getByRole('button', { name: /speichern/i }).click();
+    await expect(page.getByRole('button', { name: /gespeichert/i })).toBeVisible({ timeout: 3000 });
+
+    // Click to remove - this shows toast with 3-second delay
     await page.getByRole('button', { name: /gespeichert/i }).click();
+
+    // Wait for the toast delay (3s) + animation (300ms) + buffer
+    await page.waitForTimeout(3500);
 
     const storage = await page.evaluate(() =>
       JSON.parse(localStorage.getItem('hashimoto-pcos-saved-products') || '{}')

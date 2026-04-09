@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { ScoreCard } from "@/components/ScoreCard";
 import type { Product } from "@/core/domain/product";
@@ -10,6 +10,9 @@ import { LocalStorageFavoritesRepository } from "@/infrastructure/storage/local-
 import { AlertCircle, Loader2, PackageX } from "lucide-react";
 import Link from "next/link";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import { useToast } from "@/hooks/use-toast";
+import { Toast } from "@/components/toast";
+import { triggerHaptic, HAPTIC_PATTERNS } from "@/core/services/haptic-service";
 
 export default function ResultPage() {
   const params = useParams();
@@ -19,7 +22,10 @@ export default function ResultPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [pendingRemoval, setPendingRemoval] = useState(false);
+  const pendingRemovalRef = useRef(false);
   const { profile, isLoaded: profileLoaded } = useUserProfile();
+  const { toast, show, dismiss, handleAction } = useToast();
 
   const scoreResult = useMemo(() => {
     if (!product || !profileLoaded) return null;
@@ -63,12 +69,39 @@ export default function ResultPage() {
   function handleSave() {
     if (!product || !scoreResult) return;
     const favUseCase = new ManageFavoritesUseCase(new LocalStorageFavoritesRepository());
+
     if (saved) {
-      favUseCase.remove(barcode);
-      setSaved(false);
+      // Show pending removal state
+      pendingRemovalRef.current = true;
+      setPendingRemoval(true);
+
+      // Show toast with undo option
+      show({
+        message: "Produkt wird entfernt...",
+        actionLabel: "Rückgängig",
+        onAction: () => {
+          // Undo - restore the saved state
+          pendingRemovalRef.current = false;
+          setPendingRemoval(false);
+        },
+        duration: 3000,
+        type: "warning",
+      });
+
+      // Actually remove after delay if not undone
+      setTimeout(() => {
+        if (pendingRemovalRef.current) {
+          favUseCase.remove(barcode);
+          setSaved(false);
+        }
+        pendingRemovalRef.current = false;
+        setPendingRemoval(false);
+      }, 3000);
     } else {
       favUseCase.save(barcode, product, scoreResult);
       setSaved(true);
+      // Trigger haptic feedback on successful save (double pulse)
+      triggerHaptic(HAPTIC_PATTERNS.SAVE);
     }
   }
 
@@ -119,12 +152,13 @@ export default function ResultPage() {
 
   return (
     <div className="min-h-screen px-5 py-8">
+      <Toast toast={toast} onDismiss={dismiss} onAction={handleAction} />
       <ScoreCard
         product={product}
         scoreResult={scoreResult}
         onRescan={handleRescan}
         onSave={handleSave}
-        saved={saved}
+        saved={saved && !pendingRemoval}
         profile={profile ?? undefined}
       />
     </div>

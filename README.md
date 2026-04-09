@@ -15,6 +15,9 @@ Dieses Projekt hilft Frauen, die sowohl an Hashimoto als auch an PCOS leiden, di
 - 📊 **Nährstoff-Analyse** - Detaillierte Aufschlüsselung pro Produkt mit Bewertungsgründen
 - 🦋 **Nutzerprofil-Personalisierung** - Bewertungen auf Hashimoto, PCOS oder beides zugeschnitten
 - 🌱 **Erweitertes Scoring** - Differenzierte Erkennung von Soja (Phytoöstrogene/fermentiert/Lecithin), Omega-3-Quellen (marin/pflanzlich), Milchprodukt-Typen (Casein/Whey/fermentiert/Ghee) und Goitrogenen (Kreuzblütler, roh vs. gegart)
+- 📳 **Haptisches Feedback** - Vibration bei Scan-Erfolg und Speichern
+- 🔄 **Pull-to-Refresh** - Mobile Geste zum Aktualisieren der Suchergebnisse
+- ↩️ **Rückgängig** - 3-Sekunden-Countdown beim Entfernen gespeicherter Produkte
 - 🎓 **Wissenschaftlich fundiert** - Alle Empfehlungen basieren auf aktueller Studienlage
 - 👩‍💻 **DAU-freundlich** - Keine medizinischen Vorkenntnisse nötig
 
@@ -110,6 +113,7 @@ Die Recherche basiert auf folgenden Quellen:
 | Hexagonale Architektur | ✅ Abgeschlossen |
 | Nutzerprofil-Personalisierung | ✅ Abgeschlossen |
 | Scoring-Erweiterungen (#50/#51/#53/#54) | ✅ Abgeschlossen |
+| Mobile Experience (#73) | ✅ Abgeschlossen |
 | Beta-Release | 🔄 In Planung |
 
 ---

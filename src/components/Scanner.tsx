@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import Quagga from "@ericblade/quagga2";
 import { Camera, CameraOff, SwitchCamera, Loader2 } from "lucide-react";
+import { triggerHaptic, HAPTIC_PATTERNS } from "@/core/services/haptic-service";
 
 interface ScannerProps {
   onDetected: (barcode: string) => void;
@@ -29,6 +30,8 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
       }
       lastDetectedRef.current = code;
       lastDetectedTimeRef.current = now;
+      // Trigger haptic feedback on successful scan
+      triggerHaptic(HAPTIC_PATTERNS.TAP);
       onDetected(code);
     },
     [onDetected]

@@ -9,6 +9,8 @@ import type { ScoreResult } from "@/core/domain/score";
 import type { UserProfile } from "@/core/domain/user-profile";
 import Link from "next/link";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
+import { PullToRefreshIndicator } from "@/components/pull-to-refresh-indicator";
 
 const CATEGORIES = [
   { key: "all", label: "Alle" },
@@ -281,6 +283,20 @@ function ProductsPageContent() {
     [isLoading, hasMore, page, handleSearch]
   );
 
+  // Pull-to-refresh functionality
+  const { state: pullState, handlers: pullHandlers, containerRef: pullContainerRef } = usePullToRefresh({
+    onRefresh: async () => {
+      if (!query.trim() && category === "all") return;
+      // Clear session storage for this search to force fresh fetch
+      const oldKey = getSessionStorageKey(query.trim(), category);
+      sessionStorage.removeItem(oldKey);
+      // Reset page and re-fetch
+      await handleSearch(undefined, 1, query.trim(), category);
+    },
+    enabled: searched && results.length > 0 && !isLoading,
+    threshold: 80,
+  });
+
   function handleReset() {
     const oldKey = getSessionStorageKey(query.trim(), category); // capture before setters
     setQuery("");
@@ -399,15 +415,31 @@ function ProductsPageContent() {
         </p>
       )}
 
-      <div className="space-y-4">
-        {results.map((product, index) => (
-          <div
-            key={product.barcode ? product.barcode : `fallback-${index}`}
-            ref={index === results.length - 1 ? lastProductRef : undefined}
-          >
-            <ProductCard product={product} profile={profile ?? undefined} />
-          </div>
-        ))}
+      {/* Pull-to-refresh container for results */}
+      <div
+        ref={pullContainerRef}
+        className="relative"
+        onTouchStart={pullHandlers.onTouchStart}
+        onTouchMove={pullHandlers.onTouchMove}
+        onTouchEnd={pullHandlers.onTouchEnd}
+      >
+        <PullToRefreshIndicator
+          pullDistance={pullState.pullDistance}
+          isPulling={pullState.isPulling}
+          isRefreshing={pullState.isRefreshing}
+          canRelease={pullState.canRelease}
+        />
+
+        <div className="space-y-4">
+          {results.map((product, index) => (
+            <div
+              key={product.barcode ? product.barcode : `fallback-${index}`}
+              ref={index === results.length - 1 ? lastProductRef : undefined}
+            >
+              <ProductCard product={product} profile={profile ?? undefined} />
+            </div>
+          ))}
+        </div>
       </div>
 
       {isLoading && page > 1 && (

@@ -746,3 +746,90 @@ Scientific background is in `docs/recherche/` (German):
 | `04_produkt_scan_api.md` | OpenFoodFacts API spec and scoring integration details |
 
 Also: `ARCHITECTURE.md` (system design), `CONTRIBUTING.md` (workflow details), `README.md` (project overview).
+
+---
+
+## Mobile Experience Features (Issue #73)
+
+### Haptic Feedback
+
+The app provides tactile feedback through the device's vibration API (`navigator.vibrate`) for key user interactions:
+
+| Action | Pattern | Duration |
+|--------|---------|----------|
+| Scan success | Single tap | 50ms |
+| Save product | Double pulse | 30ms + 50ms pause + 30ms |
+
+**Implementation:** `src/core/services/haptic-service.ts` - Pure function with SSR-safe checks, fallback handling, and predefined patterns.
+
+```typescript
+// Usage
+import { triggerHaptic, HAPTIC_PATTERNS } from "@/core/services/haptic-service";
+
+triggerHaptic(HAPTIC_PATTERNS.TAP);     // Single tap
+triggerHaptic(HAPTIC_PATTERNS.SAVE);    // Double pulse (save)
+```
+
+**Features:**
+- SSR-safe (checks for `typeof navigator !== "undefined"`)
+- Graceful degradation when not supported
+- Unit tested with mocked navigator
+
+### Scanner Loading Overlay
+
+A full-screen loading overlay blocks the camera and UI immediately when a barcode is detected to prevent:
+- Multiple rapid scans
+- Conflicting navigation actions
+- User uncertainty about whether scan registered
+
+**Component:** `src/components/loading-overlay.tsx`
+
+**Behavior:**
+- Shows immediately on barcode detection
+- Displays detected barcode for confirmation
+- Shows "Produkt wird geladen..." message
+- Blocks all interactions until navigation completes or error occurs
+- Auto-hides on error so user can retry
+
+### Pull-to-Refresh
+
+Mobile users can refresh search results by pulling down on the product list.
+
+**Hook:** `src/hooks/use-pull-to-refresh.ts`
+**Component:** `src/components/pull-to-refresh-indicator.tsx`
+
+**Behavior:**
+- Only activates when scroll position is at top of container
+- Shows visual indicator with pull progress (rotating refresh icon)
+- Threshold: 80px to trigger refresh
+- Resistance applied to pull for natural feel
+- Clears sessionStorage for current search to force fresh fetch
+
+**Implementation details:**
+- Uses touch events with passive listeners
+- Prevents default scroll behavior during pull gesture
+- Animates smoothly back to position when released before threshold
+
+### Toast Notifications with Undo
+
+When removing a saved product, a toast notification appears with a 3-second countdown and "Rückgängig" action.
+
+**Hook:** `src/hooks/use-toast.ts`
+**Component:** `src/components/toast.tsx`
+
+**Behavior:**
+- Shows "Produkt wird entfernt..." with undo button
+- 3-second countdown before permanent deletion
+- Clicking "Rückgängig" cancels the removal
+- Auto-dismisses after delay if not interacted with
+- Supports different types: info, success, warning, error
+
+**Delayed deletion pattern:**
+```typescript
+setPendingRemoval(true);
+show({ message: "Produkt wird entfernt...", actionLabel: "Rückgängig", duration: 3000 });
+setTimeout(() => {
+  // Actually remove if still pending
+  if (pendingRemoval) removeFavorite();
+}, 3000);
+```
