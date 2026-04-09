@@ -201,4 +201,37 @@ test.describe('Search page (/products)', () => {
     // URL should reflect the new search
     await expect(page).toHaveURL(/q=Brot/);
   });
+
+  test('category_switch_clears_previous_results', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    await page.getByRole('textbox', { name: /suchen/i }).fill('Milch');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 5000 });
+
+    // Switch category — mock now returns only 1 different product
+    await mockSearchApi(page, [gut]);
+    await page.getByRole('button', { name: 'Gemüse' }).click();
+
+    await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 5000 });
+
+    // All displayed hrefs must be unique (no duplicate keys)
+    const hrefs = await page.locator('a[href^="/result/"]').evaluateAll(
+      (els) => els.map((el) => el.getAttribute('href'))
+    );
+    const unique = new Set(hrefs);
+    expect(unique.size).toBe(hrefs.length);
+    expect(hrefs.length).toBe(1); // only the newly mocked product
+  });
+
+  test('category_click_without_prior_search_shows_results', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    await page.getByRole('button', { name: 'Gemüse' }).click();
+    await expect(page.locator('a[href^="/result/"]').first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test('category_switch_updates_active_highlight', async ({ page }) => {
+    await mockSearchApi(page, MOCK_PRODUCTS);
+    await page.getByRole('button', { name: 'Gemüse' }).click();
+    await expect(page.getByRole('button', { name: 'Gemüse' })).toHaveClass(/bg-primary/);
+  });
 });
