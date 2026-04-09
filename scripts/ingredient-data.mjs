@@ -6,7 +6,7 @@
 const GERMAN = new Set([
   // Zucker & Süßungsmittel
   'zucker','saccharose','glucose','dextrose','fruktose','fruktose','lactose','maltose',
-  'raffinierter zucker','rohrzucker','rohrzuckersirup','zuckersirup','invertzuckersirup',
+  'raffinierter zucker','rohrzucker','vollrohrzucker','rohrzuckersirup','zuckersirup','invertzuckersirup',
   'glukosesirup','glukose-fruktose-sirup','fruktosesirup','maisstärkesirup','reissirup',
   'agavendicksaft','agavensirup','honig','bienenhonig','birnenmost','birnendicksaft',
   'apfeldicksaft','apfelsaftkonzentrat','malzextrakt','malzodextrin','malz',
@@ -19,8 +19,9 @@ const GERMAN = new Set([
   'hafermehl','haferflocken','haferkleie','dinkelmehl','dinkelvollkornmehl','dinkelstärke',
   'buchweizenmehl','buchweizen','hirsemehl','hirse','quinoa','quinoamehl','amaranth',
   'maismehl','maisstärke','maisgrieß','polenta','kartoffelstärke','kartoffelmehl',
-  'reismehl','reisstärke','reisgrieß','klebreis','tapiokastärke','tapiokamehl',
-  'kokosmehl','mandelmehl','haselnussmehl','paranussmehl','sojamehl','sojabohnenmehl',
+  'reismehl','reisstärke','reisgrieß','klebreis','reis','reis gepufft','puffreis','gepuffter mais',
+  'tapiokastärke','tapiokamehl',
+  'kokosmehl','kokosmilch','mandelmehl','haselnussmehl','paranussmehl','sojamehl','sojabohnenmehl',
   'lupinenmehl','lupinenprotein','mehl','stärke','modifizierte stärke','veränderte stärke',
 
   // Öle & Fette
@@ -123,7 +124,7 @@ const GERMAN = new Set([
   'mango','mangos','mangopüree','mangokonzentrat',
   'ananas','ananassaft','ananasstücke','ananasmark',
   'papaya','papayapulver','passionsfrucht','maracuja','granatapfel','granatapfelsaft',
-  'kokosnuss','kokosraspel','kokosmilch','kokoswasser','kokosmus','kokosflocken',
+  'kokosnuss','kokosraspel','kokosfruchtfleisch','kokosmilch','kokoswasser','kokosmus','kokosflocken','wasser',
   'feige','feigen','dattel','datteln','dattelpaste',
   'frucht','früchte','fruchtmark','fruchtextrakt','fruchtpulver',
   'fruchtkonzentrat','fruchtsaft','fruchtzubereitung','fruchtpaste',
@@ -176,9 +177,9 @@ const GERMAN = new Set([
   'löslicher kaffee','instantkaffee','espresso','espressopulver',
   'tees','tee','teeblätter','teepulver','grüner tee','schwarzer tee',
   'früchtetee','kräutertee','rooibos','honeybush',
-  'kakaopulver','kakao','kakaomasse','kakaogranulat','cacao',
+  'kakaopulver','kakao','kakaomasse','kakaobutter','kakaogranulat','cacao',
   'cacaopulver','cacaomasse','rohkakao','kakaoextrakt',
-  'schokolade','zartbitterschokolade','vollmilchschokolade','blockschokolade',
+  'schokolade','zartbitterschokolade','vollmilchschokolade','blockschokolade','schokoladenflocken','kuvertüre',
   'kuvertüre','schokoladenkuvertüre','schokoladenmasse',
   'malzkaffee','malzextrakt','malzkaffee','cerealienkaffee',
   'gerstenmalz','gerstenextrakt','hopfen','hopfenextrakt',
@@ -240,7 +241,7 @@ const GERMAN = new Set([
   'lipase','glucoamylase','transglutaminase','papain','bromelain',
 
   // Lebensmittelzusatzstoffe (legitim)
-  'lecithin','sojalecithin','sonnenblumenlecithin','rapslecithin',
+  'lecithin','sojalecithin','sonnenblumenlecithin','rapslecithin','raps-lecithin',
   'emulgator','emulgatoren',
   'säuerungsmittel','säuerungsmittel: citronensäure','citronensäure','zitronensäure',
   'äpfelsäure','weinsäure','milchsäure','fumarsäure','phosphorsäure',
@@ -258,7 +259,8 @@ const GERMAN = new Set([
   'diphosphat','natriumdiphosphat','dinatriumdiphosphat',
   'natriumnitrit','natriumnitrat','kaliumnitrat',
   'sulfit','natriumsulfit','natriummetabisulfit','schwefeldioxid',
-  'konservierungsstoff','konservierungsmittel',
+  'konservierungsstoff','konservierungsmittel','antioxidationsmittel','säureregulator',
+  'säuerungsmittel','verdickungsmittel','feuchthaltemittel','festigungsmittel',
   'sorbat','kaliumsorbat','natriumsorbat','sorbinsäure',
   'benzoat','natriumbenzoat','kaliumbenzoat','benzoesäure',
   'natamycin','nisin',
