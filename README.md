@@ -58,9 +58,12 @@ hashimoto-pcos/
 │       ├── utils.ts                 # cn() Hilfsfunktion
 │       └── profile-options.ts       # Geteilte Konstanten: CONDITIONS, SENSITIVITY_OPTIONS
 ├── data/
-│   └── products.db                  # Lokale SQLite-DB (via npm run db:build, gitignored)
+│   └── products.db                  # Lokale SQLite-DB (~462k DACH-Produkte, via npm run db:build)
 ├── scripts/
-│   └── build-db.mjs                 # CSV → SQLite Konvertierskript (DACH + ≥3 Nährwerte)
+│   ├── build-db.mjs                 # CSV → SQLite (DACH-Filter, FTS5, Zutaten-Parsing)
+│   ├── ingredient-parser.mjs         # Zwei-Phasen-Parser: Klammerstruktur + Doppelpunkt-Auflösung
+│   ├── ingredient-data.mjs           # GERMAN-Whitelist (~350 Einträge) + Funktionale Labels
+│   └── extract-fixtures.mjs         # 5 Test-Produkte aus DB → tests/fixtures/products/
 ├── tests/
 │   ├── fixtures/products/           # Produkt-Fixtures (Domain-Format)
 │   └── helpers/mock-api.ts          # Playwright-Mock-Hilfsfunktionen
@@ -143,9 +146,67 @@ npm run build
 
 > **Hinweis:** Ohne `data/products.db` fällt die App automatisch auf die OpenFoodFacts-API zurück. Die lokale DB ist optional, wird aber für zuverlässige Performance empfohlen.
 >
-> Das Build-Script importiert nur DACH-Produkte (DE/AT/CH) mit mindestens 3 gültigen Nährwert-Feldern — Produkte ohne ausreichende Nährwertdaten werden gefiltert. Der Schwellenwert ist über `MIN_NUTRIMENTS` in `scripts/build-db.mjs` konfigurierbar.
+> Das Build-Script importiert nur DACH-Produkte (DE/AT/CH) mit gültigem EAN-13-Barcode, deutschem Produktnamen und mindestens 5 Nährwert-Feldern — Produkte ohne ausreichende Daten werden gefiltert.
 >
-> Fehlende Nährwerte werden beim ersten Abruf eines Produkts automatisch von der OFf-API nachgeladen und dauerhaft in der lokalen DB gespeichert — die DB vervollständigt sich selbst mit der Nutzung.
+> Fehlende Nährwerte werden beim ersten Abruf automatisch von der OFf-API nachgeladen und dauerhaft in der lokalen DB gespeichert — die DB vervollständigt sich selbst mit der Nutzung.
+
+---
+
+## Datenbank & Scripts
+
+### SQLite-Datenbank (`data/products.db`)
+
+Die lokale Datenbank enthält **~462.000 DACH-Produkte** (Deutschland, Österreich, Schweiz) und wird über `npm run db:build` aus dem OpenFoodFacts-CSV aufgebaut.
+
+**Tabellen:**
+
+| Tabelle | Beschreibung |
+|---------|-------------|
+| `products` | Produkte mit Name, Marke, Bild, Nährwerten (JSON), Zutatenliste, Allergenen, Additiven |
+| `products_fts` | FTS5-Volltextindex für schnelle Produktsuche nach Name/Marke |
+| `ingredients` | Kanonische Zutatennamen (Kleinbuchstaben, Deutsch) — wird beim DB-Build befüllt |
+| `product_ingredients` | Normalisierte Zutatenliste pro Produkt (Position + Rohtext) |
+
+**Filter beim Import:**
+- Gültiger EAN-13-Barcode (`/^\d{13}$/`)
+- DACH-Länderkennzeichen (`en:germany`, `en:austria`, `en:switzerland`)
+- Deutscher Produktname vorhanden (`product_name_de`)
+- Mindestens 5 Nährwert-Felder mit gültigen Zahlenwerten
+
+### Zutaten-Parsing-Pipeline
+
+Beim DB-Build wird die rohe Zutatenliste (`ingredients_text`) über eine zwei-phasige Pipeline normalisiert:
+
+**Phase 1 — Klammerstruktur auflösen** (`flattenIngredients`):
+- Klammern werden rekursiv verarbeitet (z.B. `"Zucker (2%), (Vitamin-mineralisch)"`)
+- Verschachtelungstiefe wird gezählt: Ebene 0 = Hauptzutaten, Ebene 1 = Unterzutaten, Tiefer als 1 = wird verworfen (z.B. Prozentangaben)
+- Komma und Semikolon teilen Zutaten; ein Prozentzeichen nach Komma wird korrigiert (z.B. `"99,9%"`)
+
+**Phase 2 — Doppelpunkt-Auflösung**:
+- `"Emulgator: Sonnenblumenlecithin"` → nur `"sonnenblumenlecithin"` (funktionales Label unterdrückt)
+- `"Salz: Mehl"` → beide als Zutaten (beide bekannt)
+- Mehrere Doppelpunkte (z.B. `"Emulgator: Sojalecithin: E322"`) → aufteilen, funktionale Labels herausfiltern
+
+**Reinigung (12 Schritte):** Klammerreste entfernen, Prozentzeichen, Bindestriche normalisieren, Encoding-Artefakte entfernen, E-Nummern formatieren, Ziffern-Token entfernen, Whitelist-Abgleich (GERMAN-Set, ~350 Einträge).
+
+### Scripts
+
+| Script | Funktion |
+|--------|----------|
+| `scripts/build-db.mjs` | CSV → SQLite. DACH-Filter, FTS5-Index, Zutaten-Parsing, Cache-Optimierung |
+| `scripts/ingredient-parser.mjs` | Zwei-Phasen-Parser. Exportiert `parseIngredients(text)` und `isValidProductName(name)` |
+| `scripts/ingredient-data.mjs` | GERMAN-Whitelist (Set, ~350 Einträge) + FUNCTIONAL_LABELS-Set |
+| `scripts/extract-fixtures.mjs` | 5 Test-Produkte aus DB in `tests/fixtures/products/` extrahieren |
+
+```bash
+# DB aufbauen (CSV von https://products.openfoodfacts.org/data herunterladen)
+node scripts/build-db.mjs /pfad/zur/en.openfoodfacts.org.products.csv
+
+# Test-Fixtures aktualisieren (nach DB-Änderungen)
+node scripts/extract-fixtures.mjs
+```
+
+> **Hinweis:** Alle Scripts verwenden die `.mjs`-Endung für ESM. `package.json` darf **nicht** `"type": "module"` gesetzt werden — das würde `better-sqlite3` und die Next.js-Konfiguration brechen.
 
 **Wichtige Docs für Entwickler:**
 - [CONTRIBUTING.md](./CONTRIBUTING.md) — Mitwirkungs-Guide, Branching, Coding-Standards (TDD, Pre-commit-Gate, Architekturregeln)
