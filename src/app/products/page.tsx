@@ -22,6 +22,7 @@ const CATEGORIES = [
 ];
 
 const SEARCH_URL = "/api/products/search";
+const PAGE_SIZE = 25;
 
 const SESSION_STORAGE_KEY_PREFIX = "search-results";
 
@@ -53,7 +54,7 @@ async function searchProducts(
   const params = new URLSearchParams({
     search_terms: query,
     page: String(page),
-    page_size: "20",
+    page_size: String(PAGE_SIZE),
   });
   if (category && category !== "all") {
     params.set("tag_0", category);
@@ -119,7 +120,7 @@ function ProductsPageContent() {
       const params = new URLSearchParams(window.location.search);
       const q = params.get("q") ?? "";
       const cat = params.get("category") ?? "all";
-      if (!q) {
+      if (!q && cat === "all") {
         // User navigated back to the empty search page — clear all search state
         setResults([]);
         setSearched(false);
@@ -159,7 +160,7 @@ function ProductsPageContent() {
     const params = new URLSearchParams(window.location.search);
     const q = params.get("q") ?? "";
     const cat = params.get("category") ?? "all";
-    if (!q) return;
+    if (!q && cat === "all") return;
 
     setQuery(q);
     setCategory(cat);
@@ -174,18 +175,31 @@ function ProductsPageContent() {
       setSearched(true);
       setHasMore(stored.hasMore ?? false);
     } else {
-      setSearched(true); // URL has query but no cache — mark as searched so empty-state shows correctly
+      setSearched(true);
+      // No cache — trigger fresh fetch for this category/query
+      // Pass both q and cat explicitly since state setters are batched and handleSearch
+      // captures stale values in its closure
+      void handleSearch(undefined, pageParam, q, cat);
     }
   }, []); // mount only — runs once on initial page load
 
-  const handleSearch = useCallback(async (e?: React.FormEvent, newPage = 1) => {
+  const handleSearch = useCallback(async (
+    e?: React.FormEvent,
+    newPage = 1,
+    overrideQuery?: string,
+    overrideCategory?: string
+  ) => {
     e?.preventDefault();
-    if (!query.trim()) return;
+    const effectiveQuery = overrideQuery ?? query.trim();
+    const effectiveCategory = overrideCategory ?? category;
+
+    // Allow category-only browsing; only bail out if both are absent
+    if (!effectiveQuery && effectiveCategory === "all") return;
 
     // If this page is already in sessionStorage, restore from there instead of
     // re-fetching (avoids duplicates when user scrolls back up after going forward)
     if (newPage > 1) {
-      const stored = getStoredData(query.trim(), category);
+      const stored = getStoredData(effectiveQuery, effectiveCategory);
       if (stored && newPage <= stored.maxPage) {
         setResults(stored.products);
         setPage(stored.maxPage);
@@ -194,8 +208,8 @@ function ProductsPageContent() {
         setSearched(true);
         setIsLoading(false);
         const params = new URLSearchParams();
-        params.set("q", query.trim());
-        if (category !== "all") params.set("category", category);
+        if (effectiveQuery) params.set("q", effectiveQuery);
+        if (effectiveCategory !== "all") params.set("category", effectiveCategory);
         params.set("page", String(stored.maxPage));
         router.push(`/products?${params}`, { scroll: false });
         return;
@@ -208,14 +222,14 @@ function ProductsPageContent() {
     setPage(newPage);
 
     try {
-      const result = await searchProducts(query.trim(), category, newPage);
-      const pageHasMore = result.products.length === 20;
+      const result = await searchProducts(effectiveQuery, effectiveCategory, newPage);
+      const pageHasMore = result.products.length === PAGE_SIZE;
       if (newPage === 1) {
         // Reset accumulator on new search
         accumulatedProductsRef.current = result.products;
         setResults(result.products);
         sessionStorage.setItem(
-          getSessionStorageKey(query.trim(), category),
+          getSessionStorageKey(effectiveQuery, effectiveCategory),
           JSON.stringify({ products: accumulatedProductsRef.current, count: result.count, maxPage: 1, hasMore: pageHasMore })
         );
       } else {
@@ -223,7 +237,7 @@ function ProductsPageContent() {
         accumulatedProductsRef.current = [...accumulatedProductsRef.current, ...result.products];
         setResults((prev) => [...prev, ...result.products]);
         sessionStorage.setItem(
-          getSessionStorageKey(query.trim(), category),
+          getSessionStorageKey(effectiveQuery, effectiveCategory),
           JSON.stringify({
             products: accumulatedProductsRef.current,
             count: result.count,
@@ -235,10 +249,10 @@ function ProductsPageContent() {
       setHasMore(pageHasMore);
       setTotalCount(result.count);
 
-      // Update URL params
+      // Update URL params — only set q when non-empty to avoid ?q= in category-only URLs
       const params = new URLSearchParams();
-      params.set("q", query.trim());
-      if (category !== "all") params.set("category", category);
+      if (effectiveQuery) params.set("q", effectiveQuery);
+      if (effectiveCategory !== "all") params.set("category", effectiveCategory);
       if (newPage > 1) params.set("page", String(newPage));
       router.push(`/products?${params}`, { scroll: false });
     } catch (err) {
@@ -269,6 +283,7 @@ function ProductsPageContent() {
   function handleReset() {
     const oldKey = getSessionStorageKey(query.trim(), category); // capture before setters
     setQuery("");
+    setCategory("all");
     setResults([]);
     setSearched(false);
     setPage(1);
@@ -303,8 +318,25 @@ function ProductsPageContent() {
               key={cat.key}
               type="button"
               onClick={() => {
-                setCategory(cat.key);
-                if (searched) handleSearch(undefined, 1);
+                const newCat = cat.key;
+                if (newCat === category) return; // no-op if already active
+                const oldKey = getSessionStorageKey(query.trim(), category);
+                setCategory(newCat);
+                // Immediately clear state to prevent stale products / duplicate keys
+                setResults([]);
+                accumulatedProductsRef.current = [];
+                setPage(1);
+                setHasMore(false);
+                setTotalCount(0);
+                sessionStorage.removeItem(oldKey); // clean up stale entry
+                if (query.trim() || newCat !== "all") {
+                  // Pass both query and newCat explicitly to avoid stale closures
+                  handleSearch(undefined, 1, query.trim(), newCat);
+                } else {
+                  // "Alle" clicked with no query → return to initial empty state
+                  setSearched(false);
+                  setServerBusy(false);
+                }
               }}
               className={`shrink-0 rounded-full border px-5 py-2.5 text-base font-medium transition-all touch-target ${
                 category === cat.key
