@@ -54,7 +54,9 @@ export class SqliteProductRepository implements IProductRepository {
       const row = getDb()
         .prepare("SELECT * FROM products WHERE barcode = ?")
         .get(barcode) as DbProductRow | undefined;
-      return row ? mapDbRowToProduct(row) : null;
+      if (!row) return null;
+      const ingredientsList = await this.findIngredientsByBarcode(barcode);
+      return mapDbRowToProduct(row, ingredientsList);
     } catch (err) {
       console.error("[SqliteProductRepository] findByBarcode failed:", err);
       return null;
@@ -136,7 +138,7 @@ export class SqliteProductRepository implements IProductRepository {
       }
 
       return {
-        products: rows.map(mapDbRowToProduct),
+        products: rows.map((row) => mapDbRowToProduct(row)),
         total: count,
         page,
       };
@@ -146,7 +148,7 @@ export class SqliteProductRepository implements IProductRepository {
     }
   }
 
-  async findIngredientsByBarcode(barcode: string): Promise<string[]> {
+  private async findIngredientsByBarcode(barcode: string): Promise<string[]> {
     try {
       const rows = getDb()
         .prepare(

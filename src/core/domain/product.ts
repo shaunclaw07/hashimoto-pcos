@@ -17,6 +17,7 @@ export interface Product {
   nutriments: Nutriments;
   labels: string[];
   ingredients: string;
+  ingredientsList?: string[];
   categories: string[];
   additives: string[];
 }

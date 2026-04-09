@@ -55,8 +55,4 @@ export class OffApiAdapter implements IProductRepository {
 
   // OFf API ist read-only — no-op
   async updateNutriments(_barcode: string, _nutriments: Nutriments): Promise<void> {}
-
-  async findIngredientsByBarcode(_barcode: string): Promise<string[]> {
-    return [];
-  }
 }

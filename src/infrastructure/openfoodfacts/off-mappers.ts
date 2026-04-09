@@ -15,6 +15,16 @@ function mapNutriments(off: OffNutriments | undefined): Nutriments {
   };
 }
 
+function parseIngredientsList(ingredientsText: string | undefined): string[] | undefined {
+  if (!ingredientsText) return undefined;
+  // Split by comma, semicolon, or newline, trim each, filter empty strings
+  const list = ingredientsText
+    .split(/[,;\n]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return list.length > 0 ? list : undefined;
+}
+
 export function mapOffProductToProduct(barcode: string, off: OffProduct): Product {
   const additives = off.additives_tags ?? off.additives ?? [];
   return {
@@ -27,6 +37,7 @@ export function mapOffProductToProduct(barcode: string, off: OffProduct): Produc
       ? off.labels.split(",").map((l) => l.trim()).filter(Boolean)
       : [],
     ingredients: off.ingredients_text ?? "",
+    ingredientsList: parseIngredientsList(off.ingredients_text),
     categories: off.categories
       ? off.categories.split(",").map((c) => c.trim()).filter(Boolean)
       : [],

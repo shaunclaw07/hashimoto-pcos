@@ -136,4 +136,74 @@ describe("OffApiAdapter: mappers", () => {
     const product = await adapter.findByBarcode("5000159484695");
     expect(product?.labels).toEqual(["organic", "gluten-free"]);
   });
+
+  it("mappt ingredients_text zu ingredientsList (comma-separated)", async () => {
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        status: 1,
+        product: { product_name: "Test", ingredients_text: "Zucker, Wasser, Salz" },
+      }),
+    } as Response);
+
+    const adapter = new OffApiAdapter();
+    const product = await adapter.findByBarcode("5000159484695");
+    expect(product?.ingredientsList).toEqual(["Zucker", "Wasser", "Salz"]);
+  });
+
+  it("mappt ingredients_text zu ingredientsList (newline-separated)", async () => {
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        status: 1,
+        product: { product_name: "Test", ingredients_text: "Zucker\nWasser\nSalz" },
+      }),
+    } as Response);
+
+    const adapter = new OffApiAdapter();
+    const product = await adapter.findByBarcode("5000159484695");
+    expect(product?.ingredientsList).toEqual(["Zucker", "Wasser", "Salz"]);
+  });
+
+  it("mappt ingredients_text zu ingredientsList (semicolon-separated)", async () => {
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        status: 1,
+        product: { product_name: "Test", ingredients_text: "Zucker; Wasser; Salz" },
+      }),
+    } as Response);
+
+    const adapter = new OffApiAdapter();
+    const product = await adapter.findByBarcode("5000159484695");
+    expect(product?.ingredientsList).toEqual(["Zucker", "Wasser", "Salz"]);
+  });
+
+  it("omits ingredientsList when ingredients_text is empty", async () => {
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        status: 1,
+        product: { product_name: "Test", ingredients_text: "" },
+      }),
+    } as Response);
+
+    const adapter = new OffApiAdapter();
+    const product = await adapter.findByBarcode("5000159484695");
+    expect(product?.ingredientsList).toBeUndefined();
+  });
+
+  it("omits ingredientsList when ingredients_text is missing", async () => {
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        status: 1,
+        product: { product_name: "Test" },
+      }),
+    } as Response);
+
+    const adapter = new OffApiAdapter();
+    const product = await adapter.findByBarcode("5000159484695");
+    expect(product?.ingredientsList).toBeUndefined();
+  });
 });
