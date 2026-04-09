@@ -60,7 +60,7 @@ function flattenIngredients(text) {
         tokens.push(current.trim());
         current = '';
       }
-      depth--;
+      if (depth > 0) depth--;
     } else if (ch === ',') {
       if (depth <= 1) {
         let token = current.trim();
