@@ -90,4 +90,11 @@ test.describe('Result page (/result/[barcode])', () => {
     await page.getByRole('link', { name: /zurück zum scanner/i }).click();
     await expect(page).toHaveURL('/scanner');
   });
+
+  test('ingredients_list_displayed_when_available', async ({ page }) => {
+    await mockProductApi(page, VALID_BARCODE, vermeiden);
+    await page.goto(`/result/${VALID_BARCODE}`);
+    await expect(page.getByText('Zutaten')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/sugar, palm oil, hazelnuts/i)).toBeVisible({ timeout: 5000 });
+  });
 });

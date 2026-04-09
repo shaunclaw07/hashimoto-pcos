@@ -88,6 +88,57 @@ describe("SqliteProductRepository", () => {
       );
       consoleSpy.mockRestore();
     });
+
+    it("populates ingredientsList from findIngredientsByBarcode", async () => {
+      const mockRow = {
+        barcode: "1234567890123",
+        product_name: "Testprodukt",
+        brands: "Testmarke",
+        image_url: null,
+        nutriments: null,
+        labels: null,
+        ingredients_text: "Zucker, Wasser, Salz",
+        categories: null,
+        additives_tags: null,
+      };
+      const ingredientsRows = [{ name: "Zucker" }, { name: "Wasser" }, { name: "Salz" }];
+      mockPrepare.mockReturnValueOnce({
+        get: vi.fn(() => mockRow),
+      }).mockReturnValueOnce({
+        all: vi.fn(() => ingredientsRows),
+      });
+
+      repo = new SqliteProductRepository();
+      const result = await repo.findByBarcode("1234567890123");
+
+      expect(result).not.toBeNull();
+      expect(result!.ingredientsList).toEqual(["Zucker", "Wasser", "Salz"]);
+    });
+
+    it("omits ingredientsList when findIngredientsByBarcode returns empty", async () => {
+      const mockRow = {
+        barcode: "1234567890123",
+        product_name: "Testprodukt",
+        brands: null,
+        image_url: null,
+        nutriments: null,
+        labels: null,
+        ingredients_text: "",
+        categories: null,
+        additives_tags: null,
+      };
+      mockPrepare.mockReturnValueOnce({
+        get: vi.fn(() => mockRow),
+      }).mockReturnValueOnce({
+        all: vi.fn(() => []),
+      });
+
+      repo = new SqliteProductRepository();
+      const result = await repo.findByBarcode("1234567890123");
+
+      expect(result).not.toBeNull();
+      expect(result!.ingredientsList).toBeUndefined();
+    });
   });
 
   describe("search", () => {

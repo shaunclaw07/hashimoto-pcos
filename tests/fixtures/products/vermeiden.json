@@ -5,6 +5,7 @@
   "imageUrl": "https://images.openfoodfacts.org/images/products/000/980/089/5007/front_en.77.200.jpg",
   "labels": ["No gluten"],
   "ingredients": "sugar, palm oil, hazelnuts, skim milk, cocoa, lecithin as emulsifier (soy), vanillin: an artificial flavor,",
+  "ingredientsList": ["sugar", "palm oil", "hazelnuts", "skim milk", "cocoa", "lecithin as emulsifier (soy)", "vanillin: an artificial flavor"],
   "categories": ["en:spreads", "en:chocolate-spreads"],
   "additives": [],
   "nutriments": {

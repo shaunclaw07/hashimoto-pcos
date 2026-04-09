@@ -20,7 +20,8 @@ function parseNutriments(json: string | null): Nutriments {
   }
 }
 
-export function mapDbRowToProduct(row: DbProductRow): Product {
+export function mapDbRowToProduct(row: DbProductRow, ingredientsList?: string[] | number): Product {
+  const list = Array.isArray(ingredientsList) ? ingredientsList : undefined;
   return {
     barcode: row.barcode,
     name: row.product_name ?? "",
@@ -31,6 +32,7 @@ export function mapDbRowToProduct(row: DbProductRow): Product {
       ? row.labels.split(",").map((l) => l.trim()).filter(Boolean)
       : [],
     ingredients: row.ingredients_text ?? "",
+    ingredientsList: list,
     categories: row.categories
       ? row.categories.split(",").map((c) => c.trim()).filter(Boolean)
       : [],

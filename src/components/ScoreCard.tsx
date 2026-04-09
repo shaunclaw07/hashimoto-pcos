@@ -202,6 +202,18 @@ export function ScoreCard({
         </div>
       </div>
 
+      {/* Ingredients List */}
+      {product.ingredientsList && product.ingredientsList.length > 0 && (
+        <div className="border-t border-border px-5 py-5">
+          <h3 className="mb-4 text-base font-semibold text-foreground">
+            Zutaten
+          </h3>
+          <p className="text-base text-foreground leading-relaxed">
+            {product.ingredientsList.join(", ")}
+          </p>
+        </div>
+      )}
+
       {/* Action Buttons */}
       <div className="flex gap-3 border-t border-border p-5">
         <button

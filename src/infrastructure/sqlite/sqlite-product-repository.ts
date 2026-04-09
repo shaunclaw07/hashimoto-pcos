@@ -54,7 +54,9 @@ export class SqliteProductRepository implements IProductRepository {
       const row = getDb()
         .prepare("SELECT * FROM products WHERE barcode = ?")
         .get(barcode) as DbProductRow | undefined;
-      return row ? mapDbRowToProduct(row) : null;
+      if (!row) return null;
+      const ingredientsList = await this.findIngredientsByBarcode(barcode);
+      return mapDbRowToProduct(row, ingredientsList.length > 0 ? ingredientsList : undefined);
     } catch (err) {
       console.error("[SqliteProductRepository] findByBarcode failed:", err);
       return null;
