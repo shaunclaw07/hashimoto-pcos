@@ -139,8 +139,10 @@ Browser
 | `src/core/use-cases/search-products.test.ts` | SearchProductsUseCase tests |
 | `src/core/use-cases/manage-favorites.test.ts` | ManageFavoritesUseCase tests |
 | `src/infrastructure/openfoodfacts/off-api-adapter.test.ts` | OFf adapter tests (mocked fetch) |
-| `scripts/build-db.mjs` | One-time script: OpenFoodFacts CSV → SQLite (DACH filter, FTS5) |
-| `scripts/extract-fixtures.mjs` | Extracts 5 real products from `products.db` into JSON test fixtures |
+| `scripts/build-db.mjs` | OpenFoodFacts CSV → SQLite (DACH, FTS5, ingredient parsing) |
+| `scripts/ingredient-parser.mjs` | Two-phase parser: flattenIngredients + colon-label resolution |
+| `scripts/ingredient-data.mjs` | GERMAN whitelist Set + FUNCTIONAL_LABELS Set |
+| `scripts/extract-fixtures.mjs` | Extracts 5 hardcoded barcodes from `products.db` into test fixtures |
 | `data/products.db` | SQLite DB with ~462k DACH products (gitignored, build via `db:build`) |
 | `tests/fixtures/products/*.json` | 5 real product fixtures in domain format (sehr-gut / gut / neutral / weniger-gut / vermeiden) |
 | `tests/helpers/mock-api.ts` | Playwright helpers: `mockProductApi`, `mockProductNotFound`, `mockSearchApi` |
@@ -265,19 +267,164 @@ Tailwind custom colors for labels: `score-very-good`, `score-good`, `score-neutr
 
 ## Local SQLite Database
 
-- **File:** `data/products.db` (gitignored — build with `npm run db:build`)
-- **Source:** OpenFoodFacts global CSV export (`en.openfoodfacts.org.products.csv`)
-- **Filter:** Only DACH products (`countries_tags` contains `en:germany`, `en:austria`, or `en:switzerland`) with valid EAN-13 barcodes
-- **Size:** ~260 MB, ~462k products (~10% have nutriment data in the CSV)
-- **Search:** SQLite FTS5 virtual table (`products_fts`) for fast full-text search on product name and brand
-- **Build time:** ~5–10 minutes for the full CSV (~4.4M rows)
+### Schema
 
-**Nutriment enrichment:** When a product is found locally but has no nutriment data, the barcode route fetches nutriments from the OFf API and writes them back to the local DB (`UPDATE products SET nutriments = ?`). The DB grows more complete over time with each unique product lookup.
+```sql
+CREATE TABLE products (
+  barcode          TEXT PRIMARY KEY,
+  product_name     TEXT NOT NULL,
+  brands           TEXT,
+  image_url        TEXT,
+  nutriscore_grade TEXT,
+  ingredients_text TEXT,
+  allergens        TEXT,
+  additives_tags   TEXT,       -- comma-separated OFf additive tags (e.g. "en:e322,en:e450i")
+  nutriments       TEXT,       -- JSON: { energy-kcal_100g, sugars_100g, fat_100g, ... }
+  categories       TEXT,
+  categories_tags  TEXT,
+  labels           TEXT
+);
 
-To rebuild after a fresh CSV download:
+CREATE VIRTUAL TABLE products_fts USING fts5(
+  barcode       UNINDEXED,
+  product_name,
+  brands,
+  content='products',
+  content_rowid='rowid'
+);
+-- FTS5: search products by name/brand. synced via trigger on INSERT.
+
+CREATE TABLE ingredients (
+  id   INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE
+);
+-- Canonical ingredient names (lowercase German). Populated during db:build.
+
+CREATE TABLE product_ingredients (
+  barcode        TEXT NOT NULL,
+  ingredient_id  INTEGER NOT NULL,
+  raw_text       TEXT NOT NULL,  -- original text from ingredients list
+  position       INTEGER NOT NULL,
+  FOREIGN KEY (barcode)      REFERENCES products(barcode)      ON DELETE CASCADE,
+  FOREIGN KEY (ingredient_id) REFERENCES ingredients(id)         ON DELETE CASCADE,
+  PRIMARY KEY (barcode, position),       -- allows repeated ingredients via position
+  UNIQUE (barcode, ingredient_id)        -- deduplicates per product
+);
+-- Normalized ingredient list extracted during db:build via ingredient-parser.mjs.
+```
+
+### Nutriment Enrichment
+
+When a product is found locally but has no nutriment data, the barcode route fetches nutriments from the OFf API and writes them back to the local DB (`UPDATE products SET nutriments = ?`). The DB grows more complete over time with each unique product lookup.
+
+### Build Process
+
 ```bash
 node scripts/build-db.mjs /path/to/en.openfoodfacts.org.products.csv
 ```
+
+**Filters applied during import:**
+- Valid EAN-13 barcode (`/^\d{13}$/`)
+- DACH country tag (`en:germany`, `en:austria`, `en:switzerland`)
+- Non-empty German product name (`product_name_de`) that passes `isValidProductName()`
+- At least 5 nutriment fields with finite numeric values
+
+**What gets stored:**
+| Field | Source | Notes |
+|-------|--------|-------|
+| `product_name` | `product_name_de` → `product_name` | German name preferred |
+| `ingredients_text` | `ingredients_text_de` → `ingredients_text` | German ingredients preferred |
+| `nutriments` | JSON object | Only the 8 scored fields (energy, sugars, fat, saturated-fat, fiber, proteins, salt, sodium) |
+| `image_url` | `image_front_small_url` → `image_small_url` → `image_url` | Best available image |
+
+---
+
+## Ingredient Parsing Pipeline (`scripts/ingredient-parser.mjs`)
+
+The parser normalizes raw `ingredients_text` (e.g. `"Wasser, Emulgator: Sonnenblumenlecithin, Zucker (2%)"`) into a flat list of canonical ingredient names stored in `product_ingredients`.
+
+### Phase 1 — `flattenIngredients()` (depth tracking)
+
+Walks the string character-by-character tracking nesting depth:
+
+| Depth | Meaning | Behavior |
+|-------|---------|----------|
+| 0 | Top-level ingredient text | Accumulate characters; comma/semicolon splits tokens |
+| 1 | Inside first-level `()` | Accumulate; comma/semicolon also splits |
+| >1 | Nested parens (e.g. `"(min. 55%)"`) | **Discard** — percentages and sub-lists |
+
+Closing `)` at depth 1 flushes the current sub-ingredient token. A trailing percentage after a comma (e.g. `"Äpfel 99,9%,Foo"`) is stripped to avoid emitting broken numbers as ingredient names.
+
+### Phase 2 — Colon-label resolution
+
+Each flattened token is checked for a colon:
+
+```
+single colon:  "Emulgator: Sonnenblumenlecithin"
+  → FUNCTIONAL_LABELS label? → emit only right side ("sonnenblumenlecithin")
+  → otherwise → emit both sides
+
+multi-colon:   "Emulgator: Sojalecithin: E322"
+  → naive split, filter functional labels → emit remaining parts
+```
+
+### Functional Labels (`FUNCTIONAL_LABELS`)
+
+These describe a *category* of ingredient and must never be emitted as standalone ingredients:
+
+```javascript
+const FUNCTIONAL_LABELS = new Set([
+  'emulgator','emulgatoren',
+  'antioxidationsmittel','antioxidant',
+  'säureregulator','säuerungsmittel',
+  'verdickungsmittel','feuchthaltemittel','festigungsmittel',
+  'konservierungsstoff','konservierungsmittel',
+]);
+```
+
+Suppressed in two places: (1) single-colon `label: X` where `X` is a known ingredient, and (2) multi-colon fallback split.
+
+### Cleaning Pipeline (Steps 1–12b)
+
+Each segment passes through sequential cleaning:
+
+1. **Strip parentheticals** — removes any `(\d+%)` patterns
+2. **Remove trailing percentages** — strips `12,5%`-style suffixes
+3. **Normalize hyphens** — `ei-weiss` → `eiweiss`
+4. **Remove encoding artifacts** — strips `×•°©®™¹²³⁴⁵` etc.
+5. **Collapse whitespace/dashes** — multiple spaces/dashes → single space
+6. **Normalize E-numbers** — `E 322` → `e322`
+7. **Remove digit-starting tokens** — strips standalone numbers
+8. **Remove garbage** — too short or all-symbol tokens
+9. **Deduplicate** — `seen` Set prevents repeated canonical forms
+10. **Lowercase** — canonical form
+11. **Whitelist check** — must be in `GERMAN` Set
+12. **Functional label guard** — suppress bare functional labels
+
+### Ingredient Whitelist (`scripts/ingredient-data.mjs`)
+
+A `GERMAN` Set (~350 entries) of known German/European ingredient names used as the final filter. Organized by category (Süßungsmittel, Mehle, Öle, etc.). **Every entry must appear exactly once** — duplicates are silently ignored by the `Set` but make maintenance harder.
+
+Key categories: Zucker, Mehle, Öle, Eiweiss, Milchprodukte, Obst, Gemüse, Gewürze, Nüsse, Hülsenfrüchte, Fleisch, Fisch, Fermentierte, Zusatzstoffe (legitim), Enzyme, Nahrungsergänzung, Aromen.
+
+### Scripts
+
+| Path | Purpose |
+|------|---------|
+| `scripts/build-db.mjs` | One-time: OpenFoodFacts CSV → SQLite. DACH filter, FTS5, ingredient parsing, ingredient cache pattern |
+| `scripts/ingredient-parser.mjs` | Two-phase parser + cleaning pipeline. Exports `parseIngredients(text)`, `isValidProductName(name)` |
+| `scripts/ingredient-data.mjs` | `GERMAN` Set (~350 entries) + `FUNCTIONAL_LABELS` Set |
+| `scripts/extract-fixtures.mjs` | Extracts 5 hardcoded barcodes from `products.db` → `tests/fixtures/products/*.json` |
+
+```bash
+# Build DB (requires CSV from https://products.openfoodfacts.org/data)
+node scripts/build-db.mjs /path/to/en.openfoodfacts.org.products.csv
+
+# Extract/re-extract test fixtures (after DB changes)
+node scripts/extract-fixtures.mjs
+```
+
+**ESM note:** All scripts use `.mjs` extension. Never add `"type": "module"` to `package.json` — it breaks `better-sqlite3` and Next.js config files.
 
 ## External API — OpenFoodFacts (Fallback only)
 
