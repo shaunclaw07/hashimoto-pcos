@@ -30,7 +30,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
-.env*.local
+.env.local
 
 # vercel
 .vercel
@@ -39,7 +39,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# Claude Code local config
+# Claude Code
 .claude/
 
 # Git worktrees
@@ -54,5 +54,9 @@ docs/superpowers/
 # OpenFoodFacts CSV export (too large for git)
 *.csv
 
-# Git worktrees
-.worktrees/
+# Test output
+test-output.log
+test-output.txt
+
+# Dev server logs
+.next/dev/logs/
