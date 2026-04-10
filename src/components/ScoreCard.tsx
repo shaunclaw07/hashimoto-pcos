@@ -32,39 +32,39 @@ const CONDITION_LABEL: Record<Condition, string> = {
 
 export const SCORE_CONFIG = {
   "SEHR GUT": {
-    color: "#22c55e",
-    bgColor: "bg-green-50",
-    textColor: "text-green-700",
+    color: "var(--color-score-very-good)",
+    bgColor: "bg-[var(--color-score-very-good-bg)]",
+    textColor: "text-[var(--color-score-very-good-text)]",
     stars: 5,
-    borderColor: "border-green-200",
+    borderColor: "border-[var(--color-score-very-good)]/20",
   },
   GUT: {
-    color: "#84cc16",
-    bgColor: "bg-lime-50",
-    textColor: "text-lime-700",
+    color: "var(--color-score-good)",
+    bgColor: "bg-[var(--color-score-good-bg)]",
+    textColor: "text-[var(--color-score-good-text)]",
     stars: 4,
-    borderColor: "border-lime-200",
+    borderColor: "border-[var(--color-score-good)]/20",
   },
   NEUTRAL: {
-    color: "#a16207",
-    bgColor: "bg-yellow-50",
-    textColor: "text-yellow-700",
+    color: "var(--color-score-neutral)",
+    bgColor: "bg-[var(--color-score-neutral-bg)]",
+    textColor: "text-[var(--color-score-neutral-text)]",
     stars: 3,
-    borderColor: "border-yellow-200",
+    borderColor: "border-[var(--color-score-neutral)]/20",
   },
   "WENIGER GUT": {
-    color: "#c2410c",
-    bgColor: "bg-orange-50",
-    textColor: "text-orange-700",
+    color: "var(--color-score-fair)",
+    bgColor: "bg-[var(--color-score-fair-bg)]",
+    textColor: "text-[var(--color-score-fair-text)]",
     stars: 2,
-    borderColor: "border-orange-200",
+    borderColor: "border-[var(--color-score-fair)]/20",
   },
   VERMEIDEN: {
-    color: "#ef4444",
-    bgColor: "bg-red-50",
-    textColor: "text-red-700",
+    color: "var(--color-score-avoid)",
+    bgColor: "bg-[var(--color-score-avoid-bg)]",
+    textColor: "text-[var(--color-score-avoid-text)]",
     stars: 1,
-    borderColor: "border-red-200",
+    borderColor: "border-[var(--color-score-avoid)]/20",
   },
 } as const;
 
@@ -74,7 +74,7 @@ function StarRating({ stars, color }: { stars: number; color: string }) {
       {Array.from({ length: 5 }).map((_, i) => (
         <Star
           key={i}
-          className={`h-7 w-7 ${i < stars ? "fill-current" : "text-gray-300"}`}
+          className={`h-7 w-7 ${i < stars ? "fill-current" : "text-muted"}`}
           style={{ color: i < stars ? color : undefined }}
         />
       ))}
