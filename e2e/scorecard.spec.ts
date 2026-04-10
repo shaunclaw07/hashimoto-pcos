@@ -3,6 +3,8 @@ import { mockProductApi } from '../tests/helpers/mock-api';
 import vermeiden from '../tests/fixtures/products/vermeiden.json';
 import sehrGut from '../tests/fixtures/products/sehr-gut.json';
 import wenigerGut from '../tests/fixtures/products/weniger-gut.json';
+import brokkoliSalat from '../tests/fixtures/products/brokkoli-salat.json';
+import honig from '../tests/fixtures/products/honig.json';
 
 const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
 
@@ -52,6 +54,38 @@ test.describe('ScoreCard Component', () => {
     await page.goto(`/result/${wenigerGut.barcode}`);
     await expect(
       page.locator('[role="img"][aria-label="PCOS"]')
+    ).toBeVisible({ timeout: 5000 });
+  });
+
+  test('condition_icon_hashimoto_has_aria_label', async ({ page }) => {
+    // brokkoli-salat contains Brokkoli (raw Brassica = goitrogen) → Hashimoto icon
+    await mockProductApi(page, brokkoliSalat.barcode, brokkoliSalat);
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        'hashimoto-pcos-user-profile',
+        JSON.stringify({ condition: 'hashimoto', glutenSensitive: false, lactoseIntolerant: false })
+      );
+    });
+    await page.goto(`/result/${brokkoliSalat.barcode}`);
+    await expect(
+      page.locator('[role="img"][aria-label="Hashimoto-Thyreoiditis"]')
+    ).toBeVisible({ timeout: 5000 });
+  });
+
+  test('condition_icon_both_profile_shows_both_aria_label', async ({ page }) => {
+    // honig: 80g sugar (>20g) → sugar malus with condition="both"
+    // For "both" profile, sugar > 20g triggers a breakdown item with condition="both"
+    await mockProductApi(page, honig.barcode, honig);
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        'hashimoto-pcos-user-profile',
+        JSON.stringify({ condition: 'both', glutenSensitive: false, lactoseIntolerant: false })
+      );
+    });
+    await page.goto(`/result/${honig.barcode}`);
+    // Sugar > 20g with "both" profile creates item with aria-label "Hashimoto-Thyreoiditis und PCOS"
+    await expect(
+      page.locator('[role="img"][aria-label="Hashimoto-Thyreoiditis und PCOS"]')
     ).toBeVisible({ timeout: 5000 });
   });
 

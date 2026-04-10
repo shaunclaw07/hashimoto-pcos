@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Star, RotateCcw, Save, Check, AlertTriangle, Info } from "lucide-react";
 import type { Product } from "@/core/domain/product";
 import type { ScoreResult, ScoreBreakdownItem } from "@/core/domain/score";
@@ -292,6 +292,29 @@ function NutrientRow({
   unit: string;
 }) {
   const [showTooltip, setShowTooltip] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!showTooltip) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (buttonRef.current && !buttonRef.current.contains(e.target as Node)) {
+        setShowTooltip(false);
+      }
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowTooltip(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [showTooltip]);
 
   if (value === undefined || value === null) {
     return (
@@ -300,11 +323,11 @@ function NutrientRow({
         <span className="relative flex items-center gap-1">
           <span>Nicht angegeben</span>
           <button
+            ref={buttonRef}
             type="button"
             aria-label="Warum fehlt dieser Wert?"
             aria-expanded={showTooltip}
             onClick={() => setShowTooltip((v) => !v)}
-            onBlur={() => setShowTooltip(false)}
             className="rounded-full p-0.5 hover:bg-muted transition-colors"
           >
             <Info className="h-3.5 w-3.5" />
