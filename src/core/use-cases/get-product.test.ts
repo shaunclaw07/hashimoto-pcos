@@ -24,6 +24,7 @@ function makeRepo(overrides: Partial<IProductRepository> = {}): IProductReposito
     findByBarcode: vi.fn().mockResolvedValue(null),
     search: vi.fn().mockResolvedValue({ products: [], total: 0, page: 1 }),
     updateNutriments: vi.fn().mockResolvedValue(undefined),
+    saveProduct: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }
@@ -75,5 +76,47 @@ describe("GetProductUseCase", () => {
       "4006040197219",
       enriched.nutriments
     );
+  });
+
+  it("speichert OFF-Produkt in Primary wenn Fallback es liefert", async () => {
+    const fallbackProduct: Product = {
+      ...mockProduct,
+      ingredients: "Zucker, Wasser, Salz",
+    };
+    const primary = makeRepo();
+    const fallback = makeRepo({ findByBarcode: vi.fn().mockResolvedValue(fallbackProduct) });
+
+    const useCase = new GetProductUseCase(primary, fallback);
+    const result = await useCase.execute("4006040197219");
+
+    expect(result.success).toBe(true);
+    expect(primary.saveProduct).toHaveBeenCalledOnce();
+    expect(primary.saveProduct).toHaveBeenCalledWith(
+      fallbackProduct,
+      expect.any(Array)
+    );
+  });
+
+  it("gibt Produkt zurück auch wenn saveProduct fehlschlägt (graceful degradation)", async () => {
+    const primary = makeRepo({
+      saveProduct: vi.fn().mockRejectedValue(new Error("DB error")),
+    });
+    const fallback = makeRepo({ findByBarcode: vi.fn().mockResolvedValue(mockProduct) });
+
+    const useCase = new GetProductUseCase(primary, fallback);
+    const result = await useCase.execute("4006040197219");
+
+    expect(result.success).toBe(true);
+    if (result.success) expect(result.product.name).toBe("Test Produkt");
+  });
+
+  it("ruft saveProduct nicht auf wenn Produkt bereits in Primary vorhanden", async () => {
+    const primary = makeRepo({ findByBarcode: vi.fn().mockResolvedValue(mockProduct) });
+    const fallback = makeRepo();
+
+    const useCase = new GetProductUseCase(primary, fallback);
+    await useCase.execute("4006040197219");
+
+    expect(primary.saveProduct).not.toHaveBeenCalled();
   });
 });

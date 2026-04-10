@@ -181,4 +181,94 @@ describe("SqliteProductRepository", () => {
       consoleSpy.mockRestore();
     });
   });
+
+  describe("saveProduct", () => {
+    it("upserts product and links parsed ingredients", async () => {
+      const mockRun = vi.fn();
+      const mockGet = vi.fn();
+      const mockAll = vi.fn().mockReturnValue([]);
+      mockPrepare.mockReturnValue({ run: mockRun, get: mockGet, all: mockAll });
+
+      // Ingredient INSERT OR IGNORE + SELECT for id
+      const ingredientId = 42;
+      mockGet.mockReturnValue({ id: ingredientId });
+
+      repo = new SqliteProductRepository();
+      const product = {
+        barcode: "4006040197219",
+        name: "Test Produkt",
+        brand: "Testmarke",
+        imageUrl: undefined,
+        nutriments: { sugars: 5 },
+        labels: ["bio"],
+        ingredients: "Zucker, Wasser",
+        categories: ["snacks"],
+        additives: [],
+      };
+      const parsedIngredients = [
+        { raw: "Zucker", canonical: "zucker" },
+        { raw: "Wasser", canonical: "wasser" },
+      ];
+
+      await repo.saveProduct(product, parsedIngredients);
+
+      // Should have called prepare multiple times (upsert product + ingredients)
+      expect(mockPrepare).toHaveBeenCalled();
+      // Product upsert must run
+      const allCalls: string[] = mockPrepare.mock.calls.map((c: unknown[]) => c[0] as string);
+      expect(allCalls.some((sql: string) => sql.includes("ON CONFLICT"))).toBe(true);
+    });
+
+    it("soll console.error bei DB-Fehler loggen und keinen Fehler werfen", async () => {
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      mockPrepare.mockReturnValue({
+        run: vi.fn(() => { throw new Error("DB error"); }),
+        get: vi.fn(),
+        all: vi.fn().mockReturnValue([]),
+      });
+
+      repo = new SqliteProductRepository();
+      await expect(
+        repo.saveProduct(
+          {
+            barcode: "4006040197219",
+            name: "Test",
+            nutriments: {},
+            labels: [],
+            ingredients: "",
+            categories: [],
+            additives: [],
+          },
+          []
+        )
+      ).resolves.toBeUndefined();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "[SqliteProductRepository] saveProduct failed:",
+        expect.any(Error)
+      );
+      consoleSpy.mockRestore();
+    });
+
+    it("handles empty parsedIngredients without errors", async () => {
+      const mockRun = vi.fn();
+      mockPrepare.mockReturnValue({ run: mockRun, get: vi.fn(), all: vi.fn().mockReturnValue([]) });
+
+      repo = new SqliteProductRepository();
+      await expect(
+        repo.saveProduct(
+          {
+            barcode: "4006040197219",
+            name: "Test",
+            nutriments: {},
+            labels: [],
+            ingredients: "",
+            categories: [],
+            additives: [],
+          },
+          []
+        )
+      ).resolves.toBeUndefined();
+    });
+  });
 });
