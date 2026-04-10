@@ -23,6 +23,12 @@ const CONDITION_ICON: Record<Condition, string> = {
   both: "🦋🔵",
 };
 
+const CONDITION_LABEL: Record<Condition, string> = {
+  hashimoto: "Hashimoto-Thyreoiditis",
+  pcos: "PCOS",
+  both: "Hashimoto-Thyreoiditis und PCOS",
+};
+
 export const SCORE_CONFIG = {
   "SEHR GUT": {
     color: "#22c55e",
@@ -159,7 +165,15 @@ export function ScoreCard({
                     )}
                   </span>
                   <span className="flex-1 text-foreground">
-                    {item.condition && <span className="mr-1">{CONDITION_ICON[item.condition]}</span>}
+                    {item.condition && (
+                      <span
+                        className="mr-1"
+                        role="img"
+                        aria-label={CONDITION_LABEL[item.condition]}
+                      >
+                        {CONDITION_ICON[item.condition]}
+                      </span>
+                    )}
                     {item.reason}
                   </span>
                   <span
