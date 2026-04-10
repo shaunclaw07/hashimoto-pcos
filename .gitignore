@@ -58,5 +58,3 @@ docs/superpowers/
 test-output.log
 test-output.txt
 
-# Dev server logs
-.next/dev/logs/
