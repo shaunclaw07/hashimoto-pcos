@@ -248,19 +248,36 @@ docker compose logs -f
 
 ### Kubernetes
 
-```bash
-# PVC erstellen (PersistentVolume für Datenbank)
-kubectl apply -f k8s/pvc.yaml
+Die Kubernetes-Manifests liegen unter `k8s/` und werden mit `kubectl apply -k k8s/` angewendet:
 
-# Deployment + HPA anwenden
+```bash
+# Alle Ressourcen in korrekter Reihenfolge anwenden (PVC → ConfigMap → Service → Deployment → Ingress)
+kubectl apply -k k8s/
+
+# Oder manuell in Reihenfolge (bei frischem Cluster: PVC zuerst)
+kubectl apply -f k8s/pvc.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/service.yaml
 kubectl apply -f k8s/deployment.yaml
-kubectl apply -f k8s/hpa.yaml
+kubectl apply -f k8s/ingress.yaml
 
 # Status prüfen
-kubectl get pods -l app=hashimoto-pcos
-kubectl get pvc hashimoto-pcos-data-pvc
-kubectl get hpa hashimoto-pcos-hpa
+kubectl get pods -l app=hashimoto-pcos -n default
+kubectl get pvc hashimoto-pcos-data-pvc -n default
 ```
+
+**Ressourcen:**
+
+| Datei | Beschreibung |
+|------|-------------|
+| `pvc.yaml` | PersistentVolumeClaim für SQLite-DB (1Gi, ReadWriteOnce) |
+| `configmap.yaml` | ConfigMap mit `NEXT_PUBLIC_API_URL` für OpenFoodFacts |
+| `service.yaml` | ClusterIP Service (Port 80 → Container 3000) |
+| `deployment.yaml` | Deployment mit Graceful Shutdown (`terminationGracePeriodSeconds: 30`) |
+| `ingress.yaml` | NGINX Ingress für `hashimoto.example.com` |
+| `kustomization.yaml` | Kustomize-Definition für geordnete Apply-Reihenfolge |
+
+**Konfiguration:** `NEXT_PUBLIC_API_URL` wird über die ConfigMap (`hashimoto-pcos-config`) injected — nicht hardcodiert im Deployment.
 
 **Hinweis:** Das Deployment verwendet `replicas: 1`, da SQLite nur einen Schreibprozess unterstützt (ReadWriteOnce PVC). Die DB wird über ein PersistentVolume am `/app/data`-Mount verwaltet.
 
