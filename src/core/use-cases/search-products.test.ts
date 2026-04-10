@@ -54,4 +54,11 @@ describe("SearchProductsUseCase", () => {
       pageSize: 10,
     });
   });
+
+  it("calls primary.search exactly once", async () => {
+    const primary = makeRepo(mockResult);
+    const useCase = new SearchProductsUseCase(primary);
+    await useCase.execute({ terms: "test", page: 1, pageSize: 20 });
+    expect(primary.search).toHaveBeenCalledTimes(1);
+  });
 });
