@@ -6,6 +6,7 @@
     "dev": "next dev",
     "dev:clean": "rm -rf .next && next dev",
     "db:build": "node scripts/build-db.mjs",
+    "db:build:minimal": "node scripts/build-db.mjs --minimal",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src/",
