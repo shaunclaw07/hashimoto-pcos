@@ -6,6 +6,7 @@ import { BottomNav } from "@/components/bottom-nav";
 import { OnboardingGuard } from "@/components/onboarding-guard";
 import { ProfileHeader } from "@/components/profile-header";
 import { UserProfileProvider } from "@/hooks/use-user-profile";
+import { OfflineBanner } from "@/components/OfflineBanner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +31,7 @@ export default function RootLayout({
         >
           <UserProfileProvider>
             <OnboardingGuard>
+              <OfflineBanner />
               <ProfileHeader />
               <main className="min-h-screen pb-20 pt-14">
                 {children}

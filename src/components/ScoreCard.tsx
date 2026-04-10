@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Star, RotateCcw, Save, Check, AlertTriangle, Info } from "lucide-react";
 import type { Product } from "@/core/domain/product";
 import type { ScoreResult, ScoreBreakdownItem } from "@/core/domain/score";
@@ -90,6 +91,7 @@ export function ScoreCard({
   saved,
   profile,
 }: ScoreCardProps) {
+  const [imgLoaded, setImgLoaded] = useState(false);
   const config = SCORE_CONFIG[scoreResult.label];
   if (!config) throw new Error(`Unknown score label: ${scoreResult.label}`);
   const [activeItem, setActiveItem] = useState<ScoreBreakdownItem | null>(null);
@@ -100,14 +102,23 @@ export function ScoreCard({
       {/* Product Header */}
       <div className="flex gap-4 p-5">
         {product.imageUrl ? (
-          <img
-            src={product.imageUrl}
-            alt={product.name || "Produkt"}
-            className="h-28 w-28 shrink-0 rounded-xl object-contain bg-background-warm p-2"
-          />
+          <div className="relative h-28 w-28 shrink-0">
+            {!imgLoaded && (
+              <div className="absolute inset-0 animate-pulse rounded-xl bg-muted" aria-hidden="true" />
+            )}
+            <Image
+              src={product.imageUrl}
+              alt={product.name || "Produkt"}
+              width={112}
+              height={112}
+              priority
+              className="h-28 w-28 rounded-xl object-contain bg-background-warm p-2"
+              onLoad={() => setImgLoaded(true)}
+            />
+          </div>
         ) : (
           <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-xl bg-background-warm">
-            <span className="text-5xl">🍽️</span>
+            <span className="text-5xl" aria-hidden="true">🍽️</span>
           </div>
         )}
         <div className="flex flex-col justify-center min-w-0 flex-1">

@@ -105,6 +105,77 @@ test.describe('Onboarding Flow', () => {
     await page.goto('/');
     await expect(page.getByRole('link', { name: /🔵 pcos/i })).toBeVisible({ timeout: 5000 });
   });
+
+  test('onboarding_progress_survives_page_refresh', async ({ page }) => {
+    await page.goto('/onboarding');
+    // Step 1: select PCOS and advance to step 2
+    await page.getByRole('button', { name: /pcos/i }).click();
+    await page.getByRole('button', { name: /weiter/i }).click();
+    // Should be on step 2 now
+    await expect(page.getByRole('heading', { name: /fast fertig/i })).toBeVisible({ timeout: 5000 });
+
+    // Reload the page
+    await page.reload();
+
+    // Step 2 should still be active (progress restored)
+    await expect(page.getByRole('heading', { name: /fast fertig/i })).toBeVisible({ timeout: 5000 });
+
+    // Complete onboarding
+    await page.getByRole('button', { name: /fertigstellen/i }).click();
+    await expect(page).toHaveURL('/', { timeout: 5000 });
+
+    // Verify profile was saved correctly
+    const raw = await page.evaluate((key) => localStorage.getItem(key), PROFILE_KEY);
+    expect(raw).not.toBeNull();
+    const profile = JSON.parse(raw!);
+    expect(profile.condition).toBe('pcos');
+  });
+
+  test('onboarding_progress_cleared_on_skip', async ({ page }) => {
+    await page.goto('/onboarding');
+    // Step 1: select Hashimoto and advance to step 2
+    await page.getByRole('button', { name: /hashimoto-thyreoiditis/i }).click();
+    await page.getByRole('button', { name: /weiter/i }).click();
+    await expect(page.getByRole('heading', { name: /fast fertig/i })).toBeVisible({ timeout: 5000 });
+
+    // Go back to step 1 (skip button only exists on step 1)
+    await page.getByRole('button', { name: /zurück/i }).click();
+    await expect(page.getByRole('heading', { name: /willkommen/i })).toBeVisible({ timeout: 5000 });
+
+    // Skip onboarding
+    await page.getByRole('button', { name: /später einrichten/i }).click();
+    await expect(page).toHaveURL('/', { timeout: 5000 });
+
+    // Progress key should be cleared
+    const progressRaw = await page.evaluate((key) => localStorage.getItem(key), "hashimoto-pcos-onboarding-progress");
+    expect(progressRaw).toBeNull();
+
+    // Skipped key should be set
+    const skipped = await page.evaluate((key) => localStorage.getItem(key), SKIPPED_KEY);
+    expect(skipped).toBe('true');
+  });
+
+  test('onboarding_progress_cleared_on_complete', async ({ page }) => {
+    await page.goto('/onboarding');
+    // Step 1: select Hashimoto and advance to step 2
+    await page.getByRole('button', { name: /hashimoto-thyreoiditis/i }).click();
+    await page.getByRole('button', { name: /weiter/i }).click();
+    await expect(page.getByRole('heading', { name: /fast fertig/i })).toBeVisible({ timeout: 5000 });
+
+    // Complete onboarding
+    await page.getByRole('button', { name: /fertigstellen/i }).click();
+    await expect(page).toHaveURL('/', { timeout: 5000 });
+
+    // Progress key should be cleared
+    const progressRaw = await page.evaluate((key) => localStorage.getItem(key), "hashimoto-pcos-onboarding-progress");
+    expect(progressRaw).toBeNull();
+
+    // Profile should be saved
+    const raw = await page.evaluate((key) => localStorage.getItem(key), PROFILE_KEY);
+    expect(raw).not.toBeNull();
+    const profile = JSON.parse(raw!);
+    expect(profile.condition).toBe('hashimoto');
+  });
 });
 
 test.describe('Settings Page', () => {

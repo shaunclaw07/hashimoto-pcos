@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import type { Condition } from "@/core/domain/user-profile";
 import { cn } from "@/lib/utils";
 import { ArrowRight, ArrowLeft, Check } from "lucide-react";
 import { CONDITIONS, SENSITIVITY_OPTIONS, type SensitivityAnswer } from "@/lib/profile-options";
+
+const PROGRESS_KEY = "hashimoto-pcos-onboarding-progress";
 
 export default function OnboardingPage() {
   const { setProfile, skipOnboarding } = useUserProfile();
@@ -16,7 +18,40 @@ export default function OnboardingPage() {
   const [glutenAnswer, setGlutenAnswer] = useState<SensitivityAnswer | null>(null);
   const [lactoseAnswer, setLactoseAnswer] = useState<SensitivityAnswer | null>(null);
 
+  // Restore progress from localStorage on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(PROGRESS_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as {
+        step: 1 | 2;
+        condition: Condition | null;
+        glutenAnswer: SensitivityAnswer | null;
+        lactoseAnswer: SensitivityAnswer | null;
+      };
+      setStep(saved.step);
+      setCondition(saved.condition);
+      setGlutenAnswer(saved.glutenAnswer);
+      setLactoseAnswer(saved.lactoseAnswer);
+    } catch {
+      // corrupt data — start fresh
+    }
+  }, []);
+
+  // Persist progress to localStorage on every state change
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        PROGRESS_KEY,
+        JSON.stringify({ step, condition, glutenAnswer, lactoseAnswer })
+      );
+    } catch {
+      // quota exceeded — silent fail
+    }
+  }, [step, condition, glutenAnswer, lactoseAnswer]);
+
   function handleSkip() {
+    localStorage.removeItem(PROGRESS_KEY);
     skipOnboarding();
     router.replace("/");
   }
@@ -28,6 +63,7 @@ export default function OnboardingPage() {
 
   function handleFinish() {
     if (!condition) return;
+    localStorage.removeItem(PROGRESS_KEY);
     setProfile({
       condition,
       glutenSensitive: glutenAnswer === "yes",   // "no" and "unknown" both map to false

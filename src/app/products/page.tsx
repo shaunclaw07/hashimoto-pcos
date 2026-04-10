@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect, Suspense } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Search, Loader2, PackageX, ServerCrash, ScanBarcode } from "lucide-react";
 import { calculateScore } from "@/core/services/scoring-service";
@@ -11,6 +12,7 @@ import Link from "next/link";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { usePullToRefresh } from "@/hooks/use-pull-to-refresh";
 import { PullToRefreshIndicator } from "@/components/pull-to-refresh-indicator";
+import { getItem, setItem, removeItem } from "@/lib/session-storage-cache";
 
 const CATEGORIES = [
   { key: "all", label: "Alle" },
@@ -33,13 +35,9 @@ function getSessionStorageKey(q: string, cat: string): string {
 }
 
 function getStoredData(q: string, cat: string) {
-  try {
-    const raw = sessionStorage.getItem(getSessionStorageKey(q, cat));
-    if (!raw) return null;
-    return JSON.parse(raw) as { products: Product[]; count: number; maxPage: number; hasMore: boolean };
-  } catch {
-    return null;
-  }
+  return getItem<{ products: Product[]; count: number; maxPage: number; hasMore: boolean }>(
+    getSessionStorageKey(q, cat)
+  );
 }
 
 interface ApiSearchResponse {
@@ -231,22 +229,22 @@ function ProductsPageContent() {
         // Reset accumulator on new search
         accumulatedProductsRef.current = result.products;
         setResults(result.products);
-        sessionStorage.setItem(
+        setItem(
           getSessionStorageKey(effectiveQuery, effectiveCategory),
-          JSON.stringify({ products: accumulatedProductsRef.current, count: result.count, maxPage: 1, hasMore: pageHasMore })
+          { products: accumulatedProductsRef.current, count: result.count, maxPage: 1, hasMore: pageHasMore }
         );
       } else {
         // Append to accumulator — avoids stale sessionStorage read race condition
         accumulatedProductsRef.current = [...accumulatedProductsRef.current, ...result.products];
         setResults((prev) => [...prev, ...result.products]);
-        sessionStorage.setItem(
+        setItem(
           getSessionStorageKey(effectiveQuery, effectiveCategory),
-          JSON.stringify({
+          {
             products: accumulatedProductsRef.current,
             count: result.count,
             maxPage: newPage,
             hasMore: pageHasMore,
-          })
+          }
         );
       }
       setHasMore(pageHasMore);
@@ -289,7 +287,7 @@ function ProductsPageContent() {
       if (!query.trim() && category === "all") return;
       // Clear session storage for this search to force fresh fetch
       const oldKey = getSessionStorageKey(query.trim(), category);
-      sessionStorage.removeItem(oldKey);
+      removeItem(oldKey);
       // Reset page and re-fetch
       await handleSearch(undefined, 1, query.trim(), category);
     },
@@ -308,7 +306,7 @@ function ProductsPageContent() {
     setTotalCount(0);
     setServerBusy(false);
     accumulatedProductsRef.current = [];
-    sessionStorage.removeItem(oldKey);
+    removeItem(oldKey);
     router.push("/products", { scroll: false });
   }
 
@@ -345,7 +343,7 @@ function ProductsPageContent() {
                 setPage(1);
                 setHasMore(false);
                 setTotalCount(0);
-                sessionStorage.removeItem(oldKey); // clean up stale entry
+                removeItem(oldKey); // clean up stale entry
                 if (query.trim() || newCat !== "all") {
                   // Pass both query and newCat explicitly to avoid stale closures
                   handleSearch(undefined, 1, query.trim(), newCat);
@@ -496,6 +494,8 @@ function getScoreColor(score: number): string {
 }
 
 function ProductCard({ product, profile }: { product: Product; profile?: UserProfile }) {
+  const [imgLoaded, setImgLoaded] = useState(false);
+
   let scoreResult: ScoreResult | undefined;
   try {
     scoreResult = calculateScore(product, profile);
@@ -512,14 +512,22 @@ function ProductCard({ product, profile }: { product: Product; profile?: UserPro
       className="card-warm p-4 flex gap-4 transition-all hover:shadow-card active:scale-[0.99]"
     >
       {product.imageUrl ? (
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          className="h-20 w-20 shrink-0 rounded-xl object-contain bg-background-warm p-1.5"
-        />
+        <div className="relative h-20 w-20 shrink-0">
+          {!imgLoaded && (
+            <div className="absolute inset-0 animate-pulse rounded-xl bg-muted" aria-hidden="true" />
+          )}
+          <Image
+            src={product.imageUrl}
+            alt={product.name}
+            width={80}
+            height={80}
+            className="h-20 w-20 rounded-xl object-contain bg-background-warm p-1.5"
+            onLoad={() => setImgLoaded(true)}
+          />
+        </div>
       ) : (
         <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-background-warm">
-          <span className="text-3xl">🍽️</span>
+          <span className="text-3xl" aria-hidden="true">🍽️</span>
         </div>
       )}
       <div className="flex flex-col justify-center min-w-0 flex-1">
