@@ -13,6 +13,9 @@ describe("mapDbRowToProduct", () => {
     ingredients_text: "Zucker, Wasser",
     categories: null,
     additives_tags: null,
+    nutriscore_grade: null,
+    allergens: null,
+    categories_tags: null,
   };
 
   it("maps basic fields correctly", () => {

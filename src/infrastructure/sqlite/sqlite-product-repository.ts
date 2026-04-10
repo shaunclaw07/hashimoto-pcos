@@ -1,6 +1,7 @@
 // src/infrastructure/sqlite/sqlite-product-repository.ts
 import type { IProductRepository } from "../../core/ports/product-repository";
 import type { Product, SearchQuery, SearchResult, Nutriments } from "../../core/domain/product";
+import type { ParsedIngredient } from "../../core/services/ingredient-parser";
 import { getDb } from "./sqlite-client";
 import { mapDbRowToProduct } from "./sqlite-mappers";
 import type { DbProductRow } from "./sqlite-client";
@@ -162,6 +163,65 @@ export class SqliteProductRepository implements IProductRepository {
     } catch (err) {
       console.error("[SqliteProductRepository] findIngredientsByBarcode failed:", err);
       return [];
+    }
+  }
+
+  async saveProduct(product: Product, parsedIngredients: ParsedIngredient[]): Promise<void> {
+    try {
+      const db = getDb();
+      const nutrientsJson = JSON.stringify({
+        "energy-kcal_100g": product.nutriments.energyKcal ?? null,
+        fat_100g: product.nutriments.fat ?? null,
+        "saturated-fat_100g": product.nutriments.saturatedFat ?? null,
+        sugars_100g: product.nutriments.sugars ?? null,
+        fiber_100g: product.nutriments.fiber ?? null,
+        proteins_100g: product.nutriments.protein ?? null,
+        salt_100g: product.nutriments.salt ?? null,
+      });
+
+      db.prepare(
+        `INSERT INTO products (barcode, product_name, brands, image_url, nutriments, labels, ingredients_text, categories)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(barcode) DO UPDATE SET
+           product_name = excluded.product_name,
+           brands = excluded.brands,
+           image_url = excluded.image_url,
+           nutriments = excluded.nutriments,
+           labels = excluded.labels,
+           ingredients_text = excluded.ingredients_text,
+           categories = excluded.categories`
+      ).run(
+        product.barcode,
+        product.name,
+        product.brand ?? null,
+        product.imageUrl ?? null,
+        nutrientsJson,
+        product.labels.join(",") || null,
+        product.ingredients || null,
+        product.categories.join(",") || null,
+      );
+
+      // Keep the FTS index in sync (external content table — no automatic trigger)
+      db.prepare(
+        `INSERT OR IGNORE INTO products_fts(rowid, barcode, product_name, brands)
+         VALUES ((SELECT rowid FROM products WHERE barcode = ?), ?, ?, ?)`
+      ).run(product.barcode, product.barcode, product.name, product.brand ?? null);
+
+      if (parsedIngredients.length > 0) {
+        // Remove stale ingredient links before re-inserting
+        db.prepare("DELETE FROM product_ingredients WHERE barcode = ?").run(product.barcode);
+
+        for (let i = 0; i < parsedIngredients.length; i++) {
+          const { raw, canonical } = parsedIngredients[i];
+          db.prepare("INSERT OR IGNORE INTO ingredients (name) VALUES (?)").run(canonical);
+          const row = db.prepare("SELECT id FROM ingredients WHERE name = ?").get(canonical) as { id: number };
+          db.prepare(
+            "INSERT OR IGNORE INTO product_ingredients (barcode, ingredient_id, raw_text, position) VALUES (?, ?, ?, ?)"
+          ).run(product.barcode, row.id, raw, i);
+        }
+      }
+    } catch (err) {
+      console.error("[SqliteProductRepository] saveProduct failed:", err);
     }
   }
 

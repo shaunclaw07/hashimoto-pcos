@@ -1,6 +1,7 @@
 // src/infrastructure/openfoodfacts/off-api-adapter.ts
 import type { IProductRepository } from "../../core/ports/product-repository";
 import type { Product, SearchQuery, SearchResult, Nutriments } from "../../core/domain/product";
+import type { ParsedIngredient } from "../../core/services/ingredient-parser";
 import { mapOffProductToProduct } from "./off-mappers";
 import type { OffApiResponse, OffSearchResponse, OffProduct } from "./off-types";
 
@@ -53,6 +54,7 @@ export class OffApiAdapter implements IProductRepository {
     }
   }
 
-  // OFf API ist read-only — no-op
+  // OFf API ist read-only — no-ops
   async updateNutriments(_barcode: string, _nutriments: Nutriments): Promise<void> {}
+  async saveProduct(_product: Product, _parsedIngredients: ParsedIngredient[]): Promise<void> {}
 }

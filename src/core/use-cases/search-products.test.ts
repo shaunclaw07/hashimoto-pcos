@@ -8,6 +8,7 @@ function makeRepo(searchResult: SearchResult): IProductRepository {
     findByBarcode: vi.fn().mockResolvedValue(null),
     search: vi.fn().mockResolvedValue(searchResult),
     updateNutriments: vi.fn().mockResolvedValue(undefined),
+    saveProduct: vi.fn().mockResolvedValue(undefined),
   };
 }
 

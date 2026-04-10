@@ -1,4 +1,5 @@
 import { isValidBarcode } from "../services/barcode-service";
+import { parseIngredients } from "../services/ingredient-parser";
 import type { IProductRepository } from "../ports/product-repository";
 import type { Product } from "../domain/product";
 
@@ -40,6 +41,12 @@ export class GetProductUseCase {
           success: false,
           error: { type: "not_found", message: "Produkt nicht gefunden" },
         };
+      }
+      try {
+        const parsedIngredients = parseIngredients(fallback.ingredients);
+        await this.primaryRepo.saveProduct(fallback, parsedIngredients);
+      } catch (err) {
+        console.error("[GetProductUseCase] saveProduct failed:", err);
       }
       return { success: true, product: fallback };
     }
