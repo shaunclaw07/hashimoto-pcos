@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Star, RotateCcw, Save, Check, AlertTriangle, Info } from "lucide-react";
 import type { Product } from "@/core/domain/product";
 import type { ScoreResult, ScoreBreakdownItem } from "@/core/domain/score";
@@ -23,7 +23,13 @@ const CONDITION_ICON: Record<Condition, string> = {
   both: "🦋🔵",
 };
 
-const SCORE_CONFIG = {
+const CONDITION_LABEL: Record<Condition, string> = {
+  hashimoto: "Hashimoto-Thyreoiditis",
+  pcos: "PCOS",
+  both: "Hashimoto-Thyreoiditis und PCOS",
+};
+
+export const SCORE_CONFIG = {
   "SEHR GUT": {
     color: "#22c55e",
     bgColor: "bg-green-50",
@@ -39,14 +45,14 @@ const SCORE_CONFIG = {
     borderColor: "border-lime-200",
   },
   NEUTRAL: {
-    color: "#eab308",
+    color: "#a16207",
     bgColor: "bg-yellow-50",
     textColor: "text-yellow-700",
     stars: 3,
     borderColor: "border-yellow-200",
   },
   "WENIGER GUT": {
-    color: "#f97316",
+    color: "#c2410c",
     bgColor: "bg-orange-50",
     textColor: "text-orange-700",
     stars: 2,
@@ -159,7 +165,15 @@ export function ScoreCard({
                     )}
                   </span>
                   <span className="flex-1 text-foreground">
-                    {item.condition && <span className="mr-1">{CONDITION_ICON[item.condition]}</span>}
+                    {item.condition && (
+                      <span
+                        className="mr-1"
+                        role="img"
+                        aria-label={CONDITION_LABEL[item.condition]}
+                      >
+                        {CONDITION_ICON[item.condition]}
+                      </span>
+                    )}
                     {item.reason}
                   </span>
                   <span
@@ -277,14 +291,60 @@ function NutrientRow({
   value?: number;
   unit: string;
 }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!showTooltip) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (buttonRef.current && !buttonRef.current.contains(e.target as Node)) {
+        setShowTooltip(false);
+      }
+    };
+
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowTooltip(false);
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [showTooltip]);
+
   if (value === undefined || value === null) {
     return (
       <div className="flex justify-between text-muted-foreground">
         <span>{label}</span>
-        <span>—</span>
+        <span className="relative flex items-center gap-1">
+          <span>Nicht angegeben</span>
+          <button
+            ref={buttonRef}
+            type="button"
+            aria-label="Warum fehlt dieser Wert?"
+            aria-expanded={showTooltip}
+            onClick={() => setShowTooltip((v) => !v)}
+            className="rounded-full p-0.5 hover:bg-muted transition-colors"
+          >
+            <Info className="h-3.5 w-3.5" />
+          </button>
+          {showTooltip && (
+            <span
+              role="tooltip"
+              className="pointer-events-none absolute right-0 bottom-full mb-1 z-10 w-52 rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-card"
+            >
+              Diese Angabe fehlt in der Produktdatenbank
+            </span>
+          )}
+        </span>
       </div>
     );
   }
+
   return (
     <div className="flex justify-between">
       <span className="text-foreground">{label}</span>

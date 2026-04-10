@@ -1,0 +1,19 @@
+{
+  "barcode": "9999000099999",
+  "name": "Blütenhonig",
+  "brand": "Test",
+  "imageUrl": "",
+  "labels": [],
+  "ingredients": "Honig",
+  "categories": [],
+  "additives": [],
+  "nutriments": {
+    "energyKcal": 320,
+    "sugars": 80,
+    "fat": 0,
+    "saturatedFat": 0,
+    "fiber": 0,
+    "protein": 0.3,
+    "salt": 0
+  }
+}
