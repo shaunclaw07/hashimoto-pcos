@@ -5,7 +5,7 @@ metadata:
   labels:
     app: hashimoto-pcos
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: hashimoto-pcos
@@ -31,6 +31,9 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
+          volumeMounts:
+            - name: db-data
+              mountPath: /app/data
           livenessProbe:
             httpGet:
               path: /api/health/live
@@ -43,6 +46,10 @@ spec:
               port: 3000
             initialDelaySeconds: 5
             periodSeconds: 10
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: hashimoto-pcos-data-pvc
 ---
 apiVersion: v1
 kind: Service
