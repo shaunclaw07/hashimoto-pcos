@@ -2,6 +2,7 @@
 import Database from "better-sqlite3";
 import fs from "fs";
 import path from "path";
+import { createSchema } from "./sqlite-schema";
 
 export interface DbProductRow {
   barcode: string;
@@ -32,6 +33,7 @@ export function getDb(): Database.Database {
 
     try {
       _db = new Database(dbPath);
+      createSchema(_db);
     } catch (err) {
       throw new Error(`Database initialization failed: ${err instanceof Error ? err.message : String(err)}`);
     }
