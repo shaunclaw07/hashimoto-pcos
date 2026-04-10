@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Quagga from "@ericblade/quagga2";
-import { Camera, CameraOff, SwitchCamera, Loader2 } from "lucide-react";
+import { CameraOff, SwitchCamera, Loader2 } from "lucide-react";
 import { triggerHaptic, HAPTIC_PATTERNS } from "@/core/services/haptic-service";
 
 interface ScannerProps {
@@ -18,8 +18,11 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasPermission, setHasPermission] = useState<"pending" | "granted" | "denied">("pending");
   const [error, setError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
   const lastDetectedRef = useRef<string | null>(null);
   const lastDetectedTimeRef = useRef<number>(0);
+  const initAttemptRef = useRef<number>(0);
+  const maxInitAttempts = 3;
 
   // Debounce: ignore same barcode within 3 seconds
   const handleDetected = useCallback(
@@ -37,10 +40,31 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
     [onDetected]
   );
 
+  // Initialize Quagga with retry logic and dimension checks
   useEffect(() => {
     if (!scannerRef.current) return;
 
+    // Ensure container has valid dimensions before initializing
+    const containerWidth = scannerRef.current.clientWidth;
+    const containerHeight = scannerRef.current.clientHeight;
+    if (containerWidth === 0 || containerHeight === 0) {
+      // Container not ready, retry after a short delay
+      const retryTimeout = setTimeout(() => {
+        initAttemptRef.current += 1;
+        if (initAttemptRef.current < maxInitAttempts) {
+          // Force re-render to retry initialization
+          setRetryKey((k) => k + 1);
+        } else {
+          // Max retries exceeded
+          setError("Kamera konnte nicht initialisiert werden. Bitte lade die Seite neu.");
+          onError?.("max_retries_exceeded");
+        }
+      }, 100);
+      return () => clearTimeout(retryTimeout);
+    }
+
     setError(null);
+    initAttemptRef.current = 0;
 
     Quagga.init(
       {
@@ -48,8 +72,8 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
           type: "LiveStream",
           target: scannerRef.current,
           constraints: {
-            width: { min: 640 },
-            height: { min: 480 },
+            width: { min: 640, ideal: 1280 },
+            height: { min: 480, ideal: 720 },
             facingMode: cameraFacing,
             aspectRatio: { min: 1, max: 2 },
           },
@@ -65,6 +89,21 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
       },
       (err) => {
         if (err) {
+          // Check for dimension-related errors - these can be retried
+          if (err.message?.includes("dimensions") || err.message?.includes("NaN") || err.message?.includes("multiple")) {
+            initAttemptRef.current += 1;
+            if (initAttemptRef.current < maxInitAttempts) {
+              // Retry after a short delay
+              setTimeout(() => {
+                setRetryKey((k) => k + 1);
+              }, 200);
+              return;
+            }
+            // Max retries exceeded - show error
+            setError("Kamera konnte nicht initialisiert werden. Bitte lade die Seite neu.");
+            onError?.("dimension_error");
+            return;
+          }
           if (err.name === "NotAllowedError" || err.message?.includes("Permission")) {
             setHasPermission("denied");
             setError("Kamera-Zugriff verweigert. Bitte erlaube den Zugriff in den Browser-Einstellungen.");
@@ -98,11 +137,16 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
         setIsInitialized(false);
       }
     };
-  }, [cameraFacing, handleDetected, onError]);
+  }, [cameraFacing, handleDetected, onError, retryKey]);
 
   // Update camera when facing changes
   useEffect(() => {
     if (!isInitialized || !scannerRef.current) return;
+
+    // Ensure container has valid dimensions before re-initializing
+    const containerWidth = scannerRef.current.clientWidth;
+    const containerHeight = scannerRef.current.clientHeight;
+    if (containerWidth === 0 || containerHeight === 0) return;
 
     setIsInitialized(false);
     Quagga.stop();
@@ -113,8 +157,8 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
           type: "LiveStream",
           target: scannerRef.current,
           constraints: {
-            width: { min: 640 },
-            height: { min: 480 },
+            width: { min: 640, ideal: 1280 },
+            height: { min: 480, ideal: 720 },
             facingMode: cameraFacing,
             aspectRatio: { min: 1, max: 2 },
           },
