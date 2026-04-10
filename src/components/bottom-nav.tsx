@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Home, ScanBarcode, List, Settings } from "lucide-react";
+import { Home, ScanBarcode, Search, Settings } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/scanner", icon: ScanBarcode, label: "Scanner" },
-  { href: "/products", icon: List, label: "Liste" },
+  { href: "/products", icon: Search, label: "Suche" },
   { href: "/settings", icon: Settings, label: "Profil" },
 ];
 

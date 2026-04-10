@@ -11,7 +11,7 @@ test.describe('BottomNav Component', () => {
     await page.goto('/');
     await expect(page.getByRole('link', { name: /home/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /scanner/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /liste/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /suche/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /profil/i })).toBeVisible();
   });
 
@@ -44,7 +44,7 @@ test.describe('BottomNav Component', () => {
     await expect(page).toHaveURL('/scanner');
 
     await page.goto('/');
-    await page.getByRole('link', { name: /liste/i }).click();
+    await page.getByRole('link', { name: /suche/i }).click();
     await expect(page).toHaveURL('/products');
 
     await page.goto('/');
