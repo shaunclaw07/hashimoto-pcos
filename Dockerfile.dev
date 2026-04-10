@@ -20,5 +20,5 @@ ENV PORT=3000
 ENV NODE_ENV=development
 ENV HOSTNAME=0.0.0.0
 
-# Dev-Server starten
+ENTRYPOINT ["node", "scripts/docker-entrypoint.mjs"]
 CMD ["npm", "run", "dev"]
