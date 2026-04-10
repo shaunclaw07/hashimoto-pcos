@@ -20,5 +20,9 @@ ENV PORT=3000
 ENV NODE_ENV=development
 ENV HOSTNAME=0.0.0.0
 
+# Default UID/GID for DB file ownership
+ENV DB_FILE_UID=1001
+ENV DB_FILE_GID=1001
+
 ENTRYPOINT ["node", "scripts/docker-entrypoint.mjs"]
 CMD ["npm", "run", "dev"]

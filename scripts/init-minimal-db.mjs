@@ -8,52 +8,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { KNOWN_INGREDIENTS } from './ingredient-data.mjs';
+import { createSchema } from './create-schema.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, '..', 'data', 'products.db');
-
-/**
- * Creates the database schema (tables, FTS index, relations).
- */
-function createSchema(db) {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS products (
-      barcode          TEXT PRIMARY KEY,
-      product_name     TEXT NOT NULL,
-      brands           TEXT,
-      image_url        TEXT,
-      nutriscore_grade TEXT,
-      ingredients_text TEXT,
-      allergens        TEXT,
-      additives_tags   TEXT,
-      nutriments       TEXT,
-      categories       TEXT,
-      categories_tags  TEXT,
-      labels           TEXT
-    );
-    CREATE VIRTUAL TABLE IF NOT EXISTS products_fts USING fts5(
-      barcode       UNINDEXED,
-      product_name,
-      brands,
-      content='products',
-      content_rowid='rowid'
-    );
-    CREATE TABLE IF NOT EXISTS ingredients (
-      id        INTEGER PRIMARY KEY AUTOINCREMENT,
-      name      TEXT NOT NULL UNIQUE
-    );
-    CREATE TABLE IF NOT EXISTS product_ingredients (
-      barcode        TEXT NOT NULL,
-      ingredient_id  INTEGER NOT NULL,
-      raw_text       TEXT NOT NULL,
-      position       INTEGER NOT NULL,
-      FOREIGN KEY (barcode) REFERENCES products(barcode) ON DELETE CASCADE,
-      FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE,
-      PRIMARY KEY (barcode, position),
-      UNIQUE (barcode, ingredient_id)
-    );
-  `);
-}
 
 // Main
 const dataDir = path.dirname(DB_PATH);
@@ -84,6 +42,18 @@ const insertIngredients = db.transaction(() => {
 insertIngredients();
 
 db.close();
+
+// Set ownership to match runtime user (nextjs: 1001:1001)
+// This ensures the nextjs user can write to the DB
+// May fail on some filesystems (e.g., Windows volumes), so we catch and warn
+try {
+  const uid = process.env.DB_FILE_UID ? parseInt(process.env.DB_FILE_UID) : 1001;
+  const gid = process.env.DB_FILE_GID ? parseInt(process.env.DB_FILE_GID) : 1001;
+  fs.chownSync(DB_PATH, uid, gid);
+} catch (err) {
+  // chown may fail on filesystem that doesn't support it (e.g., some volume types)
+  console.warn('[init-minimal-db] chown skipped:', err.message);
+}
 
 console.log(`[init-minimal-db] Done! Database created at ${DB_PATH}`);
 console.log(`[init-minimal-db] Ingredients imported: ${KNOWN_INGREDIENTS.size}`);

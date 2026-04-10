@@ -23,6 +23,10 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
+# Default UID/GID for DB file ownership (matches nextjs user)
+ENV DB_FILE_UID=1001
+ENV DB_FILE_GID=1001
+
 # Non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
@@ -39,6 +43,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 
 # Copy scripts for database initialization (needed by entrypoint)
 COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+# Intentional: data dir is empty at build time; entrypoint creates DB if no volume data exists.
+# This COPY ensures the directory exists with correct ownership for the non-root user.
 COPY --from=builder --chown=nextjs:nodejs /app/data ./data
 COPY --from=builder --chown=nextjs:nodejs /app/package*.json ./
 
