@@ -4,9 +4,12 @@ export async function register() {
       "@/infrastructure/sqlite/sqlite-client"
     );
 
-    process.on("SIGTERM", () => {
+    const shutdown = () => {
       closeDb();
       process.exit(0);
-    });
+    };
+
+    process.on("SIGTERM", shutdown);
+    process.on("SIGINT", shutdown);
   }
 }
