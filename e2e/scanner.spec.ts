@@ -88,6 +88,11 @@ test.describe('Scanner page (/scanner)', () => {
     await expect(page.locator('input[placeholder*="Barcode"]').first()).toBeVisible();
   });
 
+  test('camera_mode_manual_input_has_card_heading', async ({ page }) => {
+    await page.getByRole('button', { name: /kamera/i }).click();
+    await expect(page.getByText('Barcode manuell eingeben')).toBeVisible();
+  });
+
   test('reset_clears_error', async ({ page }) => {
     await page.getByRole('button', { name: /manuell/i }).click();
     const input = page.getByRole('textbox');
