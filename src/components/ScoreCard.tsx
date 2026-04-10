@@ -291,14 +291,37 @@ function NutrientRow({
   value?: number;
   unit: string;
 }) {
+  const [showTooltip, setShowTooltip] = useState(false);
+
   if (value === undefined || value === null) {
     return (
       <div className="flex justify-between text-muted-foreground">
         <span>{label}</span>
-        <span>—</span>
+        <span className="relative flex items-center gap-1">
+          <span>Nicht angegeben</span>
+          <button
+            type="button"
+            aria-label="Warum fehlt dieser Wert?"
+            aria-expanded={showTooltip}
+            onClick={() => setShowTooltip((v) => !v)}
+            onBlur={() => setShowTooltip(false)}
+            className="rounded-full p-0.5 hover:bg-muted transition-colors"
+          >
+            <Info className="h-3.5 w-3.5" />
+          </button>
+          {showTooltip && (
+            <span
+              role="tooltip"
+              className="pointer-events-none absolute right-0 bottom-full mb-1 z-10 w-52 rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-card"
+            >
+              Diese Angabe fehlt in der Produktdatenbank
+            </span>
+          )}
+        </span>
       </div>
     );
   }
+
   return (
     <div className="flex justify-between">
       <span className="text-foreground">{label}</span>

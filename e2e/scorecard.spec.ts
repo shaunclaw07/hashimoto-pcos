@@ -54,4 +54,21 @@ test.describe('ScoreCard Component', () => {
       page.locator('[role="img"][aria-label="PCOS"]')
     ).toBeVisible({ timeout: 5000 });
   });
+
+  test('missing_nutriment_shows_nicht_angegeben', async ({ page }) => {
+    // weniger-gut.json (Schafsalami) has no "fiber" field →
+    // "Ballaststoffe" NutrientRow value is undefined
+    await mockProductApi(page, wenigerGut.barcode, wenigerGut);
+    await page.goto(`/result/${wenigerGut.barcode}`);
+    await expect(page.getByText('Nicht angegeben').first()).toBeVisible({ timeout: 5000 });
+  });
+
+  test('missing_nutriment_tooltip_opens_on_click', async ({ page }) => {
+    await mockProductApi(page, wenigerGut.barcode, wenigerGut);
+    await page.goto(`/result/${wenigerGut.barcode}`);
+    await page.getByRole('button', { name: /warum fehlt dieser wert/i }).first().click();
+    await expect(
+      page.getByRole('tooltip', { name: /diese angabe fehlt in der produktdatenbank/i })
+    ).toBeVisible({ timeout: 5000 });
+  });
 });
