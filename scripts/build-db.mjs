@@ -104,7 +104,13 @@ export function createSchema(db) {
 
 // ── CLI Execution ──────────────────────────────────────────────────────────────
 // Only run when executed directly (not when imported for testing)
-const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+// Check if running as main module (works cross-platform including Windows)
+const isMainModule = process.argv[1] && (
+  import.meta.url === process.argv[1] ||
+  import.meta.url === `file://${process.argv[1]}` ||
+  import.meta.url === `file:///${process.argv[1].replace(/\\/g, '/')}` ||
+  import.meta.url.endsWith('/' + process.argv[1].replace(/\\/g, '/').split('/').pop())
+);
 
 if (isMainModule) {
   // ── Setup DB ────────────────────────────────────────────────────────────────
