@@ -17,7 +17,7 @@ test.describe('Navigation & Routing', () => {
 
   test('homepage_navigates_to_products', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('link', { name: /liste/i }).click();
+    await page.getByRole('link', { name: /suche/i }).click();
     await expect(page).toHaveURL('/products');
   });
 
@@ -30,7 +30,7 @@ test.describe('Navigation & Routing', () => {
     await expect(page.getByRole('link', { name: /scanner/i })).toHaveAttribute('aria-current', 'page');
 
     await page.goto('/products');
-    await expect(page.getByRole('link', { name: /liste/i })).toHaveAttribute('aria-current', 'page');
+    await expect(page.getByRole('link', { name: /suche/i })).toHaveAttribute('aria-current', 'page');
   });
 
   test('all_routes_return_200', async ({ page }) => {

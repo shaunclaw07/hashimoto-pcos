@@ -114,23 +114,21 @@ export default function ScannerPage() {
           )}
 
           {/* Manual fallback in camera mode */}
-          <div className="relative py-3">
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span className="text-sm text-muted-foreground bg-background/80 px-3 py-1.5 rounded-full">
-                Oder Barcode manuell eingeben:
-              </span>
-            </div>
+          <div className="card-warm p-6">
+            <h3 className="mb-4 text-base font-semibold text-foreground">
+              Barcode manuell eingeben
+            </h3>
+            <form onSubmit={handleManualSubmit}>
+              <input
+                type="text"
+                value={barcode}
+                onChange={(e) => setBarcode(e.target.value.replace(/\D/g, ""))}
+                placeholder="Barcode hier eingeben..."
+                className="w-full rounded-xl border border-border bg-background px-5 py-4 text-lg tracking-wider text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                maxLength={13}
+              />
+            </form>
           </div>
-          <form onSubmit={handleManualSubmit}>
-            <input
-              type="text"
-              value={barcode}
-              onChange={(e) => setBarcode(e.target.value.replace(/\D/g, ""))}
-              placeholder="Barcode hier eingeben..."
-              className="w-full rounded-xl border border-border bg-background px-5 py-4 text-lg tracking-wider text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-              maxLength={13}
-            />
-          </form>
         </div>
       )}
 

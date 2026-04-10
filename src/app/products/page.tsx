@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Loader2, PackageX, ServerCrash } from "lucide-react";
+import { Search, Loader2, PackageX, ServerCrash, ScanBarcode } from "lucide-react";
 import { calculateScore } from "@/core/services/scoring-service";
 import type { Product } from "@/core/domain/product";
 import type { ScoreResult } from "@/core/domain/score";
@@ -474,6 +474,13 @@ function ProductsPageContent() {
           <p className="text-base text-muted-foreground max-w-xs leading-relaxed">
             Versuche einen anderen Suchbegriff oder eine andere Kategorie.
           </p>
+          <Link
+            href="/scanner"
+            className="mt-6 flex items-center gap-2.5 rounded-xl bg-primary px-6 py-3.5 text-base font-semibold text-primary-foreground hover:bg-primary-600 active:scale-[0.98] transition-all shadow-soft touch-target"
+          >
+            <ScanBarcode className="h-5 w-5" />
+            Stattdessen scannen
+          </Link>
         </div>
       )}
     </div>

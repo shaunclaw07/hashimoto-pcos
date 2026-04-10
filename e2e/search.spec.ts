@@ -69,6 +69,15 @@ test.describe('Search page (/products)', () => {
     await expect(page.getByText('Keine Ergebnisse gefunden')).toBeVisible({ timeout: 5000 });
   });
 
+  test('no_results_shows_scanner_cta', async ({ page }) => {
+    await mockSearchApi(page, []);
+    await page.getByRole('textbox', { name: /suchen/i }).fill('xyzabc123nonexistentproduct');
+    await page.getByRole('button', { name: /suchen/i }).click();
+    const ctaLink = page.getByRole('link', { name: /stattdessen scannen/i });
+    await expect(ctaLink).toBeVisible({ timeout: 5000 });
+    await expect(ctaLink).toHaveAttribute('href', '/scanner');
+  });
+
   test('reset_button_clears_search', async ({ page }) => {
     await mockSearchApi(page, MOCK_PRODUCTS);
     await page.getByRole('textbox', { name: /suchen/i }).fill('Milch');
