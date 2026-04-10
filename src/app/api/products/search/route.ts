@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
 import { SearchProductsUseCase } from "@/core/use-cases/search-products";
-import {
-  makePrimaryProductRepository,
-  makeFallbackProductRepository,
-} from "@/infrastructure/container";
+import { makePrimaryProductRepository } from "@/infrastructure/container";
 
 // Server-side page size — locked to 50. The client-supplied page_size param is
 // accepted for backward compatibility but ignored by the cached path so that all
@@ -17,10 +14,7 @@ let _useCase: SearchProductsUseCase | null = null;
 
 function getSearchUseCase(): SearchProductsUseCase {
   if (!_useCase) {
-    _useCase = new SearchProductsUseCase(
-      makePrimaryProductRepository(),
-      makeFallbackProductRepository()
-    );
+    _useCase = new SearchProductsUseCase(makePrimaryProductRepository());
   }
   return _useCase;
 }
