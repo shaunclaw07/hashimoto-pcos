@@ -1,0 +1,17 @@
+# Build artifacts
+node_modules
+.next
+/build
+/out
+
+# Database files — must NOT be baked into the image
+data/products.db
+data/products.db-shm
+data/products.db-wal
+
+# Misc
+.git
+.DS_Store
+coverage
+playwright-report
+test-results

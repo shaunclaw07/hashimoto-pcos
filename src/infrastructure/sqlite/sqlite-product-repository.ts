@@ -203,7 +203,7 @@ export class SqliteProductRepository implements IProductRepository {
 
       // Keep the FTS index in sync (external content table — no automatic trigger)
       db.prepare(
-        `INSERT OR IGNORE INTO products_fts(rowid, barcode, product_name, brands)
+        `INSERT OR REPLACE INTO products_fts(rowid, barcode, product_name, brands)
          VALUES ((SELECT rowid FROM products WHERE barcode = ?), ?, ?, ?)`
       ).run(product.barcode, product.barcode, product.name, product.brand ?? null);
 
