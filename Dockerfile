@@ -21,14 +21,15 @@ ENV NODE_ENV=production
 # Non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
+
+# Create writable data directory owned by nextjs (before USER switch so chown runs as root).
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
+
 USER nextjs
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
-
-# Copy local product database (build with: npm run db:build)
-COPY --from=builder --chown=nextjs:nodejs /app/data/products.db ./data/products.db
 
 EXPOSE 3000
 ENV PORT=3000
