@@ -105,4 +105,12 @@ test.describe('ScoreCard Component', () => {
       page.getByRole('tooltip', { name: /diese angabe fehlt in der produktdatenbank/i })
     ).toBeVisible({ timeout: 5000 });
   });
+
+  test('education_link_visible_in_score_badge', async ({ page }) => {
+    await mockProductApi(page, vermeiden.barcode, vermeiden);
+    await page.goto(`/result/${vermeiden.barcode}`);
+    const educationLink = page.getByRole('link', { name: /warum diese bewertung/i });
+    await expect(educationLink).toBeVisible({ timeout: 5000 });
+    await expect(educationLink).toHaveAttribute('href', '/education');
+  });
 });

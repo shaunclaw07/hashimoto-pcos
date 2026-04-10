@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
 import { Star, RotateCcw, Save, Check, AlertTriangle, Info } from "lucide-react";
 import type { Product } from "@/core/domain/product";
 import type { ScoreResult, ScoreBreakdownItem } from "@/core/domain/score";
@@ -137,6 +138,13 @@ export function ScoreCard({
             {scoreResult.label}
           </span>
         </div>
+        <Link
+          href="/education"
+          className="mt-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
+        >
+          <Info className="h-4 w-4" />
+          Warum diese Bewertung?
+        </Link>
       </div>
 
       {/* Bonus/Malus Breakdown */}
