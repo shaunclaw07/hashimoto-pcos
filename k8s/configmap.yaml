@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hashimoto-pcos-config
+  namespace: default
+data:
+  NEXT_PUBLIC_API_URL: "https://world.openfoodfacts.org"

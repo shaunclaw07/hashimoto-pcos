@@ -14,6 +14,7 @@ spec:
       labels:
         app: hashimoto-pcos
     spec:
+      terminationGracePeriodSeconds: 30
       containers:
         - name: app
           image: ghcr.io/shaunclaw07/hashimoto-pcos:latest
@@ -23,7 +24,10 @@ spec:
             - name: NODE_ENV
               value: "production"
             - name: NEXT_PUBLIC_API_URL
-              value: "https://world.openfoodfacts.org"
+              valueFrom:
+                configMapKeyRef:
+                  name: hashimoto-pcos-config
+                  key: NEXT_PUBLIC_API_URL
           resources:
             requests:
               cpu: 100m
@@ -50,35 +54,3 @@ spec:
         - name: db-data
           persistentVolumeClaim:
             claimName: hashimoto-pcos-data-pvc
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: hashimoto-pcos-service
-spec:
-  selector:
-    app: hashimoto-pcos
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 3000
-  type: ClusterIP
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: hashimoto-pcos-ingress
-  annotations:
-    kubernetes.io/ingress.class: nginx
-spec:
-  rules:
-    - host: hashimoto.example.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: hashimoto-pcos-service
-                port:
-                  number: 80
