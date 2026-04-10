@@ -3,7 +3,7 @@ import Database from 'better-sqlite3';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { createSchema } from './build-db.mjs';
+import { createSchema } from './create-schema.mjs';
 import { KNOWN_INGREDIENTS } from './ingredient-data.mjs';
 
 describe('build-db.mjs — createSchema', () => {

@@ -23,6 +23,10 @@ FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
+# Default UID/GID for DB file ownership (matches nextjs user)
+ENV DB_FILE_UID=1001
+ENV DB_FILE_GID=1001
+
 # Non-root user
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
@@ -33,6 +37,16 @@ RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy node_modules needed for database initialization scripts
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
+
+# Copy scripts for database initialization (needed by entrypoint)
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+# Intentional: data dir is empty at build time; entrypoint creates DB if no volume data exists.
+# This COPY ensures the directory exists with correct ownership for the non-root user.
+COPY --from=builder --chown=nextjs:nodejs /app/data ./data
+COPY --from=builder --chown=nextjs:nodejs /app/package*.json ./
 
 # Create cache directory with correct ownership for Next.js runtime writes
 RUN mkdir -p /app/.next/cache && chown -R nextjs:nodejs /app/.next
@@ -45,4 +59,5 @@ ENV PORT=3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health/live || exit 1
 
+ENTRYPOINT ["node", "scripts/docker-entrypoint.mjs"]
 CMD ["node", "server.js"]

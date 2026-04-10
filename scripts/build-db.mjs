@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { parseIngredients, isValidProductName } from './ingredient-parser.mjs';
 import { KNOWN_INGREDIENTS } from './ingredient-data.mjs';
+import { createSchema } from './create-schema.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isMinimal = process.argv.includes('--minimal');
@@ -55,51 +56,6 @@ function parseNutriments(r) {
     if (val !== null) count++;
   }
   return { values, count };
-}
-
-/**
- * Creates the database schema (tables, FTS index, relations).
- * Reusable for both full and minimal builds.
- * @param {Database} db - better-sqlite3 database instance
- */
-export function createSchema(db) {
-  db.exec(`
-    CREATE TABLE products (
-      barcode          TEXT PRIMARY KEY,
-      product_name     TEXT NOT NULL,
-      brands           TEXT,
-      image_url        TEXT,
-      nutriscore_grade TEXT,
-      ingredients_text TEXT,
-      allergens        TEXT,
-      additives_tags   TEXT,
-      nutriments       TEXT,
-      categories       TEXT,
-      categories_tags  TEXT,
-      labels           TEXT
-    );
-    CREATE VIRTUAL TABLE products_fts USING fts5(
-      barcode       UNINDEXED,
-      product_name,
-      brands,
-      content='products',
-      content_rowid='rowid'
-    );
-    CREATE TABLE ingredients (
-      id        INTEGER PRIMARY KEY AUTOINCREMENT,
-      name      TEXT NOT NULL UNIQUE
-    );
-    CREATE TABLE product_ingredients (
-      barcode        TEXT NOT NULL,
-      ingredient_id  INTEGER NOT NULL,
-      raw_text       TEXT NOT NULL,
-      position       INTEGER NOT NULL,
-      FOREIGN KEY (barcode) REFERENCES products(barcode) ON DELETE CASCADE,
-      FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE,
-      PRIMARY KEY (barcode, position),
-      UNIQUE (barcode, ingredient_id)
-    );
-  `);
 }
 
 // ── CLI Execution ──────────────────────────────────────────────────────────────
