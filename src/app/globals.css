@@ -132,8 +132,8 @@
   /* Score colors — English, kebab-case */
   --color-score-very-good: #22c55e;
   --color-score-good: #84cc16;
-  --color-score-neutral: #eab308;
-  --color-score-fair: #f97316;
+  --color-score-neutral: #a16207;
+  --color-score-fair: #c2410c;
   --color-score-avoid: #ef4444;
 
   /* Touch-friendly spacing (44px minimum tap targets) */

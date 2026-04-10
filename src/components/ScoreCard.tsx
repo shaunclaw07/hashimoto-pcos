@@ -23,7 +23,7 @@ const CONDITION_ICON: Record<Condition, string> = {
   both: "🦋🔵",
 };
 
-const SCORE_CONFIG = {
+export const SCORE_CONFIG = {
   "SEHR GUT": {
     color: "#22c55e",
     bgColor: "bg-green-50",
@@ -39,14 +39,14 @@ const SCORE_CONFIG = {
     borderColor: "border-lime-200",
   },
   NEUTRAL: {
-    color: "#eab308",
+    color: "#a16207",
     bgColor: "bg-yellow-50",
     textColor: "text-yellow-700",
     stars: 3,
     borderColor: "border-yellow-200",
   },
   "WENIGER GUT": {
-    color: "#f97316",
+    color: "#c2410c",
     bgColor: "bg-orange-50",
     textColor: "text-orange-700",
     stars: 2,
