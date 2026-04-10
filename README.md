@@ -224,39 +224,45 @@ node scripts/extract-fixtures.mjs
 
 ### Docker
 
-```bash
-# Lokale DB aufbauen (Voraussetzung!)
-npm run db:build
+Die App benötigt **kein** vorab gebautes `products.db` — die Datenbank wird beim ersten Start automatisch initialisiert. Für lokale Entwicklung mit Produktdaten kann ein bestehendes `products.db` als Volume gemountet werden.
 
-# Mit Docker Compose bauen und starten
+```bash
+# 1. Image bauen (kein db:build erforderlich)
+docker build -t hashimoto-pcos .
+
+# 2. Mit leerem Volume starten (API-Fallback, keine lokale DB)
+docker run -p 3000:3000 hashimoto-pcos
+
+# 3. Oder mit lokaler DB als Volume (produktive Nutzung)
+# Erste Zeile: DB-Datei einmalig herunterladen oder mit npm run db:build bauen
+docker run -p 3000:3000 -v ./data:/app/data hashimoto-pcos
+
+# 4. Mit Docker Compose (empfohlen — mountet ./data automatisch)
 docker compose up --build -d
 
 # Container-Logs anzeigen
 docker compose logs -f
-
-# Oder manuell
-docker build -t hashimoto-pcos .
-docker run -p 3000:3000 hashimoto-pcos
 ```
 
-> **Wichtig:** `npm run db:build` muss **vor** dem Docker-Build ausgeführt werden. Das `data/products.db`-File wird beim Build-Schritt in das Image kopiert.
+**Hinweis:** Die lokale Datenbank ist optional. Die App funktioniert auch ohne `products.db` — in diesem Fall fallen alle Suchanfragen auf die OpenFoodFacts-API zurück (keine lokalen DACH-Produkte, keine Zero-Rating-Logik). Für zuverlässige Performance und Zero-Rating wird eine lokale DB empfohlen.
 
 ### Kubernetes
 
 ```bash
-# Deployment anwenden
+# PVC erstellen (PersistentVolume für Datenbank)
+kubectl apply -f k8s/pvc.yaml
+
+# Deployment + HPA anwenden
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/hpa.yaml
 
 # Status prüfen
 kubectl get pods -l app=hashimoto-pcos
+kubectl get pvc hashimoto-pcos-data-pvc
 kubectl get hpa hashimoto-pcos-hpa
 ```
 
-**Voraussetzungen:**
-- K3s oder Kubernetes-Cluster
-- NGINX Ingress Controller
-- ghcr.io/shaunclaw07/hashimoto-pcos Docker-Image
+**Hinweis:** Das Deployment verwendet `replicas: 1`, da SQLite nur einen Schreibprozess unterstützt (ReadWriteOnce PVC). Die DB wird über ein PersistentVolume am `/app/data`-Mount verwaltet.
 
 ## Mitwirken
 
