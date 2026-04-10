@@ -14,6 +14,11 @@ COPY . .
 RUN npm run build
 
 # Stage 3: Runtime
+# ---------------------------------------------------------------------------
+# Resource limits for k8s scheduling (reference values, not enforced in Docker):
+#   requests:  cpu: 100m,  memory: 256Mi
+#   limits:    cpu: 500m,  memory: 512Mi
+# ---------------------------------------------------------------------------
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
@@ -35,6 +40,7 @@ RUN mkdir -p /app/.next/cache && chown -R nextjs:nodejs /app/.next
 USER nextjs
 
 EXPOSE 3000
+# PORT can be overridden via env var by k8s (k8s injects via containerPort)
 ENV PORT=3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health/live || exit 1
