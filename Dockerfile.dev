@@ -1,0 +1,18 @@
+FROM node:20-alpine
+WORKDIR /app
+
+# Native compilation tools für better-sqlite3
+RUN apk add --no-cache python3 make g++
+
+# Dependencies installieren (inkl. devDependencies)
+COPY package*.json ./
+RUN npm install
+
+# Port freigeben
+EXPOSE 3000
+ENV PORT=3000
+ENV NODE_ENV=development
+ENV HOSTNAME=0.0.0.0
+
+# Dev-Server starten
+CMD ["npm", "run", "dev"]

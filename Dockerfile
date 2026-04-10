@@ -25,11 +25,14 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Create writable data directory owned by nextjs (before USER switch so chown runs as root).
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
-USER nextjs
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Create cache directory with correct ownership for Next.js runtime writes
+RUN mkdir -p /app/.next/cache && chown -R nextjs:nodejs /app/.next
+
+USER nextjs
 
 EXPOSE 3000
 ENV PORT=3000

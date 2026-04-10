@@ -9,6 +9,9 @@ data/products.db
 data/products.db-shm
 data/products.db-wal
 
+# OpenFoodFacts source data — only needed for db:build, not runtime
+*.csv
+
 # Misc
 .git
 .DS_Store
