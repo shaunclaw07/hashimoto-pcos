@@ -9,7 +9,7 @@ import wenigerGut from '../tests/fixtures/products/weniger-gut.json';
 const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
 
 // Search API returns products with `code` field (not `barcode`)
-const toSearchProduct = (f: typeof gut) => ({ ...f, code: f.barcode });
+const toSearchProduct = (f: { barcode: string } & Record<string, unknown>) => ({ ...f, code: f.barcode });
 
 const MOCK_PRODUCTS = [gut, neutral, vermeiden, sehrGut, wenigerGut].map(toSearchProduct);
 
