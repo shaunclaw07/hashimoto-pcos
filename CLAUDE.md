@@ -175,6 +175,24 @@ npm run test:e2e   # Playwright — all must pass
 - **Composite PK for repeated values:** use `(parent_id, position)` as PK, `(parent_id, foreign_id)` as UNIQUE.
 - **Whitelist hygiene:** no leading/trailing spaces, no empty strings, complete E-number ranges.
 
+## Accessibility (WCAG AA)
+
+All UI must meet **WCAG AA** contrast requirements (minimum **4.5:1** for normal text on white).
+
+**Score color values (WCAG AA compliant):**
+- `SCORE_CONFIG` in `src/components/ScoreCard.tsx` defines score label colors
+- NEUTRAL: `#a16207` (yellow-700, ~4.74:1 on white)
+- WENIGER GUT: `#c2410c` (orange-700, ~4.92:1 on white)
+- CSS custom properties synced in `src/app/globals.css`: `--color-score-neutral` and `--color-score-fair`
+- Always verify new score colors against white with a contrast ratio calculator before using
+
+**ARIA patterns:**
+- Emoji icons used as visual indicators need `role="img"` + `aria-label` describing the meaning, not the appearance (e.g., `aria-label="PCOS"` not `aria-label="Blaue-Kugel-Emoji"`)
+- Use a `CONDITION_LABEL` map (Record<Condition, string>) to pair with `CONDITION_ICON`
+- Tooltips use `role="tooltip"` and toggle buttons use `aria-expanded`
+
+**Missing data:** Never show bare "—" or empty values. Use "Nicht angegeben" with an info button + tooltip explaining the data is absent from the product database.
+
 ## What Does NOT Exist
 
 No ORM (raw `better-sqlite3`), no authentication, no Redux/Zustand, no i18n, no Prettier (ESLint only), no Service Worker, no analytics.
