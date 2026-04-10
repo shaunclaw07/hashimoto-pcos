@@ -66,6 +66,8 @@ next-env.d.ts
 
 # data/ directory (generated files — SQLite DB, CSV exports)
 data/
+# Exception: minimal database with schema + ingredients (no products)
+!data/products.db
 
 # docs/superpowers/ (local AI tooling, not part of the project)
 docs/superpowers/
