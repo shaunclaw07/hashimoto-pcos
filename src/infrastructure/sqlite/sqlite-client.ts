@@ -38,3 +38,16 @@ export function getDb(): Database.Database {
   }
   return _db;
 }
+
+/** Throws if DB is not accessible. Used by readiness probe. */
+export function checkDbHealth(): void {
+  getDb().prepare("SELECT 1").get();
+}
+
+/** Closes the DB connection. Called during graceful shutdown. */
+export function closeDb(): void {
+  if (_db) {
+    _db.close();
+    _db = null;
+  }
+}

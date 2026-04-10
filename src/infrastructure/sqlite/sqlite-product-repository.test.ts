@@ -13,45 +13,45 @@ vi.mock("./sqlite-client", () => ({
 import { getDb } from "./sqlite-client";
 
 describe("sanitizeFtsInput", () => {
-  it("soll Anfuehrungszeichen entfernen", () => {
+  it("should remove quotation marks", () => {
     expect(sanitizeFtsInput('test" AND invalid')).not.toContain('"');
   });
 
-  it("soll FTS-Operatoren AND/OR/NOT entfernen", () => {
+  it("should remove FTS operators AND/OR/NOT", () => {
     const result = sanitizeFtsInput("test AND invalid OR something NOT other");
     expect(result.toUpperCase()).not.toContain(" AND ");
     expect(result.toUpperCase()).not.toContain(" OR ");
     expect(result.toUpperCase()).not.toContain(" NOT ");
   });
 
-  it("soll runde Klammern entfernen", () => {
+  it("should remove parentheses", () => {
     expect(sanitizeFtsInput("test (invalid)")).not.toContain("(");
     expect(sanitizeFtsInput("test (invalid)")).not.toContain(")");
   });
 
-  it("soll Sternchen fuer Injection-Versuche entfernen", () => {
+  it("should remove asterisks for injection attempts", () => {
     const result = sanitizeFtsInput("test*");
     expect(result).not.toContain("*");
   });
 
-  it("soll NEAR mit Distanz-Argument entfernen", () => {
+  it("should remove NEAR with distance argument", () => {
     const result = sanitizeFtsInput("coffee NEAR/3 tea");
     expect(result.toUpperCase()).not.toContain("NEAR");
   });
 
-  it("soll leere Eingabe sicher behandeln", () => {
+  it("should handle empty input safely", () => {
     expect(sanitizeFtsInput("")).toBe("");
     expect(sanitizeFtsInput("   ")).toBe("");
     expect(sanitizeFtsInput(null as unknown as string)).toBe("");
   });
 
-  it("soll legale Suchbegriffe korrekt verarbeiten", () => {
+  it("should process valid search terms correctly", () => {
     const result = sanitizeFtsInput("bio linsen");
     expect(result.toLowerCase()).toContain("bio");
     expect(result.toLowerCase()).toContain("linsen");
   });
 
-  it("soll mehrere Leerzeichen korrekt behandeln", () => {
+  it("should handle multiple spaces correctly", () => {
     const result = sanitizeFtsInput("bio   linsen");
     expect(result).toBeTruthy();
   });
@@ -71,7 +71,7 @@ describe("SqliteProductRepository", () => {
   });
 
   describe("findByBarcode", () => {
-    it("soll console.error bei DB-Fehler loggen", async () => {
+    it("should log console.error on DB error", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       // better-sqlite3 prepare().get() is synchronous, so throw directly
       mockPrepare.mockReturnValue({
@@ -142,7 +142,7 @@ describe("SqliteProductRepository", () => {
   });
 
   describe("search", () => {
-    it("soll console.error bei DB-Fehler loggen", async () => {
+    it("should log console.error on DB error", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       mockPrepare.mockReturnValue({
         all: vi.fn().mockRejectedValue(new Error("DB error")),
@@ -162,7 +162,7 @@ describe("SqliteProductRepository", () => {
   });
 
   describe("updateNutriments", () => {
-    it("soll console.error bei DB-Fehler loggen", async () => {
+    it("should log console.error on DB error", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       // better-sqlite3 prepare().run() is synchronous, so throw directly
       mockPrepare.mockReturnValue({
@@ -217,7 +217,7 @@ describe("SqliteProductRepository", () => {
       expect(sqlCalls.some((sql) => sql.includes("products_fts"))).toBe(true);
     });
 
-    it("soll console.error bei DB-Fehler loggen und keinen Fehler werfen", async () => {
+    it("should log console.error on DB error without throwing", async () => {
       const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       mockPrepare.mockReturnValue({
         run: vi.fn(() => { throw new Error("DB error"); }),
