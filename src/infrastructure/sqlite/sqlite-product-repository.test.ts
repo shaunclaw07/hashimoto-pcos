@@ -185,13 +185,9 @@ describe("SqliteProductRepository", () => {
   describe("saveProduct", () => {
     it("upserts product and links parsed ingredients", async () => {
       const mockRun = vi.fn();
-      const mockGet = vi.fn();
+      const mockGet = vi.fn().mockReturnValue({ id: 42 });
       const mockAll = vi.fn().mockReturnValue([]);
       mockPrepare.mockReturnValue({ run: mockRun, get: mockGet, all: mockAll });
-
-      // Ingredient INSERT OR IGNORE + SELECT for id
-      const ingredientId = 42;
-      mockGet.mockReturnValue({ id: ingredientId });
 
       repo = new SqliteProductRepository();
       const product = {
@@ -212,11 +208,13 @@ describe("SqliteProductRepository", () => {
 
       await repo.saveProduct(product, parsedIngredients);
 
-      // Should have called prepare multiple times (upsert product + ingredients)
-      expect(mockPrepare).toHaveBeenCalled();
-      // Product upsert must run
-      const allCalls: string[] = mockPrepare.mock.calls.map((c: unknown[]) => c[0] as string);
-      expect(allCalls.some((sql: string) => sql.includes("ON CONFLICT"))).toBe(true);
+      const sqlCalls: string[] = mockPrepare.mock.calls.map((c: unknown[]) => c[0] as string);
+      // Product upsert SQL must include ON CONFLICT clause
+      expect(sqlCalls.some((sql) => sql.includes("ON CONFLICT"))).toBe(true);
+      // product_ingredients INSERT must include raw_text column
+      expect(sqlCalls.some((sql) => sql.includes("raw_text"))).toBe(true);
+      // products_fts INSERT must be present for search index
+      expect(sqlCalls.some((sql) => sql.includes("products_fts"))).toBe(true);
     });
 
     it("soll console.error bei DB-Fehler loggen und keinen Fehler werfen", async () => {

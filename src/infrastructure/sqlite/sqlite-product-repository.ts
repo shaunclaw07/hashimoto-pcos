@@ -201,17 +201,23 @@ export class SqliteProductRepository implements IProductRepository {
         product.categories.join(",") || null,
       );
 
+      // Keep the FTS index in sync (external content table — no automatic trigger)
+      db.prepare(
+        `INSERT OR IGNORE INTO products_fts(rowid, barcode, product_name, brands)
+         VALUES ((SELECT rowid FROM products WHERE barcode = ?), ?, ?, ?)`
+      ).run(product.barcode, product.barcode, product.name, product.brand ?? null);
+
       if (parsedIngredients.length > 0) {
-        // Remove existing ingredient links to allow fresh insert
+        // Remove stale ingredient links before re-inserting
         db.prepare("DELETE FROM product_ingredients WHERE barcode = ?").run(product.barcode);
 
         for (let i = 0; i < parsedIngredients.length; i++) {
-          const { canonical } = parsedIngredients[i];
+          const { raw, canonical } = parsedIngredients[i];
           db.prepare("INSERT OR IGNORE INTO ingredients (name) VALUES (?)").run(canonical);
           const row = db.prepare("SELECT id FROM ingredients WHERE name = ?").get(canonical) as { id: number };
           db.prepare(
-            "INSERT OR IGNORE INTO product_ingredients (barcode, ingredient_id, position) VALUES (?, ?, ?)"
-          ).run(product.barcode, row.id, i);
+            "INSERT OR IGNORE INTO product_ingredients (barcode, ingredient_id, raw_text, position) VALUES (?, ?, ?, ?)"
+          ).run(product.barcode, row.id, raw, i);
         }
       }
     } catch (err) {
