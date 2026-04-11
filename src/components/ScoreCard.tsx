@@ -91,7 +91,7 @@ function ScoreScale({ label, color }: { label: ScoreLabel; color: string }) {
     >
       <div className="relative flex items-center justify-between">
         {/* Connecting line */}
-        <div className="absolute inset-x-0 top-[9px] h-px bg-border" />
+        <div className="absolute inset-x-0 top-[9px] h-px bg-muted-foreground/40" />
         {SCORE_LEVELS.map((level, i) => (
           <div key={level} className="relative z-10 flex flex-col items-center gap-2">
             <div
@@ -99,7 +99,7 @@ function ScoreScale({ label, color }: { label: ScoreLabel; color: string }) {
                 "rounded-full transition-all duration-200",
                 i === activeIndex
                   ? "h-[18px] w-[18px] ring-2 ring-white dark:ring-card shadow-soft"
-                  : "h-3 w-3 border border-muted-foreground/30 bg-transparent"
+                  : "h-3 w-3 border border-muted-foreground/30 bg-muted"
               )}
               style={i === activeIndex ? { backgroundColor: color } : undefined}
             />
