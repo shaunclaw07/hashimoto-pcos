@@ -28,6 +28,16 @@
     --radius: 0.625rem;
     --background-warm: #F5F0E8;
     --surface-elevated: #FFFFFF;
+    --color-score-very-good-bg: #EDF5F1;
+    --color-score-very-good-text: #5B8F7B;
+    --color-score-good-bg: #D5EAE0;
+    --color-score-good-text: #3D6556;
+    --color-score-neutral-bg: #F3F0F7;
+    --color-score-neutral-text: #6B5C95;
+    --color-score-fair-bg: #FBF4EE;
+    --color-score-fair-text: #8C5434;
+    --color-score-avoid-bg: #F5E6D8;
+    --color-score-avoid-text: #8C5434;
   }
 
   .dark {
@@ -52,21 +62,16 @@
     --ring: #A998C8;
     --background-warm: #1A1720;
     --surface-elevated: #252230;
-    --color-score-very-good: #86efac;
-    --color-score-good: #a3e635;
-    --color-score-neutral: #fde047;
-    --color-score-fair: #fdba74;
-    --color-score-avoid: #fca5a5;
-    --color-score-very-good-bg: #14532d;
-    --color-score-very-good-text: #86efac;
-    --color-score-good-bg: #365314;
-    --color-score-good-text: #a3e635;
-    --color-score-neutral-bg: #713f12;
-    --color-score-neutral-text: #fde047;
-    --color-score-fair-bg: #7c2d12;
-    --color-score-fair-text: #fdba74;
-    --color-score-avoid-bg: #7f1d1d;
-    --color-score-avoid-text: #fca5a5;
+    --color-score-very-good-bg: #152219;
+    --color-score-very-good-text: #7DB5A0;
+    --color-score-good-bg: #1F332D;
+    --color-score-good-text: #81C0A2;
+    --color-score-neutral-bg: #2E2640;
+    --color-score-neutral-text: #A998C8;
+    --color-score-fair-bg: #3D2417;
+    --color-score-fair-text: #E8B088;
+    --color-score-avoid-bg: #5C3824;
+    --color-score-avoid-text: #DAB48D;
   }
 }
 
@@ -175,16 +180,16 @@
   --color-score-avoid-dark: #fca5a5;
 
   /* Score background colors (light mode) */
-  --color-score-very-good-bg: #dcfce7;
-  --color-score-very-good-text: #15803d;
-  --color-score-good-bg: #ecfccb;
-  --color-score-good-text: #4d7c0f;
-  --color-score-neutral-bg: #fef9c3;
-  --color-score-neutral-text: #854d0e;
-  --color-score-fair-bg: #ffedd5;
-  --color-score-fair-text: #9a3412;
-  --color-score-avoid-bg: #fee2e2;
-  --color-score-avoid-text: #b91c1c;
+  --color-score-very-good-bg: var(--color-score-very-good-bg);
+  --color-score-very-good-text: var(--color-score-very-good-text);
+  --color-score-good-bg: var(--color-score-good-bg);
+  --color-score-good-text: var(--color-score-good-text);
+  --color-score-neutral-bg: var(--color-score-neutral-bg);
+  --color-score-neutral-text: var(--color-score-neutral-text);
+  --color-score-fair-bg: var(--color-score-fair-bg);
+  --color-score-fair-text: var(--color-score-fair-text);
+  --color-score-avoid-bg: var(--color-score-avoid-bg);
+  --color-score-avoid-text: var(--color-score-avoid-text);
 
   /* Touch-friendly spacing (44px minimum tap targets) */
   --spacing-touch-sm: 2.75rem;

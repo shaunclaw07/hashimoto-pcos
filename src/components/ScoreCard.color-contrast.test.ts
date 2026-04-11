@@ -1,21 +1,21 @@
 import { describe, it, expect } from "vitest";
 
-// Light mode CSS variable values
+// Light mode CSS variable values (warm palette)
 const LIGHT_MODE_SCORE_COLORS = {
-  "SEHR GUT": "#22c55e",
-  GUT: "#84cc16",
-  NEUTRAL: "#a16207",
-  "WENIGER GUT": "#c2410c",
-  VERMEIDEN: "#ef4444",
+  "SEHR GUT": "#5B8F7B",
+  GUT: "#3D6556",
+  NEUTRAL: "#6B5C95",
+  "WENIGER GUT": "#8C5434",
+  VERMEIDEN: "#8C5434",
 } as const;
 
-// Dark mode CSS variable values
+// Dark mode CSS variable values (warm palette)
 const DARK_MODE_SCORE_COLORS = {
-  "SEHR GUT": "#86efac",
-  GUT: "#a3e635",
-  NEUTRAL: "#fde047",
-  "WENIGER GUT": "#fdba74",
-  VERMEIDEN: "#fca5a5",
+  "SEHR GUT": "#7DB5A0",
+  GUT: "#81C0A2",
+  NEUTRAL: "#A998C8",
+  "WENIGER GUT": "#E8B088",
+  VERMEIDEN: "#DAB48D",
 } as const;
 
 function linearize(c: number): number {

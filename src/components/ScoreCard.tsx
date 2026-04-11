@@ -2,9 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { Star, RotateCcw, Save, Check, AlertTriangle, Info } from "lucide-react";
+import { RotateCcw, Save, Check, AlertTriangle, Info } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { Product } from "@/core/domain/product";
-import type { ScoreResult, ScoreBreakdownItem } from "@/core/domain/score";
+import type { ScoreResult, ScoreBreakdownItem, ScoreLabel } from "@/core/domain/score";
 import type { UserProfile, Condition } from "@/core/domain/user-profile";
 import { getExplanation } from "@/core/domain/explanations";
 import { ExplanationSheet } from "./ExplanationSheet";
@@ -35,7 +36,6 @@ export const SCORE_CONFIG = {
     color: "var(--color-score-very-good)",
     bgColor: "bg-[var(--color-score-very-good-bg)]",
     textColor: "text-[var(--color-score-very-good-text)]",
-    stars: 5,
     borderColor: "border-[var(--color-score-very-good)]/20",
     description: "Sehr gut für Ihren Ernährungsplan",
   },
@@ -43,7 +43,6 @@ export const SCORE_CONFIG = {
     color: "var(--color-score-good)",
     bgColor: "bg-[var(--color-score-good-bg)]",
     textColor: "text-[var(--color-score-good-text)]",
-    stars: 4,
     borderColor: "border-[var(--color-score-good)]/20",
     description: "Gut geeignet für Sie",
   },
@@ -51,7 +50,6 @@ export const SCORE_CONFIG = {
     color: "var(--color-score-neutral)",
     bgColor: "bg-[var(--color-score-neutral-bg)]",
     textColor: "text-[var(--color-score-neutral-text)]",
-    stars: 3,
     borderColor: "border-[var(--color-score-neutral)]/20",
     description: "In Maßen geeignet",
   },
@@ -59,7 +57,6 @@ export const SCORE_CONFIG = {
     color: "var(--color-score-fair)",
     bgColor: "bg-[var(--color-score-fair-bg)]",
     textColor: "text-[var(--color-score-fair-text)]",
-    stars: 2,
     borderColor: "border-[var(--color-score-fair)]/20",
     description: "Nur selten empfohlen",
   },
@@ -67,22 +64,57 @@ export const SCORE_CONFIG = {
     color: "var(--color-score-avoid)",
     bgColor: "bg-[var(--color-score-avoid-bg)]",
     textColor: "text-[var(--color-score-avoid-text)]",
-    stars: 1,
     borderColor: "border-[var(--color-score-avoid)]/20",
     description: "Bitte meiden",
   },
 } as const;
 
-function StarRating({ stars, color }: { stars: number; color: string }) {
+const SCORE_LEVELS: ScoreLabel[] = [
+  "VERMEIDEN", "WENIGER GUT", "NEUTRAL", "GUT", "SEHR GUT"
+];
+
+const SCORE_SHORT_LABELS: Record<ScoreLabel, string> = {
+  "SEHR GUT":    "Sehr gut",
+  "GUT":         "Gut",
+  "NEUTRAL":     "Neutral",
+  "WENIGER GUT": "W. gut",
+  "VERMEIDEN":   "Meiden",
+};
+
+function ScoreScale({ label, color }: { label: ScoreLabel; color: string }) {
+  const activeIndex = SCORE_LEVELS.indexOf(label);
   return (
-    <div className="flex gap-1.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star
-          key={i}
-          className={`h-7 w-7 ${i < stars ? "fill-current" : "text-muted"}`}
-          style={{ color: i < stars ? color : undefined }}
-        />
-      ))}
+    <div
+      className="w-full py-2"
+      role="img"
+      aria-label={`Bewertungsskala: ${label}`}
+    >
+      <div className="relative flex items-center justify-between">
+        {/* Connecting line */}
+        <div className="absolute inset-x-0 top-[9px] h-px bg-muted-foreground/40" />
+        {SCORE_LEVELS.map((level, i) => (
+          <div key={level} className="relative z-10 flex flex-col items-center gap-2">
+            <div
+              className={cn(
+                "rounded-full transition-all duration-200",
+                i === activeIndex
+                  ? "h-[18px] w-[18px] ring-2 ring-white dark:ring-card shadow-soft"
+                  : "h-3 w-3 border border-muted-foreground/30 bg-muted"
+              )}
+              style={i === activeIndex ? { backgroundColor: color } : undefined}
+            />
+            <span
+              className={cn(
+                "text-[10px] leading-tight text-center",
+                i === activeIndex ? "font-semibold" : "text-muted-foreground"
+              )}
+              style={i === activeIndex ? { color } : undefined}
+            >
+              {SCORE_SHORT_LABELS[level]}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -129,28 +161,25 @@ export function ScoreCard({
 
       {/* Score Badge */}
       <div
-        className={`${config.bgColor} ${config.borderColor} border-t px-5 py-8 text-center`}
+        className={`${config.bgColor} ${config.borderColor} border-t px-5 py-6 text-center`}
       >
-        <StarRating stars={config.stars} color={config.color} />
-        <div className="mt-3 flex items-center justify-center gap-3">
-          <span
-            className={`text-3xl font-bold ${config.textColor}`}
-            style={{ color: config.color }}
-          >
-            {scoreResult.score.toFixed(1)}
-          </span>
-          <span className={`text-xl font-semibold ${config.textColor}`}>
-            {scoreResult.label}
-          </span>
-        </div>
+        <span
+          className={`text-2xl font-bold ${config.textColor}`}
+          style={{ color: config.color }}
+        >
+          {scoreResult.label}
+        </span>
         {config.description && (
           <p className={`mt-1 text-sm opacity-80 ${config.textColor}`}>
             {config.description}
           </p>
         )}
+        <div className="mt-4 px-2">
+          <ScoreScale label={scoreResult.label} color={config.color} />
+        </div>
         <Link
           href="/education"
-          className="mt-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
+          className="mt-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
         >
           <Info className="h-4 w-4" />
           Warum diese Bewertung?

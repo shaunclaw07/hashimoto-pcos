@@ -31,13 +31,13 @@ test.describe('Result page (/result/[barcode])', () => {
     await expect(page.getByText(/hazelnut spread/i)).toBeVisible({ timeout: 5000 });
   });
 
-  test('score_badge_with_stars_displayed', async ({ page }) => {
+  test('score_scale_with_five_positions_displayed', async ({ page }) => {
     await mockProductApi(page, VALID_BARCODE, vermeiden);
     await page.goto(`/result/${VALID_BARCODE}`);
-    await expect(
-      page.getByText(/sehr gut|gut|neutral|weniger gut|vermeiden/i)
-    ).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('.h-7.w-7')).toHaveCount(5, { timeout: 5000 });
+    // Score label is shown as main badge text (large, bold)
+    await expect(page.getByText('VERMEIDEN')).toBeVisible({ timeout: 5000 });
+    // ScoreScale shows 5 dots on the scale (aria-label matches pattern)
+    await expect(page.locator('[aria-label^="Bewertungsskala:"]')).toBeVisible({ timeout: 5000 });
   });
 
   test('score_breakdown_shows_bonus_malus', async ({ page }) => {
