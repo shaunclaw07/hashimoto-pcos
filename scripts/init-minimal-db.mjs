@@ -43,16 +43,14 @@ insertIngredients();
 
 db.close();
 
-// Set ownership to match runtime user (nextjs: 1001:1001)
-// This ensures the nextjs user can write to the DB
-// May fail on some filesystems (e.g., Windows volumes), so we catch and warn
+// Set world-readable/writable permissions for the DB and its directory.
+// Unlike chown, chmod works on any filesystem (including PVCs).
+// The nextjs user (1001) will be able to read/write the DB.
 try {
-  const uid = process.env.DB_FILE_UID ? parseInt(process.env.DB_FILE_UID) : 1001;
-  const gid = process.env.DB_FILE_GID ? parseInt(process.env.DB_FILE_GID) : 1001;
-  fs.chownSync(DB_PATH, uid, gid);
+  fs.chmodSync(DB_PATH, 0o644);
+  fs.chmodSync(dataDir, 0o777);
 } catch (err) {
-  // chown may fail on filesystem that doesn't support it (e.g., some volume types)
-  console.warn('[init-minimal-db] chown skipped:', err.message);
+  console.warn('[init-minimal-db] chmod skipped:', err.message);
 }
 
 console.log(`[init-minimal-db] Done! Database created at ${DB_PATH}`);
