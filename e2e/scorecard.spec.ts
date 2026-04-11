@@ -37,7 +37,7 @@ test.describe('ScoreCard Component', () => {
   test('sehr_gut_label_shown_for_high_score_product', async ({ page }) => {
     await mockProductApi(page, sehrGut.barcode, sehrGut);
     await page.goto(`/result/${sehrGut.barcode}`);
-    await expect(page.getByText(/sehr gut/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('SEHR GUT', { exact: true })).toBeVisible({ timeout: 5000 });
   });
 
   test('condition_icon_has_accessible_aria_label', async ({ page }) => {
@@ -112,5 +112,51 @@ test.describe('ScoreCard Component', () => {
     const educationLink = page.getByRole('link', { name: /warum diese bewertung/i });
     await expect(educationLink).toBeVisible({ timeout: 5000 });
     await expect(educationLink).toHaveAttribute('href', '/education');
+  });
+
+  test('nutrient_row_uses_vertical_card_layout', async ({ page }) => {
+    // Energie row should have label on top, value below in card tile style
+    await mockProductApi(page, sehrGut.barcode, sehrGut);
+    await page.goto(`/result/${sehrGut.barcode}`);
+    const energieRow = page.locator('.grid.grid-cols-2 > div').filter({ hasText: 'Energie' }).first();
+    // Label should be small/muted and appear above the bold value
+    await expect(energieRow.locator('span').first()).toContainText('Energie');
+    await expect(energieRow.locator('span').last()).toContainText('kcal');
+    // Card tile should have background
+    await expect(energieRow).toHaveClass(/rounded-xl/);
+  });
+
+  test('saturated_fat_label_shortened_to_ges_fettsaeuren', async ({ page }) => {
+    await mockProductApi(page, sehrGut.barcode, sehrGut);
+    await page.goto(`/result/${sehrGut.barcode}`);
+    // Should find "Ges. Fettsäuren" not "davon gesättigt"
+    await expect(page.getByText('Ges. Fettsäuren')).toBeVisible();
+    await expect(page.getByText('davon gesättigt')).not.toBeVisible();
+  });
+
+  test('product_name_allows_wrapping_up_to_two_lines', async ({ page }) => {
+    // Very long product name should wrap and truncate at 2 lines max
+    await mockProductApi(page, sehrGut.barcode, sehrGut);
+    await page.goto(`/result/${sehrGut.barcode}`);
+    const nameEl = page.locator('h2').filter({ hasText: /./ }).first();
+    await expect(nameEl).toHaveClass(/line-clamp-2/);
+  });
+
+  test('score_badge_shows_plain_language_description', async ({ page }) => {
+    await mockProductApi(page, sehrGut.barcode, sehrGut);
+    await page.goto(`/result/${sehrGut.barcode}`);
+    // "Sehr gut" should have description "Sehr gut für Ihren Ernährungsplan"
+    await expect(page.getByText('Sehr gut für Ihren Ernährungsplan')).toBeVisible();
+  });
+
+  test('score_legend_circles_fit_on_375px_viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/');
+    // Legend section should not overflow horizontally
+    const legend = page.locator('section').filter({ hasText: 'So funktioniert die Bewertung' });
+    const legendBox = await legend.boundingBox();
+    expect(legendBox?.width).toBeLessThanOrEqual(375);
+    // All 5 labels should be visible without horizontal scroll
+    await expect(page.getByText('Vermeiden')).toBeVisible();
   });
 });

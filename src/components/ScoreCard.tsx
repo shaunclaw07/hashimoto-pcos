@@ -37,6 +37,7 @@ export const SCORE_CONFIG = {
     textColor: "text-[var(--color-score-very-good-text)]",
     stars: 5,
     borderColor: "border-[var(--color-score-very-good)]/20",
+    description: "Sehr gut für Ihren Ernährungsplan",
   },
   GUT: {
     color: "var(--color-score-good)",
@@ -44,6 +45,7 @@ export const SCORE_CONFIG = {
     textColor: "text-[var(--color-score-good-text)]",
     stars: 4,
     borderColor: "border-[var(--color-score-good)]/20",
+    description: "Gut geeignet für Sie",
   },
   NEUTRAL: {
     color: "var(--color-score-neutral)",
@@ -51,6 +53,7 @@ export const SCORE_CONFIG = {
     textColor: "text-[var(--color-score-neutral-text)]",
     stars: 3,
     borderColor: "border-[var(--color-score-neutral)]/20",
+    description: "In Maßen geeignet",
   },
   "WENIGER GUT": {
     color: "var(--color-score-fair)",
@@ -58,6 +61,7 @@ export const SCORE_CONFIG = {
     textColor: "text-[var(--color-score-fair-text)]",
     stars: 2,
     borderColor: "border-[var(--color-score-fair)]/20",
+    description: "Nur selten empfohlen",
   },
   VERMEIDEN: {
     color: "var(--color-score-avoid)",
@@ -65,6 +69,7 @@ export const SCORE_CONFIG = {
     textColor: "text-[var(--color-score-avoid-text)]",
     stars: 1,
     borderColor: "border-[var(--color-score-avoid)]/20",
+    description: "Bitte meiden",
   },
 } as const;
 
@@ -111,7 +116,7 @@ export function ScoreCard({
           </div>
         )}
         <div className="flex flex-col justify-center min-w-0 flex-1">
-          <h2 className="font-bold text-xl leading-tight truncate text-foreground">
+          <h2 className="font-bold text-xl leading-tight line-clamp-2 text-foreground">
             {product.name || "Unbekanntes Produkt"}
           </h2>
           {product.brand && (
@@ -138,6 +143,11 @@ export function ScoreCard({
             {scoreResult.label}
           </span>
         </div>
+        {config.description && (
+          <p className={`mt-1 text-sm opacity-80 ${config.textColor}`}>
+            {config.description}
+          </p>
+        )}
         <Link
           href="/education"
           className="mt-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors underline-offset-2 hover:underline"
@@ -213,10 +223,10 @@ export function ScoreCard({
         <h3 className="mb-4 text-base font-semibold text-foreground">
           Nährwerte (pro 100g)
         </h3>
-        <div className="grid grid-cols-2 gap-3 text-base">
+        <div className="grid grid-cols-2 gap-2.5">
           <NutrientRow label="Energie" value={n.energyKcal} unit="kcal" />
           <NutrientRow label="Fett" value={n.fat} unit="g" />
-          <NutrientRow label="davon gesättigt" value={n.saturatedFat} unit="g" />
+          <NutrientRow label="Ges. Fettsäuren" value={n.saturatedFat} unit="g" />
           <NutrientRow label="Zucker" value={n.sugars} unit="g" />
           <NutrientRow label="Ballaststoffe" value={n.fiber} unit="g" />
           <NutrientRow label="Protein" value={n.protein} unit="g" />
@@ -326,10 +336,9 @@ function NutrientRow({
 
   if (value === undefined || value === null) {
     return (
-      <div className="flex justify-between text-muted-foreground">
-        <span>{label}</span>
-        <span className="relative flex items-center gap-1">
-          <span>Nicht angegeben</span>
+      <div className="relative flex flex-col gap-1 rounded-xl bg-muted/40 px-3 py-3">
+        <span className="flex items-center gap-1 text-xs text-muted-foreground leading-tight">
+          {label}
           <button
             ref={buttonRef}
             type="button"
@@ -340,23 +349,24 @@ function NutrientRow({
           >
             <Info className="h-3.5 w-3.5" />
           </button>
-          {showTooltip && (
-            <span
-              role="tooltip"
-              className="pointer-events-none absolute right-0 bottom-full mb-1 z-10 w-52 rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-card"
-            >
-              Diese Angabe fehlt in der Produktdatenbank
-            </span>
-          )}
         </span>
+        <span className="text-sm font-semibold text-foreground">Nicht angegeben</span>
+        {showTooltip && (
+          <span
+            role="tooltip"
+            className="pointer-events-none absolute left-1/2 top-full -translate-x-1/2 z-10 mt-1 w-52 rounded-lg border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-card"
+          >
+            Diese Angabe fehlt in der Produktdatenbank
+          </span>
+        )}
       </div>
     );
   }
 
   return (
-    <div className="flex justify-between">
-      <span className="text-foreground">{label}</span>
-      <span className="font-semibold text-foreground">
+    <div className="flex flex-col gap-1 rounded-xl bg-muted/40 px-3 py-3">
+      <span className="text-xs text-muted-foreground leading-tight">{label}</span>
+      <span className="text-base font-semibold text-foreground">
         {value.toFixed(1)} {unit}
       </span>
     </div>
