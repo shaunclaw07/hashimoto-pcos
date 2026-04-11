@@ -246,6 +246,37 @@ docker compose logs -f
 
 **Hinweis:** Die lokale Datenbank ist optional. Die App funktioniert auch ohne `products.db` — in diesem Fall fallen alle Suchanfragen auf die OpenFoodFacts-API zurück (keine lokalen DACH-Produkte, keine Zero-Rating-Logik). Für zuverlässige Performance und Zero-Rating wird eine lokale DB empfohlen.
 
+### GitHub Container Registry (Release)
+
+Docker-Images werden automatisch nach GitHub Container Registry (GHCR) veröffentlicht, wenn ein SemVer-Tag gepusht wird:
+
+```bash
+# Einen neuen Release taggen
+git tag v1.0.0
+git push origin v1.0.0
+
+# Oder mit einem Prefix für Vorab-Releases
+git tag v0.1.0-beta.1
+git push origin v0.1.0-beta.1
+```
+
+**Was passiert:**
+- Workflow triggert auf Tag-Push (`v*.*.*` Pattern)
+- Image wird gebaut und nach `ghcr.io/shaunclaw07/hashimoto-pcos` gepusht
+- Folgende Tags werden erstellt: `v1.0.0`, `1.0`, `1`, `latest`
+
+**Image verwenden:**
+```bash
+# Latest Version pullen
+docker pull ghcr.io/shaunclaw07/hashimoto-pcos:latest
+
+# Spezifische Version pullen
+docker pull ghcr.io/shaunclaw07/hashimoto-pcos:v1.0.0
+
+# Container starten
+docker run -p 3000:3000 ghcr.io/shaunclaw07/hashimoto-pcos:latest
+```
+
 ### Kubernetes
 
 Die Kubernetes-Manifests liegen unter `k8s/` und werden mit `kubectl apply -k k8s/` angewendet:
