@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Scanner } from "@/components/Scanner";
 import { LoadingOverlay } from "@/components/loading-overlay";
@@ -14,6 +14,16 @@ export default function ScannerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scannerError, setScannerError] = useState<string | null>(null);
+  const [showNotFoundOverlay, setShowNotFoundOverlay] = useState(false);
+
+  // Auto-dismiss not-found overlay after 2.5 seconds
+  useEffect(() => {
+    if (!showNotFoundOverlay) return;
+    const timeout = setTimeout(() => {
+      setShowNotFoundOverlay(false);
+    }, 2500);
+    return () => clearTimeout(timeout);
+  }, [showNotFoundOverlay]);
 
   function isValidEan13(code: string): boolean {
     return /^\d{8,13}$/.test(code);
@@ -31,14 +41,18 @@ export default function ScannerPage() {
 
       if (!result.success) {
         const errType = result.error?.type ?? "unknown";
+        const isNotFound = errType === "not_found";
         setError(
-          errType === "not_found"
+          isNotFound
             ? "Produkt nicht gefunden. Bitte überprüfe den Barcode."
             : errType === "invalid_barcode"
             ? "Ungültiger Barcode. Bitte gib eine gültige EAN-Nummer ein."
             : "Fehler bei der Suche. Bitte erneut versuchen."
         );
         setDetectedBarcode(null);
+        if (isNotFound && scanMode === "camera") {
+          setShowNotFoundOverlay(true);
+        }
       } else {
         router.push(`/result/${code}`);
         return;
@@ -98,79 +112,77 @@ export default function ScannerPage() {
         </button>
       </div>
 
-      {/* Camera View with QuaggaJS */}
+      {/* Camera View with Scanner */}
       {scanMode === "camera" && (
         <div className="mb-8 space-y-5">
           <Scanner
             onDetected={handleBarcodeDetected}
             onError={(err) => setScannerError(err)}
+            notFound={showNotFoundOverlay}
           />
 
           {scannerError && (
-            <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700 text-base">
+            <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700 text-base animate-fade-in">
               <AlertCircle className="h-5 w-5 shrink-0" />
               {scannerError}
             </div>
           )}
 
-          {/* Manual fallback in camera mode */}
-          <div className="card-warm p-6">
-            <h3 className="mb-4 text-base font-semibold text-foreground">
-              Barcode manuell eingeben
-            </h3>
-            <form onSubmit={handleManualSubmit}>
-              <input
-                type="text"
-                value={barcode}
-                onChange={(e) => setBarcode(e.target.value.replace(/\D/g, ""))}
-                placeholder="Barcode hier eingeben..."
-                className="w-full rounded-xl border border-border bg-background px-5 py-4 text-lg tracking-wider text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-                maxLength={13}
-              />
-            </form>
-          </div>
+          {/* Inline error for not-found in camera mode */}
+          {error && (
+            <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700 text-base animate-fade-in">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
+                <span className="text-lg" role="img" aria-label="Fehler: Produkt nicht gefunden">❌</span>
+              </div>
+              <p className="text-base">{error}</p>
+            </div>
+          )}
         </div>
       )}
 
       {/* Manual Input */}
       {scanMode === "manual" && (
-        <form onSubmit={handleManualSubmit} className="mb-8 space-y-5">
-          <div>
-            <label className="mb-3 block text-base font-medium text-foreground">
-              Barcode eingeben
-            </label>
-            <input
-              type="text"
-              value={barcode}
-              onChange={(e) => { setBarcode(e.target.value.replace(/\D/g, "")); setError(null); }}
-              placeholder="z.B. 7622210449283"
-              className="w-full rounded-xl border border-border bg-background px-5 py-4 text-lg tracking-wider text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
-              maxLength={13}
-            />
-          </div>
+        <div className="mb-8 space-y-5">
+          <form onSubmit={handleManualSubmit} className="space-y-5">
+            <div>
+              <label className="mb-3 block text-base font-medium text-foreground">
+                Barcode eingeben
+              </label>
+              <input
+                type="text"
+                value={barcode}
+                onChange={(e) => { setBarcode(e.target.value.replace(/\D/g, "")); setError(null); }}
+                placeholder="z.B. 7622210449283"
+                className="w-full rounded-xl border border-border bg-background px-5 py-4 text-lg tracking-wider text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+                maxLength={13}
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={!barcode.trim() || isLoading}
-            className="w-full rounded-xl bg-primary py-4.5 text-lg font-semibold text-primary-foreground hover:bg-primary-600 disabled:opacity-50 flex items-center justify-center gap-2.5 touch-target transition-all shadow-soft hover:shadow-card active:scale-[0.98]"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Suche...
-              </>
-            ) : (
-              "Produkt suchen"
-            )}
-          </button>
-        </form>
-      )}
+            <button
+              type="submit"
+              disabled={!barcode.trim() || isLoading}
+              className="w-full rounded-xl bg-primary py-4.5 text-lg font-semibold text-primary-foreground hover:bg-primary-600 disabled:opacity-50 flex items-center justify-center gap-2.5 touch-target transition-all shadow-soft hover:shadow-card active:scale-[0.98]"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Suche...
+                </>
+              ) : (
+                "Produkt suchen"
+              )}
+            </button>
+          </form>
 
-      {/* Error */}
-      {error && (
-        <div className="mb-6 flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700">
-          <AlertCircle className="h-5 w-5 shrink-0" />
-          <p className="text-base">{error}</p>
+          {/* Inline error for manual mode - right below the input */}
+          {error && (
+            <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700 animate-fade-in">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
+                <span className="text-xl" role="img" aria-label="Fehler: Produkt nicht gefunden">❌</span>
+              </div>
+              <p className="text-base font-medium">{error}</p>
+            </div>
+          )}
         </div>
       )}
 

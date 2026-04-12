@@ -16,7 +16,7 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
-    "@ericblade/quagga2": "^1.12.1",
+    "@zxing/library": "^0.21.3",
     "@tailwindcss/postcss": "^4.2.2",
     "better-sqlite3": "^12.8.0",
     "class-variance-authority": "^0.7.0",
