@@ -55,6 +55,7 @@ export function usePullToRefresh({
   const containerRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
   const isDraggingRef = useRef(false);
+  const isPullingDownRef = useRef(false);
   const isRefreshingRef = useRef(false);
 
   // Keep ref in sync with state to avoid stale closures
@@ -88,7 +89,11 @@ export function usePullToRefresh({
       const diff = currentY - startYRef.current;
 
       // Only allow pulling down (positive diff)
-      if (diff < 0) return;
+      if (diff < 0) {
+        isPullingDownRef.current = false; // user is scrolling up → release lock
+        return;
+      }
+      isPullingDownRef.current = true; // genuinely pulling down → engage lock
 
       // Apply resistance to the pull
       const resistedDistance = Math.min(diff * resistance, maxPullDistance);
@@ -107,6 +112,7 @@ export function usePullToRefresh({
     if (!isDraggingRef.current) return;
 
     isDraggingRef.current = false;
+    isPullingDownRef.current = false;
 
     const shouldRefresh = state.pullDistance >= threshold;
 
@@ -146,7 +152,7 @@ export function usePullToRefresh({
     if (!container) return;
 
     const preventScroll = (e: TouchEvent) => {
-      if (isDraggingRef.current && container.scrollTop === 0) {
+      if (isPullingDownRef.current && container.scrollTop === 0) {
         e.preventDefault();
       }
     };
