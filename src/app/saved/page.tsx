@@ -5,14 +5,12 @@ import Link from "next/link";
 import { Bookmark, Trash2, ArrowRight, BookmarkX, ScanBarcode, Search } from "lucide-react";
 import { ManageFavoritesUseCase } from "@/core/use-cases/manage-favorites";
 import { LocalStorageFavoritesRepository } from "@/infrastructure/storage/local-storage-favorites";
-import { calculateScore } from "@/core/services/scoring-service";
 import type { SavedProduct } from "@/core/ports/favorites-repository";
-import type { UserProfile } from "@/core/domain/user-profile";
 import { useUserProfile } from "@/hooks/use-user-profile";
+import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { Toast } from "@/components/toast";
 import { cn } from "@/lib/utils";
-import { SCORE_CONFIG } from "@/components/ScoreCard";
 import { triggerHaptic, HAPTIC_PATTERNS } from "@/core/services/haptic-service";
 
 const repo = new LocalStorageFavoritesRepository();
@@ -32,6 +30,23 @@ function getScoreColorClass(label: string): string {
       return "bg-score-avoid";
     default:
       return "bg-muted";
+  }
+}
+
+function getScoreLabelStyle(label: string): { backgroundColor?: string; color?: string } {
+  switch (label) {
+    case "SEHR GUT":
+      return { backgroundColor: "var(--color-score-very-good-bg)", color: "var(--color-score-very-good-text)" };
+    case "GUT":
+      return { backgroundColor: "var(--color-score-good-bg)", color: "var(--color-score-good-text)" };
+    case "NEUTRAL":
+      return { backgroundColor: "var(--color-score-neutral-bg)", color: "var(--color-score-neutral-text)" };
+    case "WENIGER GUT":
+      return { backgroundColor: "var(--color-score-fair-bg)", color: "var(--color-score-fair-text)" };
+    case "VERMEIDEN":
+      return { backgroundColor: "var(--color-score-avoid-bg)", color: "var(--color-score-avoid-text)" };
+    default:
+      return {};
   }
 }
 
@@ -61,12 +76,11 @@ function formatDate(timestamp: number): string {
 type SortOption = "newest" | "oldest" | "best" | "worst";
 
 export default function SavedProductsPage() {
-  const { profile, isLoaded } = useUserProfile();
+  const { isLoaded } = useUserProfile();
   const { toast, show, dismiss, handleAction } = useToast();
   const [savedProducts, setSavedProducts] = useState<SavedProduct[]>([]);
   const [isClient, setIsClient] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("newest");
-  const [removedProduct, setRemovedProduct] = useState<{ barcode: string; product: SavedProduct } | null>(null);
 
   useEffect(() => {
     setIsClient(true);
@@ -90,9 +104,6 @@ export default function SavedProductsPage() {
   }, [savedProducts, sortBy]);
 
   const handleRemove = useCallback((barcode: string, savedProduct: SavedProduct) => {
-    // Store removed product for potential undo
-    setRemovedProduct({ barcode, product: savedProduct });
-
     // Remove from storage
     useCase.remove(barcode);
     setSavedProducts(useCase.getAll());
@@ -157,7 +168,6 @@ export default function SavedProductsPage() {
           {sortedProducts.map((savedProduct) => {
             const { product, score, savedAt } = savedProduct;
             const barcode = product.barcode;
-            const config = SCORE_CONFIG[score.label];
 
             return (
               <div
@@ -218,10 +228,7 @@ export default function SavedProductsPage() {
                     </div>
                     <span
                       className="text-xs font-medium px-2 py-0.5 rounded-full"
-                      style={{
-                        backgroundColor: config?.bgColor ? `var(${config.bgColor.replace("bg-", "--color-score-").replace("[", "").replace("]", "").replace("var(", "").replace(")", "")})` : undefined,
-                        color: config?.color,
-                      }}
+                      style={getScoreLabelStyle(score.label)}
                     >
                       {score.label}
                     </span>
