@@ -1,28 +1,49 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import Quagga from "@ericblade/quagga2";
+import {
+  BrowserMultiFormatReader,
+  BarcodeFormat,
+  DecodeHintType,
+} from "@zxing/library";
 import { CameraOff, SwitchCamera, Loader2 } from "lucide-react";
 import { triggerHaptic, HAPTIC_PATTERNS } from "@/core/services/haptic-service";
 
 interface ScannerProps {
   onDetected: (barcode: string) => void;
   onError?: (error: string) => void;
+  notFound?: boolean;
 }
 
 type CameraFacing = "environment" | "user";
 
-export function Scanner({ onDetected, onError }: ScannerProps) {
-  const scannerRef = useRef<HTMLDivElement>(null);
+interface ScannerControls {
+  stop: () => void;
+}
+
+// Configure ZXing for product barcodes only (optimization)
+const hints = new Map();
+hints.set(DecodeHintType.POSSIBLE_FORMATS, [
+  BarcodeFormat.EAN_13,
+  BarcodeFormat.EAN_8,
+  BarcodeFormat.UPC_A,
+  BarcodeFormat.UPC_E,
+]);
+hints.set(DecodeHintType.TRY_HARDER, true);
+
+export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
+  const controlsRef = useRef<ScannerControls | null>(null);
+
   const [cameraFacing, setCameraFacing] = useState<CameraFacing>("environment");
   const [isInitialized, setIsInitialized] = useState(false);
   const [hasPermission, setHasPermission] = useState<"pending" | "granted" | "denied">("pending");
   const [error, setError] = useState<string | null>(null);
-  const [retryKey, setRetryKey] = useState(0);
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+
   const lastDetectedRef = useRef<string | null>(null);
   const lastDetectedTimeRef = useRef<number>(0);
-  const initAttemptRef = useRef<number>(0);
-  const maxInitAttempts = 3;
 
   // Debounce: ignore same barcode within 3 seconds
   const handleDetected = useCallback(
@@ -33,153 +54,113 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
       }
       lastDetectedRef.current = code;
       lastDetectedTimeRef.current = now;
-      // Trigger haptic feedback on successful scan
       triggerHaptic(HAPTIC_PATTERNS.TAP);
       onDetected(code);
     },
     [onDetected]
   );
 
-  // Initialize Quagga with retry logic and dimension checks
+  // Initialize ZXing scanner
   useEffect(() => {
-    if (!scannerRef.current) return;
+    if (!videoRef.current) return;
 
-    // Ensure container has valid dimensions before initializing
-    const containerWidth = scannerRef.current.clientWidth;
-    const containerHeight = scannerRef.current.clientHeight;
-    if (containerWidth === 0 || containerHeight === 0) {
-      // Container not ready, retry after a short delay
-      const retryTimeout = setTimeout(() => {
-        initAttemptRef.current += 1;
-        if (initAttemptRef.current < maxInitAttempts) {
-          // Force re-render to retry initialization
-          setRetryKey((k) => k + 1);
-        } else {
-          // Max retries exceeded
-          setError("Kamera konnte nicht initialisiert werden. Bitte lade die Seite neu.");
-          onError?.("max_retries_exceeded");
+    const initScanner = async () => {
+      try {
+        // Create reader if not exists
+        if (!codeReaderRef.current) {
+          codeReaderRef.current = new BrowserMultiFormatReader(hints);
         }
-      }, 100);
-      return () => clearTimeout(retryTimeout);
-    }
 
-    setError(null);
-    initAttemptRef.current = 0;
+        const codeReader = codeReaderRef.current;
 
-    Quagga.init(
-      {
-        inputStream: {
-          type: "LiveStream",
-          target: scannerRef.current,
-          constraints: {
-            width: { min: 640, ideal: 1280 },
-            height: { min: 480, ideal: 720 },
-            facingMode: cameraFacing,
-            aspectRatio: { min: 1, max: 2 },
-          },
-        },
-        decoder: {
-          readers: ["ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"],
-        },
-        locate: true,
-        locator: {
-          patchSize: "medium",
-          halfSample: true,
-        },
-      },
-      (err) => {
-        if (err) {
-          // Check for dimension-related errors - these can be retried
-          if (err.message?.includes("dimensions") || err.message?.includes("NaN") || err.message?.includes("multiple")) {
-            initAttemptRef.current += 1;
-            if (initAttemptRef.current < maxInitAttempts) {
-              // Retry after a short delay
-              setTimeout(() => {
-                setRetryKey((k) => k + 1);
-              }, 200);
-              return;
-            }
-            // Max retries exceeded - show error
-            setError("Kamera konnte nicht initialisiert werden. Bitte lade die Seite neu.");
-            onError?.("dimension_error");
-            return;
-          }
-          if (err.name === "NotAllowedError" || err.message?.includes("Permission")) {
-            setHasPermission("denied");
-            setError("Kamera-Zugriff verweigert. Bitte erlaube den Zugriff in den Browser-Einstellungen.");
-          } else if (err.name === "NotFoundError") {
-            setError("Keine Kamera gefunden. Bitte nutze die manuelle Eingabe.");
-          } else {
-            setError(`Scanner-Fehler: ${err.message}`);
-          }
-          onError?.(err.message);
+        // Get available video devices
+        const videoDevices = await codeReader.listVideoInputDevices();
+        setDevices(videoDevices);
+
+        if (videoDevices.length === 0) {
+          setError("Keine Kamera gefunden. Bitte nutze die manuelle Eingabe.");
+          setHasPermission("denied");
+          onError?.("no_camera");
           return;
         }
 
+        // Find camera by facing mode preference
+        let selectedDeviceId: string | undefined;
+
+        if (cameraFacing === "environment") {
+          // Try to find back camera
+          const backCamera = videoDevices.find(
+            (d) =>
+              d.label.toLowerCase().includes("back") ||
+              d.label.toLowerCase().includes("rear") ||
+              d.label.toLowerCase().includes("environment")
+          );
+          selectedDeviceId = backCamera?.deviceId ?? videoDevices[0]?.deviceId;
+        } else {
+          // Try to find front camera
+          const frontCamera = videoDevices.find(
+            (d) =>
+              d.label.toLowerCase().includes("front") ||
+              d.label.toLowerCase().includes("user") ||
+              d.label.toLowerCase().includes("selfie")
+          );
+          selectedDeviceId = frontCamera?.deviceId ?? videoDevices[0]?.deviceId;
+        }
+
+        // Start decoding from video device
+        // Note: decodeFromVideoDevice returns Promise<void> in types but actually returns controls at runtime
+        const controls = (await codeReader.decodeFromVideoDevice(
+          selectedDeviceId,
+          videoRef.current!,
+          (result, err) => {
+            if (result) {
+              const code = result.getText();
+              // Validate EAN-13/UPC format
+              if (/^\d{8,13}$/.test(code)) {
+                handleDetected(code);
+              }
+            }
+          }
+        )) as unknown as ScannerControls;
+        controlsRef.current = controls;
+
         setHasPermission("granted");
         setIsInitialized(true);
-        Quagga.start();
-      }
-    );
+        setError(null);
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : String(err);
 
-    Quagga.onDetected((result) => {
-      if (!result?.codeResult?.code) return;
-      const code = result.codeResult.code;
-      // Validate EAN-13/UPC format
-      if (/^\d{8,13}$/.test(code)) {
-        handleDetected(code);
-      }
-    });
-
-    return () => {
-      if (isInitialized) {
-        Quagga.stop();
-        setIsInitialized(false);
-      }
-    };
-  }, [cameraFacing, handleDetected, onError, retryKey]);
-
-  // Update camera when facing changes
-  useEffect(() => {
-    if (!isInitialized || !scannerRef.current) return;
-
-    // Ensure container has valid dimensions before re-initializing
-    const containerWidth = scannerRef.current.clientWidth;
-    const containerHeight = scannerRef.current.clientHeight;
-    if (containerWidth === 0 || containerHeight === 0) return;
-
-    setIsInitialized(false);
-    Quagga.stop();
-
-    Quagga.init(
-      {
-        inputStream: {
-          type: "LiveStream",
-          target: scannerRef.current,
-          constraints: {
-            width: { min: 640, ideal: 1280 },
-            height: { min: 480, ideal: 720 },
-            facingMode: cameraFacing,
-            aspectRatio: { min: 1, max: 2 },
-          },
-        },
-        decoder: {
-          readers: ["ean_reader", "ean_8_reader", "upc_reader", "upc_e_reader"],
-        },
-        locate: true,
-        locator: {
-          patchSize: "medium",
-          halfSample: true,
-        },
-      },
-      (err) => {
-        if (!err) {
-          setIsInitialized(true);
-          Quagga.start();
+        if (errorMsg.includes("Permission") || errorMsg.includes("NotAllowed")) {
+          setHasPermission("denied");
+          setError("Kamera-Zugriff verweigert. Bitte erlaube den Zugriff in den Browser-Einstellungen.");
+          onError?.("permission_denied");
+        } else if (errorMsg.includes("NotFound") || errorMsg.includes("no camera")) {
+          setError("Keine Kamera gefunden. Bitte nutze die manuelle Eingabe.");
+          setHasPermission("denied");
+          onError?.("no_camera");
+        } else {
+          setError(`Scanner-Fehler: ${errorMsg}`);
+          onError?.(errorMsg);
         }
       }
-    );
-  }, [cameraFacing, isInitialized]);
+    };
+
+    initScanner();
+
+    // Cleanup function
+    return () => {
+      if (controlsRef.current) {
+        controlsRef.current.stop();
+        controlsRef.current = null;
+      }
+      setIsInitialized(false);
+    };
+  }, [cameraFacing, handleDetected, onError]);
+
+  // Switch camera function
+  const handleSwitchCamera = useCallback(() => {
+    setCameraFacing((prev) => (prev === "environment" ? "user" : "environment"));
+  }, []);
 
   return (
     <div className="relative">
@@ -188,21 +169,28 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 rounded-2xl bg-background-warm text-foreground">
           <CameraOff className="h-14 w-14 text-muted-foreground" />
           <p className="text-center px-6 text-base">{error || "Kamera-Zugriff verweigert"}</p>
-          <button
-            onClick={() => setCameraFacing((f) => (f === "environment" ? "user" : "environment"))}
-            className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-base font-medium text-primary-foreground hover:bg-primary-600 active:scale-95 transition-all touch-target"
-          >
-            <SwitchCamera className="h-5 w-5" />
-            Kamera wechseln
-          </button>
+          {devices.length > 1 && (
+            <button
+              onClick={handleSwitchCamera}
+              className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-base font-medium text-primary-foreground hover:bg-primary-600 active:scale-95 transition-all touch-target"
+            >
+              <SwitchCamera className="h-5 w-5" />
+              Kamera wechseln
+            </button>
+          )}
         </div>
       )}
 
       {/* Scanner viewport */}
-      <div
-        ref={scannerRef}
-        className="relative aspect-square overflow-hidden rounded-2xl bg-background-warm shadow-card"
-      >
+      <div className="scanner-viewport relative aspect-square overflow-hidden rounded-2xl bg-background-warm shadow-card">
+        {/* Video element - ZXing renders here without canvas overlay */}
+        <video
+          ref={videoRef}
+          className="absolute inset-0 h-full w-full object-cover"
+          playsInline
+          muted
+        />
+
         {/* Scan overlay */}
         {hasPermission === "granted" && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
@@ -213,9 +201,21 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
               <div className="absolute -bottom-2 -left-2 h-10 w-10 border-b-4 border-l-4 border-primary rounded-bl-xl" />
               <div className="absolute -bottom-2 -right-2 h-10 w-10 border-b-4 border-r-4 border-primary rounded-br-xl" />
               <div className="h-52 w-72 rounded-2xl border-2 border-primary/30 bg-primary/5" />
-              {/* Scanning line animation */}
-              <div className="absolute inset-x-0 top-0 h-0.5 bg-primary/60 animate-pulse" />
+              {/* Scanning line animation - smooth sweep from top to bottom */}
+              <div className="scan-line" />
             </div>
+          </div>
+        )}
+
+        {/* Not-found overlay - shown when product is not in database */}
+        {notFound && (
+          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 rounded-2xl bg-background/90 backdrop-blur-sm animate-fade-in">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
+              <span className="text-3xl" role="img" aria-label="Nicht gefunden">❌</span>
+            </div>
+            <p className="text-center px-6 text-base font-medium text-foreground">
+              Produkt nicht gefunden
+            </p>
           </div>
         )}
 
@@ -234,16 +234,16 @@ export function Scanner({ onDetected, onError }: ScannerProps) {
           <span className="rounded-full bg-background/80 backdrop-blur px-4 py-2 text-sm text-foreground font-medium">
             EAN-13, UPC-A
           </span>
-          <button
-            onClick={() =>
-              setCameraFacing((f) => (f === "environment" ? "user" : "environment"))
-            }
-            className="rounded-full bg-background/80 backdrop-blur p-3 text-foreground hover:bg-background active:scale-95 transition-all shadow-soft touch-target"
-            title="Kamera wechseln"
-            aria-label="Kamera wechseln"
-          >
-            <SwitchCamera className="h-6 w-6" />
-          </button>
+          {devices.length > 1 && (
+            <button
+              onClick={handleSwitchCamera}
+              className="rounded-full bg-background/80 backdrop-blur p-3 text-foreground hover:bg-background active:scale-95 transition-all shadow-soft touch-target"
+              title="Kamera wechseln"
+              aria-label="Kamera wechseln"
+            >
+              <SwitchCamera className="h-6 w-6" />
+            </button>
+          )}
         </div>
       )}
 
