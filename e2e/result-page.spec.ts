@@ -63,7 +63,7 @@ test.describe('Result page (/result/[barcode])', () => {
     await mockProductApi(page, VALID_BARCODE, vermeiden);
     await page.goto(`/result/${VALID_BARCODE}`);
     await page.getByRole('button', { name: /speichern/i }).click();
-    await expect(page.getByText('Gespeichert')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: 'Gespeichert' })).toBeVisible({ timeout: 5000 });
   });
 
   test('saved_toggle_removes_from_localStorage', async ({ page }) => {
@@ -80,7 +80,7 @@ test.describe('Result page (/result/[barcode])', () => {
     await page.getByRole('button', { name: /speichern/i }).click();
     await mockProductApi(page, VALID_BARCODE, vermeiden);
     await page.reload();
-    await expect(page.getByText('Gespeichert')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: 'Gespeichert' })).toBeVisible({ timeout: 5000 });
   });
 
   test('back_to_scanner_link_works_in_error_state', async ({ page }) => {

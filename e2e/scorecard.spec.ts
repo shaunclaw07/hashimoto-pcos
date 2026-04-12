@@ -25,7 +25,7 @@ test.describe('ScoreCard Component', () => {
     await mockProductApi(page, vermeiden.barcode, vermeiden);
     await page.goto(`/result/${vermeiden.barcode}`);
     await page.getByRole('button', { name: /speichern/i }).click();
-    await expect(page.getByText('Gespeichert')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: 'Gespeichert' })).toBeVisible({ timeout: 5000 });
   });
 
   test('vermeiden_label_shown_for_low_score_product', async ({ page }) => {
