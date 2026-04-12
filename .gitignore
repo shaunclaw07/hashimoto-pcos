@@ -29,6 +29,8 @@ Desktop.ini
 *.temp
 *~
 
+# .agents
+/.agents/
 # IDE
 .idea/
 .vscode/
@@ -82,4 +84,4 @@ docs/superpowers/
 # Test output
 test-output.log
 test-output.txt
-
+skills-lock.json
