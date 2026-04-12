@@ -17,10 +17,6 @@ interface ScannerProps {
 
 type CameraFacing = "environment" | "user";
 
-interface ScannerControls {
-  stop: () => void;
-}
-
 // Lazy initialization function to avoid module-level side effects
 function createHints() {
   const hints = new Map();
@@ -29,15 +25,16 @@ function createHints() {
     BarcodeFormat.EAN_8,
     BarcodeFormat.UPC_A,
     BarcodeFormat.UPC_E,
+    BarcodeFormat.CODE_128,
+    BarcodeFormat.CODE_39,
   ]);
-  hints.set(DecodeHintType.TRY_HARDER, true);
   return hints;
 }
 
 export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const codeReaderRef = useRef<BrowserMultiFormatReader | null>(null);
-  const controlsRef = useRef<ScannerControls | null>(null);
+  const videoElementRef = useRef<HTMLVideoElement | null>(null);
 
   const [cameraFacing, setCameraFacing] = useState<CameraFacing>("environment");
   const [isInitialized, setIsInitialized] = useState(false);
@@ -65,13 +62,30 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
 
   // Initialize ZXing scanner
   useEffect(() => {
-    if (!videoRef.current) return;
+    if (!containerRef.current) return;
 
     const initScanner = async () => {
       try {
+        // Clean up any existing video element
+        if (videoElementRef.current) {
+          videoElementRef.current.remove();
+          videoElementRef.current = null;
+        }
+
+        // Create a new video element dynamically
+        const video = document.createElement('video');
+        video.style.width = '100%';
+        video.style.height = '100%';
+        video.style.objectFit = 'cover';
+        video.playsInline = true;
+        video.muted = true;
+        video.autoplay = true;
+        containerRef.current?.appendChild(video);
+        videoElementRef.current = video;
+
         // Create reader if not exists
         if (!codeReaderRef.current) {
-          codeReaderRef.current = new BrowserMultiFormatReader(createHints());
+          codeReaderRef.current = new BrowserMultiFormatReader(createHints(), 50);
         }
 
         const codeReader = codeReaderRef.current;
@@ -110,12 +124,28 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
           selectedDeviceId = frontCamera?.deviceId ?? videoDevices[0]?.deviceId;
         }
 
-        // Start decoding from video device
-        // Note: decodeFromVideoDevice returns Promise<void> in types but actually returns controls at runtime
-        const controls = (await codeReader.decodeFromVideoDevice(
-          selectedDeviceId,
-          videoRef.current!,
-          (result, err) => {
+        // Wait a moment for video element to be in DOM
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Configure high-quality video constraints
+        const constraints: MediaStreamConstraints = {
+          video: {
+            deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
+            width: { ideal: 1280, min: 640 },
+            height: { ideal: 720, min: 480 },
+            facingMode: cameraFacing,
+          },
+        };
+
+        // Start decoding with custom constraints for better quality
+        await codeReader.decodeFromConstraints(
+          constraints,
+          video,
+          (result, error) => {
+            if (error) {
+              // NotFoundException is expected when no barcode is in view
+              return;
+            }
             if (result) {
               const code = result.getText();
               // Validate EAN-13/UPC format
@@ -124,8 +154,7 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
               }
             }
           }
-        )) as unknown as ScannerControls;
-        controlsRef.current = controls;
+        );
 
         setHasPermission("granted");
         setIsInitialized(true);
@@ -152,9 +181,15 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
 
     // Cleanup function
     return () => {
-      if (controlsRef.current) {
-        controlsRef.current.stop();
-        controlsRef.current = null;
+      // Stop the continuous decode loop and reset the reader
+      if (codeReaderRef.current) {
+        codeReaderRef.current.stopContinuousDecode();
+        codeReaderRef.current.reset();
+      }
+      // Remove video element
+      if (videoElementRef.current) {
+        videoElementRef.current.remove();
+        videoElementRef.current = null;
       }
       setIsInitialized(false);
     };
@@ -180,14 +215,10 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
       )}
 
       {/* Scanner viewport */}
-      <div className="scanner-viewport relative aspect-square overflow-hidden rounded-2xl bg-background-warm shadow-card">
-        {/* Video element - ZXing renders here without canvas overlay */}
-        <video
-          ref={videoRef}
-          className="absolute inset-0 h-full w-full object-cover"
-          playsInline
-          muted
-        />
+      <div
+        ref={containerRef}
+        className="scanner-viewport relative aspect-square overflow-hidden rounded-2xl bg-background-warm shadow-card"
+      >
 
         {/* Scan overlay */}
         {hasPermission === "granted" && (
