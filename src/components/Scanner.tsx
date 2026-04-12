@@ -6,7 +6,7 @@ import {
   BarcodeFormat,
   DecodeHintType,
 } from "@zxing/library";
-import { CameraOff, SwitchCamera } from "lucide-react";
+import { CameraOff, SwitchCamera, Loader2 } from "lucide-react";
 import { triggerHaptic, HAPTIC_PATTERNS } from "@/core/services/haptic-service";
 
 interface ScannerProps {
@@ -220,7 +220,7 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
         {/* Loading state */}
         {hasPermission === "pending" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background-warm">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
             <p className="text-base text-muted-foreground">Kamera wird gestartet...</p>
           </div>
         )}
