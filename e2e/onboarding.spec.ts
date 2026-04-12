@@ -145,7 +145,7 @@ test.describe('Settings Page', () => {
     // Change to Hashimoto
     await page.getByRole('button', { name: /hashimoto-thyreoiditis/i }).click();
     await page.getByRole('button', { name: /speichern/i }).click();
-    await expect(page.getByText(/gespeichert/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: 'Gespeichert' })).toBeVisible({ timeout: 5000 });
     // Verify localStorage updated
     const raw = await page.evaluate((key) => localStorage.getItem(key), PROFILE_KEY);
     const profile = JSON.parse(raw!);
@@ -170,7 +170,7 @@ test.describe('Settings Page', () => {
     // Change to Hashimoto and save
     await page.getByRole('button', { name: /hashimoto-thyreoiditis/i }).click();
     await page.getByRole('button', { name: /speichern/i }).click();
-    await expect(page.getByText(/gespeichert/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: 'Gespeichert' })).toBeVisible({ timeout: 5000 });
 
     // Header badge should update to Hashimoto immediately (🦋)
     await expect(page.getByText(/🦋 hashimoto/i)).toBeVisible({ timeout: 5000 });

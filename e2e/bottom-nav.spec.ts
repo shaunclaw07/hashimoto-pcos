@@ -4,7 +4,7 @@ const SKIPPED_KEY = 'hashimoto-pcos-onboarding-skipped';
 const PROFILE_KEY = 'hashimoto-pcos-user-profile';
 
 test.describe('BottomNav Component', () => {
-  test('all_4_nav_items_present', async ({ page }) => {
+  test('all_5_nav_items_present', async ({ page }) => {
     await page.addInitScript((key) => {
       localStorage.setItem(key, 'true');
     }, SKIPPED_KEY);
@@ -12,6 +12,7 @@ test.describe('BottomNav Component', () => {
     await expect(page.getByRole('link', { name: /home/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /scanner/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /suche/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /gespeichert/i })).toBeVisible();
     await expect(page.getByRole('link', { name: /profil/i })).toBeVisible();
   });
 
