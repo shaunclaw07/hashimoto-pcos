@@ -132,7 +132,7 @@ export default function ScannerPage() {
           {error && (
             <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700 text-base animate-fade-in">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-100">
-                <span className="text-lg" role="img" aria-label="Nicht gefunden">❌</span>
+                <span className="text-lg" role="img" aria-label="Fehler: Produkt nicht gefunden">❌</span>
               </div>
               <p className="text-base">{error}</p>
             </div>
@@ -178,7 +178,7 @@ export default function ScannerPage() {
           {error && (
             <div className="flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 p-4 text-red-700 animate-fade-in">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100">
-                <span className="text-xl" role="img" aria-label="Nicht gefunden">❌</span>
+                <span className="text-xl" role="img" aria-label="Fehler: Produkt nicht gefunden">❌</span>
               </div>
               <p className="text-base font-medium">{error}</p>
             </div>

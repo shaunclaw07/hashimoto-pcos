@@ -6,7 +6,7 @@ import {
   BarcodeFormat,
   DecodeHintType,
 } from "@zxing/library";
-import { CameraOff, SwitchCamera, Loader2 } from "lucide-react";
+import { CameraOff, SwitchCamera } from "lucide-react";
 import { triggerHaptic, HAPTIC_PATTERNS } from "@/core/services/haptic-service";
 
 interface ScannerProps {
@@ -21,15 +21,18 @@ interface ScannerControls {
   stop: () => void;
 }
 
-// Configure ZXing for product barcodes only (optimization)
-const hints = new Map();
-hints.set(DecodeHintType.POSSIBLE_FORMATS, [
-  BarcodeFormat.EAN_13,
-  BarcodeFormat.EAN_8,
-  BarcodeFormat.UPC_A,
-  BarcodeFormat.UPC_E,
-]);
-hints.set(DecodeHintType.TRY_HARDER, true);
+// Lazy initialization function to avoid module-level side effects
+function createHints() {
+  const hints = new Map();
+  hints.set(DecodeHintType.POSSIBLE_FORMATS, [
+    BarcodeFormat.EAN_13,
+    BarcodeFormat.EAN_8,
+    BarcodeFormat.UPC_A,
+    BarcodeFormat.UPC_E,
+  ]);
+  hints.set(DecodeHintType.TRY_HARDER, true);
+  return hints;
+}
 
 export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -68,7 +71,7 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
       try {
         // Create reader if not exists
         if (!codeReaderRef.current) {
-          codeReaderRef.current = new BrowserMultiFormatReader(hints);
+          codeReaderRef.current = new BrowserMultiFormatReader(createHints());
         }
 
         const codeReader = codeReaderRef.current;
@@ -157,11 +160,6 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
     };
   }, [cameraFacing, handleDetected, onError]);
 
-  // Switch camera function
-  const handleSwitchCamera = useCallback(() => {
-    setCameraFacing((prev) => (prev === "environment" ? "user" : "environment"));
-  }, []);
-
   return (
     <div className="relative">
       {/* Permission denied state */}
@@ -171,7 +169,7 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
           <p className="text-center px-6 text-base">{error || "Kamera-Zugriff verweigert"}</p>
           {devices.length > 1 && (
             <button
-              onClick={handleSwitchCamera}
+              onClick={() => setCameraFacing((prev) => (prev === "environment" ? "user" : "environment"))}
               className="flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-base font-medium text-primary-foreground hover:bg-primary-600 active:scale-95 transition-all touch-target"
             >
               <SwitchCamera className="h-5 w-5" />
@@ -211,7 +209,7 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
         {notFound && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 rounded-2xl bg-background/90 backdrop-blur-sm animate-fade-in">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
-              <span className="text-3xl" role="img" aria-label="Nicht gefunden">❌</span>
+              <span className="text-3xl" role="img" aria-label="Fehler: Produkt nicht gefunden">❌</span>
             </div>
             <p className="text-center px-6 text-base font-medium text-foreground">
               Produkt nicht gefunden
@@ -222,7 +220,7 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
         {/* Loading state */}
         {hasPermission === "pending" && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-background-warm">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
             <p className="text-base text-muted-foreground">Kamera wird gestartet...</p>
           </div>
         )}
@@ -236,7 +234,7 @@ export function Scanner({ onDetected, onError, notFound }: ScannerProps) {
           </span>
           {devices.length > 1 && (
             <button
-              onClick={handleSwitchCamera}
+              onClick={() => setCameraFacing((prev) => (prev === "environment" ? "user" : "environment"))}
               className="rounded-full bg-background/80 backdrop-blur p-3 text-foreground hover:bg-background active:scale-95 transition-all shadow-soft touch-target"
               title="Kamera wechseln"
               aria-label="Kamera wechseln"
