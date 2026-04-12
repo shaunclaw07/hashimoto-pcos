@@ -181,9 +181,12 @@ export default function SavedProductsPage() {
                     className="shrink-0"
                   >
                     {product.imageUrl ? (
-                      <img
+                      <Image
                         src={product.imageUrl}
                         alt={product.name || "Produkt"}
+                        width={80}
+                        height={80}
+                        unoptimized
                         className="h-20 w-20 rounded-xl object-contain bg-background-warm p-1.5 transition-transform hover:scale-105"
                       />
                     ) : (
