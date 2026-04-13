@@ -11,7 +11,7 @@ export default [
     },
   },
   {
-    // Erzwingt: src/core/ darf NICHT aus infrastructure/ oder app/ importieren
+    // Enforce: src/core/ must NOT import from infrastructure/, app/, or lib/
     files: ["src/core/**/*.ts"],
     rules: {
       "no-restricted-imports": [
@@ -19,9 +19,9 @@ export default [
         {
           patterns: [
             {
-              group: ["**/infrastructure/**", "**/app/**", "better-sqlite3", "next/*"],
+              group: ["**/infrastructure/**", "**/app/**", "**/lib/**", "better-sqlite3", "next/*"],
               message:
-                "core/ darf keine Abhängigkeiten zu infrastructure/, app/ oder Framework-Packages haben.",
+                "core/ must not depend on infrastructure/, app/, lib/, or framework packages.",
             },
           ],
         },
