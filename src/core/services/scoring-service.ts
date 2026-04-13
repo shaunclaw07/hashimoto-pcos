@@ -2,7 +2,7 @@
 import type { Product } from "../domain/product";
 import type { ScoreResult, ScoreBreakdownItem } from "../domain/score";
 import type { UserProfile, Condition } from "../domain/user-profile";
-import { clamp } from "../../lib/utils";
+import { clamp } from "../shared/math";
 
 /**
  * Validates nutriments and clamps them to physiologically realistic ranges.
