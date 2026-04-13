@@ -32,7 +32,7 @@ npm run test:e2e      # Playwright E2E-Tests
 
 ## Architektur verstehen (Pflichtlektüre)
 
-Das Projekt folgt **Hexagonaler Architektur (Ports & Adapters)**. Bevor du code schreibst, lies [ARCHITECTURE.md](./ARCHITECTURE.md).
+Das Projekt folgt **Hexagonaler Architektur (Ports & Adapters)**. Bevor du Code schreibst, lies [ARCHITECTURE.md](./ARCHITECTURE.md).
 
 **Die eine Regel:** `src/core/` darf niemals aus `src/infrastructure/` oder `src/app/` importieren. Der Rest der App kann frei in `core/` importieren. ESLint erzwingt dies automatisch — ein Verstoß bricht den Lint-Check.
 
@@ -308,7 +308,7 @@ src/
 ├── app/                       # Next.js App Router
 │   ├── api/products/          # Schlanke API-Routes
 │   ├── scanner/
-│   ├── lebensmittel/
+│   ├── products/
 │   └── result/[barcode]/
 ├── components/                # React-Komponenten
 └── lib/

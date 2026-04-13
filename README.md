@@ -43,20 +43,20 @@ hashimoto-pcos/
 │   ├── app/                         # Next.js App Router (Presentation Layer)
 │   │   ├── page.tsx                 # Landing Page
 │   │   ├── scanner/page.tsx         # Barcode-Scanner
-│   │   ├── lebensmittel/page.tsx    # Produktsuche
+│   │   ├── products/page.tsx        # Produktsuche
 │   │   ├── onboarding/page.tsx      # Erstkonfiguration Nutzerprofil (2-Schritt-Wizard)
-│   │   ├── einstellungen/page.tsx   # Profilseite (Profil anzeigen / ändern)
+│   │   ├── settings/page.tsx        # Profilseite (Profil anzeigen / ändern)
 │   │   ├── result/[barcode]/        # Produktdetail + Score
 │   │   └── api/products/            # Schlanke API-Routes (delegieren an Use Cases)
 │   ├── components/                  # React-Komponenten
 │   │   ├── ScoreCard.tsx            # Score-Badge, Breakdown mit Profil-Icons
-│   │   ├── Scanner.tsx              # QuaggaJS2 Barcode-Scanner
+│   │   ├── Scanner.tsx              # ZXing-basierter Barcode-Scanner
 │   │   ├── bottom-nav.tsx           # Fixed Bottom Navigation (4 Tabs)
 │   │   ├── profile-header.tsx       # Globale Top-Bar mit Profil-Badge
 │   │   ├── onboarding-guard.tsx     # Redirect-Guard → /onboarding bei fehlendem Profil
 │   │   └── theme-provider.tsx       # Dark/Light Mode
 │   ├── hooks/
-│   │   └── use-user-profile.ts      # localStorage-Hook für Nutzerprofil-State
+│   │   └── use-user-profile.tsx     # localStorage-Hook für Nutzerprofil-State
 │   └── lib/
 │       ├── utils.ts                 # cn() Hilfsfunktion
 │       └── profile-options.ts       # Geteilte Konstanten: CONDITIONS, SENSITIVITY_OPTIONS
@@ -148,7 +148,7 @@ npm run lint
 npm run build
 ```
 
-> **Hinweis:** Ohne `data/products.db` fällt die App automatisch auf die OpenFoodFacts-API zurück. Die lokale DB ist optional, wird aber für zuverlässige Performance empfohlen.
+> **Hinweis:** Ohne `data/products.db` funktioniert die App weiterhin, aber eingeschränkt: Barcode-Abfragen nutzen die OpenFoodFacts-API als Fallback. Die Produktsuche (`/products`) basiert primär auf der lokalen SQLite-DB.
 >
 > Das Build-Script importiert nur DACH-Produkte (DE/AT/CH) mit gültigem EAN-13-Barcode, deutschem Produktnamen und mindestens 5 Nährwert-Feldern — Produkte ohne ausreichende Daten werden gefiltert.
 >
@@ -230,7 +230,7 @@ Die App benötigt **kein** vorab gebautes `products.db` — die Datenbank wird b
 # 1. Image bauen (kein db:build erforderlich)
 docker build -t hashimoto-pcos .
 
-# 2. Mit leerem Volume starten (API-Fallback, keine lokale DB)
+# 2. Mit leerem Volume starten (Barcode-Fallback über API, keine lokale Suchdatenbank)
 docker run -p 3000:3000 hashimoto-pcos
 
 # 3. Oder mit lokaler DB als Volume (produktive Nutzung)
@@ -244,7 +244,7 @@ docker compose up --build -d
 docker compose logs -f
 ```
 
-**Hinweis:** Die lokale Datenbank ist optional. Die App funktioniert auch ohne `products.db` — in diesem Fall fallen alle Suchanfragen auf die OpenFoodFacts-API zurück (keine lokalen DACH-Produkte, keine Zero-Rating-Logik). Für zuverlässige Performance und Zero-Rating wird eine lokale DB empfohlen.
+**Hinweis:** Die lokale Datenbank ist optional, aber stark empfohlen. Ohne `products.db` funktionieren Barcode-Abfragen per OpenFoodFacts-Fallback, die lokale Produktsuche bleibt jedoch leer bzw. stark eingeschränkt, weil kein DACH-Index vorhanden ist.
 
 ### GitHub Container Registry (Release)
 
@@ -327,4 +327,4 @@ Pull Requests sollten [.github/pull_request_template.md](.github/pull_request_te
 
 ---
 
-*Letzte Aktualisierung: 2026-04-06*
+*Letzte Aktualisierung: 2026-04-13*

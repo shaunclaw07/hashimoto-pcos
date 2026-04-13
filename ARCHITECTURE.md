@@ -5,7 +5,8 @@
 Das Hashimoto-PCOS Ernährungs-Tool ist eine **Next.js 16** Web-App mit:
 
 - **Barcode-Scanner** für Produkte (Kamera + manuelle Eingabe)
-- **Lebensmittel-Suche** mit lokaler SQLite-Datenbank (462k+ DACH-Produkte) und OpenFoodFacts API als Fallback
+- **Lebensmittel-Suche** mit lokaler SQLite-Datenbank (462k+ DACH-Produkte)
+- **Barcode-Fallback** auf OpenFoodFacts API, wenn ein Produkt lokal nicht vorhanden ist
 - **Scoring-Algorithmus** für Hashimoto/PCOS-Eignung (1–5 Sterne)
 - **Ampel-System** für verständliche Bewertungen
 
@@ -79,11 +80,11 @@ src/
   app/                               ← Next.js App Router (Presentation)
     api/products/[barcode]/route.ts  ← Dünn: delegiert an GetProductUseCase
     api/products/search/route.ts     ← Dünn: delegiert an SearchProductsUseCase
-    page.tsx / scanner/ / lebensmittel/ / result/[barcode]/
+    page.tsx / scanner/ / products/ / result/[barcode]/
 
   components/
     ScoreCard.tsx                    ← Akzeptiert Product + ScoreResult (Domain-Typen)
-    Scanner.tsx                      ← QuaggaJS2 Kamera-Integration
+    Scanner.tsx                      ← ZXing Kamera-Integration
     bottom-nav.tsx
     theme-provider.tsx
 
@@ -159,7 +160,7 @@ User scannt Barcode
         │
         ▼
 ┌────────────────────┐
-│  Scanner Component │  (QuaggaJS2 / manuelle Eingabe)
+│  Scanner Component │  (ZXing / manuelle Eingabe)
 └─────────┬──────────┘
           │ EAN-13 String
           ▼
@@ -239,7 +240,7 @@ Delegiert an `GetProductUseCase`. Gibt zurück:
 ### `GET /api/products/search?search_terms=...&tag_0=...&page=...&page_size=...`
 
 Delegiert an `SearchProductsUseCase`. Gibt zurück:
-- `{ products: Product[], count: number, page: number }`
+- `{ products: Product[], count: number, page: number, hasMore: boolean }`
 
 ---
 
@@ -317,7 +318,7 @@ Multi-Stage Build (Node 20 Alpine), läuft als Non-Root-User (`nextjs`, uid 1001
 
 ### Kubernetes
 
-HPA skaliert zwischen **2–10 Replicas** (CPU 70% / Memory 80%).
+Deployment läuft standardmäßig mit **1 Replica** (`replicas: 1`), da SQLite mit ReadWriteOnce-PVC betrieben wird.
 
 ```bash
 kubectl apply -f k8s/
@@ -330,4 +331,4 @@ kubectl apply -f k8s/
 
 ---
 
-*Letzte Aktualisierung: 2026-04-02*
+*Letzte Aktualisierung: 2026-04-13*
