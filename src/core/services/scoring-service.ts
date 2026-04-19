@@ -178,7 +178,7 @@ function detectDairyTier(ingredients: string | undefined): DairyTier {
 
   const normalized = normalizeIngredientName(ingredients);
 
-  if (NORM_DAIRY_A1_CASEIN.some((kw) => normalized.includes(kw))) return "a1-casein";
+if (NORM_DAIRY_A1_CASEIN.some((kw) => normalized.includes(kw))) return "a1-casein";
   if (NORM_DAIRY_WHEY.some((kw) => normalized.includes(kw))) return "whey";
   if (NORM_DAIRY_FERMENTED.some((kw) => normalized.includes(kw))) return "fermented";
   if (NORM_DAIRY_GHEE.some((kw) => normalized.includes(kw))) return "ghee";
