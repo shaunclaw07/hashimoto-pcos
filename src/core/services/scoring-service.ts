@@ -64,7 +64,7 @@ function containsAnyNormalized(str: string | undefined, keywords: string[]): boo
  */
 function detectSoyType(
   ingredients: string | undefined,
-  categories: string[]
+  _categories: string[]
 ): { type: "fermented" | "non-fermented" | "lecithin"; reason: string }[] {
   const results: { type: "fermented" | "non-fermented" | "lecithin"; reason: string }[] = [];
 
@@ -77,7 +77,7 @@ function detectSoyType(
   const hasFermented = containsAnyNormalized(ingredients, NORM_SOY_FERMENTED_KEYWORDS);
   if (hasFermented) {
     results.push({ type: "fermented", reason: "Fermentiertes Soja" });
-  } else if (containsAnyNormalized(ingredients, NORM_SOY_NON_FERMENTED_KEYWORDS_KEYWORDS)) {
+  } else if (containsAnyNormalized(ingredients, NORM_SOY_NON_FERMENTED_KEYWORDS)) {
     results.push({ type: "non-fermented", reason: "Soja (Phytoöstrogene)" });
   }
 
@@ -310,8 +310,8 @@ const SOY_LECITHIN_KEYWORDS = ["sojalecithin", "soy lecithin", "e322"];
 
 // Pre-normalized for performance
 const NORM_SOY_NON_FERMENTED_KEYWORDS = SOY_NON_FERMENTED_KEYWORDS.map(normalizeIngredientName);
-const NORM_SOY_FERMENTED = SOY_FERMENTED_KEYWORDS.map(normalizeIngredientName);
-const NORM_SOY_LECITHIN = SOY_LECITHIN_KEYWORDS.map(normalizeIngredientName);
+const NORM_SOY_FERMENTED_KEYWORDS = SOY_FERMENTED_KEYWORDS.map(normalizeIngredientName);
+const NORM_SOY_LECITHIN_KEYWORDS = SOY_LECITHIN_KEYWORDS.map(normalizeIngredientName);
 
 // =====================================================================
 // Issue #51: Goitrogen / Cruciferous vegetable warning
@@ -422,9 +422,6 @@ const NORM_DAIRY_FERMENTED = DAIRY_FERMENTED_KEYWORDS.map(normalizeIngredientNam
 const NORM_DAIRY_GHEE = DAIRY_GHEE_KEYWORDS.map(normalizeIngredientName);
 const NORM_DAIRY_GENERAL = DAIRY_GENERAL_KEYWORDS.map(normalizeIngredientName);
 const NORM_DAIRY_EXCEPTIONS = DAIRY_EXCEPTION_KEYWORDS.map(normalizeIngredientName);
-const NORM_SOY_NON_FERMENTED_KEYWORDS_KEYWORDS = SOY_NON_FERMENTED_KEYWORDS.map(normalizeIngredientName);
-const NORM_SOY_FERMENTED_KEYWORDS = SOY_FERMENTED_KEYWORDS.map(normalizeIngredientName);
-const NORM_SOY_LECITHIN_KEYWORDS = SOY_LECITHIN_KEYWORDS.map(normalizeIngredientName);
 
 /**
  * Calculates health score for a product (1.0–5.0).
