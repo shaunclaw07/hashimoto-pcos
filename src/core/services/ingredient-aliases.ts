@@ -6,6 +6,8 @@ export interface IngredientAliasMatch {
   canonicalKey: string;
 }
 
+export type CanonicalIngredientKey = typeof INGREDIENT_ALIASES[keyof typeof INGREDIENT_ALIASES];
+
 export const INGREDIENT_ALIASES: Readonly<Record<string, string>> = {
   zucker: "sugar",
   sugar: "sugar",
