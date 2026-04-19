@@ -63,7 +63,7 @@ export default function ResultPage() {
   }, [barcode]);
 
   function handleRescan() {
-    window.location.href = "/scanner";
+    router.push("/scanner");
   }
 
   function handleSave() {
