@@ -3,6 +3,7 @@ import type { Product } from "../domain/product";
 import type { ScoreResult, ScoreBreakdownItem } from "../domain/score";
 import type { UserProfile, Condition } from "../domain/user-profile";
 import { clamp } from "../shared/math";
+import { normalizeIngredientName } from "./ingredient-normalization";
 
 /**
  * Validates nutriments and clamps them to physiologically realistic ranges.
@@ -42,13 +43,13 @@ export function validateNutriments(n: {
 
 function containsIgnoreCase(str: string | undefined, search: string): boolean {
   if (!str) return false;
-  return str.toLowerCase().includes(search.toLowerCase());
+  return normalizeIngredientName(str).includes(normalizeIngredientName(search));
 }
 
 function containsAnyIgnoreCase(str: string | undefined, keywords: string[]): boolean {
   if (!str) return false;
-  const lower = str.toLowerCase();
-  return keywords.some((kw) => lower.includes(kw.toLowerCase()));
+  const normalized = normalizeIngredientName(str);
+  return keywords.some((kw) => normalized.includes(normalizeIngredientName(kw)));
 }
 
 // =====================================================================
@@ -94,8 +95,8 @@ function detectBrassicaState(
   name: string | undefined,
   categories: string[]
 ): BrassicaState {
-  const text = [ingredients, name].filter(Boolean).join(" ").toLowerCase();
-  const cats = categories.map((c) => c.toLowerCase());
+  const text = normalizeIngredientName([ingredients, name].filter(Boolean).join(" "));
+  const cats = categories.map((c) => normalizeIngredientName(c));
 
   // Check cooked first
   const isCooked =
@@ -113,11 +114,11 @@ function detectBrassicaState(
 }
 
 function hasBrassica(ingredients: string | undefined, name: string | undefined, categories: string[]): boolean {
-  const text = [ingredients, name].filter(Boolean).join(" ").toLowerCase();
-  const cats = categories.map((c) => c.toLowerCase());
+  const text = normalizeIngredientName([ingredients, name].filter(Boolean).join(" "));
+  const cats = categories.map((c) => normalizeIngredientName(c));
   return (
-    BRASSICA_KEYWORDS.some((kw) => text.includes(kw.toLowerCase())) ||
-    cats.some((c) => BRASSICA_KEYWORDS.some((kw) => c.includes(kw.toLowerCase())))
+    BRASSICA_KEYWORDS.some((kw) => text.includes(normalizeIngredientName(kw))) ||
+    cats.some((c) => BRASSICA_KEYWORDS.some((kw) => c.includes(normalizeIngredientName(kw))))
   );
 }
 
@@ -132,16 +133,16 @@ function detectOmega3Source(
   categories: string[],
   labels: string[]
 ): Omega3Source | null {
-  const text = (ingredients ?? "").toLowerCase();
-  const cats = categories.map((c) => c.toLowerCase());
-  const lbls = labels.map((l) => l.toLowerCase());
+  const text = normalizeIngredientName(ingredients ?? "");
+  const cats = categories.map((c) => normalizeIngredientName(c));
+  const lbls = labels.map((l) => normalizeIngredientName(l));
 
   // Marine has priority
-  if (OMEGA3_MARINE_KEYWORDS.some((kw) => text.includes(kw.toLowerCase()))) {
+  if (OMEGA3_MARINE_KEYWORDS.some((kw) => text.includes(normalizeIngredientName(kw)))) {
     return "marine";
   }
   // Plant-based
-  if (OMEGA3_PLANT_KEYWORDS.some((kw) => text.includes(kw.toLowerCase()))) {
+  if (OMEGA3_PLANT_KEYWORDS.some((kw) => text.includes(normalizeIngredientName(kw)))) {
     return "plant";
   }
   // Label/category only (unknown source)
@@ -175,13 +176,13 @@ function detectDairyTier(ingredients: string | undefined): DairyTier {
     return null;
   }
 
-  const lower = ingredients.toLowerCase();
+  const normalized = normalizeIngredientName(ingredients);
 
-  if (DAIRY_A1_CASEIN_KEYWORDS.some((kw) => lower.includes(kw))) return "a1-casein";
-  if (DAIRY_WHEY_KEYWORDS.some((kw) => lower.includes(kw))) return "whey";
-  if (DAIRY_FERMENTED_KEYWORDS.some((kw) => lower.includes(kw))) return "fermented";
-  if (DAIRY_GHEE_KEYWORDS.some((kw) => lower.includes(kw))) return "ghee";
-  if (DAIRY_GENERAL_KEYWORDS.some((kw) => lower.includes(kw))) return "general";
+  if (DAIRY_A1_CASEIN_KEYWORDS.some((kw) => normalized.includes(normalizeIngredientName(kw)))) return "a1-casein";
+  if (DAIRY_WHEY_KEYWORDS.some((kw) => normalized.includes(normalizeIngredientName(kw)))) return "whey";
+  if (DAIRY_FERMENTED_KEYWORDS.some((kw) => normalized.includes(normalizeIngredientName(kw)))) return "fermented";
+  if (DAIRY_GHEE_KEYWORDS.some((kw) => normalized.includes(normalizeIngredientName(kw)))) return "ghee";
+  if (DAIRY_GENERAL_KEYWORDS.some((kw) => normalized.includes(normalizeIngredientName(kw)))) return "general";
 
   return null;
 }

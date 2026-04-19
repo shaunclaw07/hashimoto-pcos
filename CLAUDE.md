@@ -64,7 +64,7 @@ Browser → Next.js 16 App Router (Presentation)
 - `src/infrastructure/sqlite/sqlite-product-repository.ts` — DB adapter
 - `src/infrastructure/openfoodfacts/off-api-adapter.ts` — API adapter
 - `scripts/build-db.mjs` — DB build pipeline
-- `scripts/ingredient-parser.mjs` — ingredient normalization
+- `scripts/ingredient-parser.mjs` — ingredient parsing
 
 ## Scoring Algorithm
 
