@@ -41,12 +41,12 @@ export function validateNutriments(n: {
   };
 }
 
-function containsIgnoreCase(str: string | undefined, search: string): boolean {
+function containsNormalized(str: string | undefined, search: string): boolean {
   if (!str) return false;
   return normalizeIngredientName(str).includes(normalizeIngredientName(search));
 }
 
-function containsAnyIgnoreCase(str: string | undefined, keywords: string[]): boolean {
+function containsAnyNormalized(str: string | undefined, keywords: string[]): boolean {
   if (!str) return false;
   const normalized = normalizeIngredientName(str);
   return keywords.some((kw) => normalized.includes(normalizeIngredientName(kw)));
@@ -69,15 +69,15 @@ function detectSoyType(
   const results: { type: "fermented" | "non-fermented" | "lecithin"; reason: string }[] = [];
 
   // Lecithin first (independent)
-  if (containsAnyIgnoreCase(ingredients, SOY_LECITHIN_KEYWORDS)) {
+  if (containsAnyNormalized(ingredients, NORM_SOY_LECITHIN_KEYWORDS)) {
     results.push({ type: "lecithin", reason: "Sojalecithin" });
   }
 
   // Fermented overrides non-fermented
-  const hasFermented = containsAnyIgnoreCase(ingredients, SOY_FERMENTED_KEYWORDS);
+  const hasFermented = containsAnyNormalized(ingredients, NORM_SOY_FERMENTED_KEYWORDS);
   if (hasFermented) {
     results.push({ type: "fermented", reason: "Fermentiertes Soja" });
-  } else if (containsAnyIgnoreCase(ingredients, SOY_NON_FERMENTED_KEYWORDS)) {
+  } else if (containsAnyNormalized(ingredients, NORM_SOY_NON_FERMENTED_KEYWORDS_KEYWORDS)) {
     results.push({ type: "non-fermented", reason: "Soja (Phytoöstrogene)" });
   }
 
@@ -100,14 +100,14 @@ function detectBrassicaState(
 
   // Check cooked first
   const isCooked =
-    BRASSICA_COOKED_SIGNALS.some((s) => text.includes(normalizeIngredientName(s))) ||
-    BRASSICA_COOKED_CATEGORIES.some((c) => cats.includes(normalizeIngredientName(c)));
+    NORM_BRASSICA_COOKED_SIGS.some((s) => text.includes(s)) ||
+    NORM_BRASSICA_COOKED_CATS.some((c) => cats.includes(c));
   if (isCooked) return "cooked";
 
   // Check raw
   const isRaw =
-    BRASSICA_RAW_SIGNALS.some((s) => text.includes(normalizeIngredientName(s))) ||
-    BRASSICA_RAW_CATEGORIES.some((c) => cats.includes(normalizeIngredientName(c)));
+    NORM_BRASSICA_RAW_SIGNALS.some((s) => text.includes(s)) ||
+    NORM_BRASSICA_RAW_CATS.some((c) => cats.includes(c));
   if (isRaw) return "raw";
 
   return "unknown";
@@ -117,8 +117,8 @@ function hasBrassica(ingredients: string | undefined, name: string | undefined, 
   const text = normalizeIngredientName([ingredients, name].filter(Boolean).join(" "));
   const cats = categories.map((c) => normalizeIngredientName(c));
   return (
-    BRASSICA_KEYWORDS.some((kw) => text.includes(normalizeIngredientName(kw))) ||
-    cats.some((c) => BRASSICA_KEYWORDS.some((kw) => c.includes(normalizeIngredientName(kw))))
+    NORM_BRASSICA_KEYWORDS.some((kw) => text.includes(kw)) ||
+    cats.some((c) => NORM_BRASSICA_KEYWORDS.some((kw) => c.includes(kw)))
   );
 }
 
@@ -138,11 +138,11 @@ function detectOmega3Source(
   const lbls = labels.map((l) => normalizeIngredientName(l));
 
   // Marine has priority
-  if (OMEGA3_MARINE_KEYWORDS.some((kw) => text.includes(normalizeIngredientName(kw)))) {
+  if (NORM_OMEGA3_MARINE.some((kw) => text.includes(kw))) {
     return "marine";
   }
   // Plant-based
-  if (OMEGA3_PLANT_KEYWORDS.some((kw) => text.includes(normalizeIngredientName(kw)))) {
+  if (NORM_OMEGA3_PLANT.some((kw) => text.includes(kw))) {
     return "plant";
   }
   // Label/category only (unknown source)
@@ -172,17 +172,17 @@ function detectDairyTier(ingredients: string | undefined): DairyTier {
   if (!ingredients) return null;
 
   // First check exceptions
-  if (containsAnyIgnoreCase(ingredients, DAIRY_EXCEPTION_KEYWORDS)) {
+  if (NORM_DAIRY_EXCEPTIONS.some((kw) => normalizeIngredientName(ingredients).includes(kw))) {
     return null;
   }
 
   const normalized = normalizeIngredientName(ingredients);
 
-  if (DAIRY_A1_CASEIN_KEYWORDS.some((kw) => normalized.includes(normalizeIngredientName(kw)))) return "a1-casein";
-  if (DAIRY_WHEY_KEYWORDS.some((kw) => normalized.includes(normalizeIngredientName(kw)))) return "whey";
-  if (DAIRY_FERMENTED_KEYWORDS.some((kw) => normalized.includes(normalizeIngredientName(kw)))) return "fermented";
-  if (DAIRY_GHEE_KEYWORDS.some((kw) => normalized.includes(normalizeIngredientName(kw)))) return "ghee";
-  if (DAIRY_GENERAL_KEYWORDS.some((kw) => normalized.includes(normalizeIngredientName(kw)))) return "general";
+  if (NORM_DAIRY_A1_CASEIN.some((kw) => normalized.includes(kw))) return "a1-casein";
+  if (NORM_DAIRY_WHEY.some((kw) => normalized.includes(kw))) return "whey";
+  if (NORM_DAIRY_FERMENTED.some((kw) => normalized.includes(kw))) return "fermented";
+  if (NORM_DAIRY_GHEE.some((kw) => normalized.includes(kw))) return "ghee";
+  if (NORM_DAIRY_GENERAL.some((kw) => normalized.includes(kw))) return "general";
 
   return null;
 }
@@ -308,6 +308,11 @@ const SOY_NON_FERMENTED_KEYWORDS = [
 const SOY_FERMENTED_KEYWORDS = ["tempeh", "miso"];
 const SOY_LECITHIN_KEYWORDS = ["sojalecithin", "soy lecithin", "e322"];
 
+// Pre-normalized for performance
+const NORM_SOY_NON_FERMENTED_KEYWORDS = SOY_NON_FERMENTED_KEYWORDS.map(normalizeIngredientName);
+const NORM_SOY_FERMENTED = SOY_FERMENTED_KEYWORDS.map(normalizeIngredientName);
+const NORM_SOY_LECITHIN = SOY_LECITHIN_KEYWORDS.map(normalizeIngredientName);
+
 // =====================================================================
 // Issue #51: Goitrogen / Cruciferous vegetable warning
 // =====================================================================
@@ -330,6 +335,13 @@ const BRASSICA_RAW_CATEGORIES = ["en:fresh-vegetables", "en:juices", "en:smoothi
 const BRASSICA_COOKED_SIGNALS = ["gegart", "gekocht", "gefroren", "gedünstet", "blanchiert"];
 const BRASSICA_COOKED_CATEGORIES = ["en:frozen-vegetables", "en:cooked-vegetables"];
 
+// Pre-normalized for performance
+const NORM_BRASSICA_KEYWORDS = BRASSICA_KEYWORDS.map(normalizeIngredientName);
+const NORM_BRASSICA_RAW_SIGNALS = BRASSICA_RAW_SIGNALS.map(normalizeIngredientName);
+const NORM_BRASSICA_RAW_CATS = BRASSICA_RAW_CATEGORIES.map(normalizeIngredientName);
+const NORM_BRASSICA_COOKED_SIGS = BRASSICA_COOKED_SIGNALS.map(normalizeIngredientName);
+const NORM_BRASSICA_COOKED_CATS = BRASSICA_COOKED_CATEGORIES.map(normalizeIngredientName);
+
 // =====================================================================
 // Issue #53: Differentiated Omega-3 detection (replaces flat +1.0)
 // =====================================================================
@@ -345,6 +357,10 @@ const OMEGA3_PLANT_KEYWORDS = [
   "chiasamen", "chia seeds", "hanföl", "hemp oil",
   "walnuss", "walnut", "rapsöl", "canola oil", "ala",
 ];
+
+// Pre-normalized for performance
+const NORM_OMEGA3_MARINE = OMEGA3_MARINE_KEYWORDS.map(normalizeIngredientName);
+const NORM_OMEGA3_PLANT = OMEGA3_PLANT_KEYWORDS.map(normalizeIngredientName);
 
 // =====================================================================
 // Issue #54: Tiered dairy detection
@@ -398,6 +414,17 @@ const DAIRY_GENERAL_KEYWORDS = [
 ];
 const DAIRY_GHEE_KEYWORDS = ["ghee"];
 const DAIRY_EXCEPTION_KEYWORDS = ["milchsäure", "lactic acid", "calciumlactat", "calcium lactate"];
+
+// Pre-normalized for performance
+const NORM_DAIRY_A1_CASEIN = DAIRY_A1_CASEIN_KEYWORDS.map(normalizeIngredientName);
+const NORM_DAIRY_WHEY = DAIRY_WHEY_KEYWORDS.map(normalizeIngredientName);
+const NORM_DAIRY_FERMENTED = DAIRY_FERMENTED_KEYWORDS.map(normalizeIngredientName);
+const NORM_DAIRY_GHEE = DAIRY_GHEE_KEYWORDS.map(normalizeIngredientName);
+const NORM_DAIRY_GENERAL = DAIRY_GENERAL_KEYWORDS.map(normalizeIngredientName);
+const NORM_DAIRY_EXCEPTIONS = DAIRY_EXCEPTION_KEYWORDS.map(normalizeIngredientName);
+const NORM_SOY_NON_FERMENTED_KEYWORDS_KEYWORDS = SOY_NON_FERMENTED_KEYWORDS.map(normalizeIngredientName);
+const NORM_SOY_FERMENTED_KEYWORDS = SOY_FERMENTED_KEYWORDS.map(normalizeIngredientName);
+const NORM_SOY_LECITHIN_KEYWORDS = SOY_LECITHIN_KEYWORDS.map(normalizeIngredientName);
 
 /**
  * Calculates health score for a product (1.0–5.0).
@@ -466,7 +493,7 @@ export function calculateScore(product: Product, profile?: UserProfile): ScoreRe
 
   const glutenFreeBonus = GLUTEN_FREE_BONUS[conditionKey];
   const hasGlutenFree = product.labels.some(
-    (l) => containsIgnoreCase(l, "gluten-free") || containsIgnoreCase(l, "gluten free")
+    (l) => containsNormalized(l, "gluten-free") || containsNormalized(l, "gluten free")
   );
   if (hasGlutenFree) {
     bonusPoints += glutenFreeBonus;
@@ -479,7 +506,7 @@ export function calculateScore(product: Product, profile?: UserProfile): ScoreRe
 
   const bioBonus = BIO_BONUS[conditionKey];
   const hasBio = product.labels.some(
-    (l) => containsIgnoreCase(l, "organic") || containsIgnoreCase(l, "bio")
+    (l) => containsNormalized(l, "organic") || containsNormalized(l, "bio")
   );
   if (hasBio) {
     bonusPoints += bioBonus;
@@ -527,7 +554,7 @@ export function calculateScore(product: Product, profile?: UserProfile): ScoreRe
 
   // === INGREDIENTS MALUS ===
 
-  if (containsIgnoreCase(product.ingredients, "gluten")) {
+  if (containsNormalized(product.ingredients, "gluten")) {
     const baseGlutenMalus = GLUTEN_MALUS[conditionKey];
     const multiplier = profile?.glutenSensitive ? 2 : 1;
     const effectiveGlutenMalus = baseGlutenMalus * multiplier;
