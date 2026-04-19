@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { ScoreCard } from "@/components/ScoreCard";
 import type { Product } from "@/core/domain/product";
@@ -16,6 +17,7 @@ import { triggerHaptic, HAPTIC_PATTERNS } from "@/core/services/haptic-service";
 
 export default function ResultPage() {
   const params = useParams();
+  const router = useRouter();
   const barcode = params.barcode as string;
 
   const [product, setProduct] = useState<Product | null>(null);
