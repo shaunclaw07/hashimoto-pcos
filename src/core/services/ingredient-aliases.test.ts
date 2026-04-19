@@ -32,6 +32,12 @@ describe("resolveIngredientAlias", () => {
     expect(resolveIngredientAlias("wheat flour")?.canonicalKey).toBe("wheat-flour");
   });
 
+  it("maps gluten grain aliases across languages", () => {
+    expect(resolveIngredientAlias("Roggen")?.canonicalKey).toBe("rye");
+    expect(resolveIngredientAlias("barley")?.canonicalKey).toBe("barley");
+    expect(resolveIngredientAlias("orge")?.canonicalKey).toBe("barley");
+  });
+
   it("maps salmon aliases across languages", () => {
     expect(resolveIngredientAlias("Lachs")?.canonicalKey).toBe("salmon");
     expect(resolveIngredientAlias("salmon")?.canonicalKey).toBe("salmon");
@@ -43,6 +49,24 @@ describe("resolveIngredientAlias", () => {
     expect(resolveIngredientAlias("flaxseed")?.canonicalKey).toBe("flaxseed");
     expect(resolveIngredientAlias("linseed")?.canonicalKey).toBe("flaxseed");
     expect(resolveIngredientAlias("graine de lin")?.canonicalKey).toBe("flaxseed");
+  });
+
+  it("maps nuts, seeds and legumes across languages", () => {
+    expect(resolveIngredientAlias("Mandel")?.canonicalKey).toBe("almond");
+    expect(resolveIngredientAlias("noisette")?.canonicalKey).toBe("hazelnut");
+    expect(resolveIngredientAlias("pois chiche")?.canonicalKey).toBe("chickpea");
+  });
+
+  it("maps iodine and algae source aliases across languages", () => {
+    expect(resolveIngredientAlias("Jodsalz")?.canonicalKey).toBe("iodized-salt");
+    expect(resolveIngredientAlias("sel iod\u00e9")?.canonicalKey).toBe("iodized-salt");
+    expect(resolveIngredientAlias("algue")?.canonicalKey).toBe("seaweed");
+  });
+
+  it("maps sweetener and additive aliases across languages", () => {
+    expect(resolveIngredientAlias("Aspartam")?.canonicalKey).toBe("aspartame");
+    expect(resolveIngredientAlias("E 322")?.canonicalKey).toBe("lecithin");
+    expect(resolveIngredientAlias("carragh\u00e9nane")?.canonicalKey).toBe("carrageenan");
   });
 
   it("returns null for unknown ingredients", () => {

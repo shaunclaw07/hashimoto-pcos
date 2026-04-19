@@ -49,7 +49,7 @@ function containsNormalized(str: string | undefined, search: string): boolean {
 function containsAnyNormalized(str: string | undefined, keywords: string[]): boolean {
   if (!str) return false;
   const normalized = normalizeIngredientName(str);
-  return keywords.some((kw) => normalized.includes(normalizeIngredientName(kw)));
+  return keywords.some((kw) => normalized.includes(kw));
 }
 
 // =====================================================================
@@ -171,14 +171,14 @@ type DairyTier = "a1-casein" | "whey" | "fermented" | "general" | "ghee" | null;
 function detectDairyTier(ingredients: string | undefined): DairyTier {
   if (!ingredients) return null;
 
+  const normalized = normalizeIngredientName(ingredients);
+
   // First check exceptions
-  if (NORM_DAIRY_EXCEPTIONS.some((kw) => normalizeIngredientName(ingredients).includes(kw))) {
+  if (NORM_DAIRY_EXCEPTIONS.some((kw) => normalized.includes(kw))) {
     return null;
   }
 
-  const normalized = normalizeIngredientName(ingredients);
-
-if (NORM_DAIRY_A1_CASEIN.some((kw) => normalized.includes(kw))) return "a1-casein";
+  if (NORM_DAIRY_A1_CASEIN.some((kw) => normalized.includes(kw))) return "a1-casein";
   if (NORM_DAIRY_WHEY.some((kw) => normalized.includes(kw))) return "whey";
   if (NORM_DAIRY_FERMENTED.some((kw) => normalized.includes(kw))) return "fermented";
   if (NORM_DAIRY_GHEE.some((kw) => normalized.includes(kw))) return "ghee";
