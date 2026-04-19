@@ -69,6 +69,24 @@ describe("resolveIngredientAlias", () => {
     expect(resolveIngredientAlias("carragh\u00e9nane")?.canonicalKey).toBe("carrageenan");
   });
 
+  it("normalizes E-number spellings to match aliases", () => {
+    expect(resolveIngredientAlias("E 322")?.canonicalKey).toBe("lecithin");
+    expect(resolveIngredientAlias("E-322")?.canonicalKey).toBe("lecithin");
+    expect(resolveIngredientAlias("e322")?.canonicalKey).toBe("lecithin");
+    expect(resolveIngredientAlias("E322")?.canonicalKey).toBe("lecithin");
+    expect(resolveIngredientAlias("E 407")?.canonicalKey).toBe("carrageenan");
+  });
+
+  it("normalizes German umlauts for alias matching", () => {
+    expect(resolveIngredientAlias("K\u00e4se")?.canonicalKey).toBe("cheese");
+    expect(resolveIngredientAlias("K\u00e4sein")?.canonicalKey).toBe("casein");
+  });
+
+  it("trims whitespace before matching", () => {
+    expect(resolveIngredientAlias("  Zucker  ")?.canonicalKey).toBe("sugar");
+    expect(resolveIngredientAlias("\tMilch\n")?.canonicalKey).toBe("milk");
+  });
+
   it("returns null for unknown ingredients", () => {
     expect(resolveIngredientAlias("fantasiezutat")).toBeNull();
   });

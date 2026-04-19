@@ -1,14 +1,12 @@
 import { normalizeIngredientName } from "./ingredient-normalization";
 
-export type CanonicalIngredientKey = string;
-
 export interface IngredientAliasMatch {
   input: string;
   normalizedInput: string;
-  canonicalKey: CanonicalIngredientKey;
+  canonicalKey: string;
 }
 
-export const INGREDIENT_ALIASES: Record<string, CanonicalIngredientKey> = {
+export const INGREDIENT_ALIASES: Readonly<Record<string, string>> = {
   zucker: "sugar",
   sugar: "sugar",
   sucre: "sugar",

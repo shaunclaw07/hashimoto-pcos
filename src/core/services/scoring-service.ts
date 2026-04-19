@@ -46,7 +46,7 @@ function containsNormalized(str: string | undefined, search: string): boolean {
   return normalizeIngredientName(str).includes(normalizeIngredientName(search));
 }
 
-function containsAnyNormalized(str: string | undefined, keywords: string[]): boolean {
+function containsAnyNormalized(str: string | undefined, keywords: readonly string[]): boolean {
   if (!str) return false;
   const normalized = normalizeIngredientName(str);
   return keywords.some((kw) => normalized.includes(kw));
@@ -63,8 +63,7 @@ function containsAnyNormalized(str: string | undefined, keywords: string[]): boo
  * Lecithin is independent.
  */
 function detectSoyType(
-  ingredients: string | undefined,
-  _categories: string[]
+  ingredients: string | undefined
 ): { type: "fermented" | "non-fermented" | "lecithin"; reason: string }[] {
   const results: { type: "fermented" | "non-fermented" | "lecithin"; reason: string }[] = [];
 
@@ -309,9 +308,9 @@ const SOY_FERMENTED_KEYWORDS = ["tempeh", "miso"];
 const SOY_LECITHIN_KEYWORDS = ["sojalecithin", "soy lecithin", "e322"];
 
 // Pre-normalized for performance
-const NORM_SOY_NON_FERMENTED_KEYWORDS = SOY_NON_FERMENTED_KEYWORDS.map(normalizeIngredientName);
-const NORM_SOY_FERMENTED_KEYWORDS = SOY_FERMENTED_KEYWORDS.map(normalizeIngredientName);
-const NORM_SOY_LECITHIN_KEYWORDS = SOY_LECITHIN_KEYWORDS.map(normalizeIngredientName);
+const NORM_SOY_NON_FERMENTED_KEYWORDS: readonly string[] = SOY_NON_FERMENTED_KEYWORDS.map(normalizeIngredientName);
+const NORM_SOY_FERMENTED_KEYWORDS: readonly string[] = SOY_FERMENTED_KEYWORDS.map(normalizeIngredientName);
+const NORM_SOY_LECITHIN_KEYWORDS: readonly string[] = SOY_LECITHIN_KEYWORDS.map(normalizeIngredientName);
 
 // =====================================================================
 // Issue #51: Goitrogen / Cruciferous vegetable warning
@@ -336,11 +335,11 @@ const BRASSICA_COOKED_SIGNALS = ["gegart", "gekocht", "gefroren", "gedünstet", 
 const BRASSICA_COOKED_CATEGORIES = ["en:frozen-vegetables", "en:cooked-vegetables"];
 
 // Pre-normalized for performance
-const NORM_BRASSICA_KEYWORDS = BRASSICA_KEYWORDS.map(normalizeIngredientName);
-const NORM_BRASSICA_RAW_SIGNALS = BRASSICA_RAW_SIGNALS.map(normalizeIngredientName);
-const NORM_BRASSICA_RAW_CATS = BRASSICA_RAW_CATEGORIES.map(normalizeIngredientName);
-const NORM_BRASSICA_COOKED_SIGS = BRASSICA_COOKED_SIGNALS.map(normalizeIngredientName);
-const NORM_BRASSICA_COOKED_CATS = BRASSICA_COOKED_CATEGORIES.map(normalizeIngredientName);
+const NORM_BRASSICA_KEYWORDS: readonly string[] = BRASSICA_KEYWORDS.map(normalizeIngredientName);
+const NORM_BRASSICA_RAW_SIGNALS: readonly string[] = BRASSICA_RAW_SIGNALS.map(normalizeIngredientName);
+const NORM_BRASSICA_RAW_CATS: readonly string[] = BRASSICA_RAW_CATEGORIES.map(normalizeIngredientName);
+const NORM_BRASSICA_COOKED_SIGS: readonly string[] = BRASSICA_COOKED_SIGNALS.map(normalizeIngredientName);
+const NORM_BRASSICA_COOKED_CATS: readonly string[] = BRASSICA_COOKED_CATEGORIES.map(normalizeIngredientName);
 
 // =====================================================================
 // Issue #53: Differentiated Omega-3 detection (replaces flat +1.0)
@@ -359,8 +358,8 @@ const OMEGA3_PLANT_KEYWORDS = [
 ];
 
 // Pre-normalized for performance
-const NORM_OMEGA3_MARINE = OMEGA3_MARINE_KEYWORDS.map(normalizeIngredientName);
-const NORM_OMEGA3_PLANT = OMEGA3_PLANT_KEYWORDS.map(normalizeIngredientName);
+const NORM_OMEGA3_MARINE: readonly string[] = OMEGA3_MARINE_KEYWORDS.map(normalizeIngredientName);
+const NORM_OMEGA3_PLANT: readonly string[] = OMEGA3_PLANT_KEYWORDS.map(normalizeIngredientName);
 
 // =====================================================================
 // Issue #54: Tiered dairy detection
@@ -416,12 +415,12 @@ const DAIRY_GHEE_KEYWORDS = ["ghee"];
 const DAIRY_EXCEPTION_KEYWORDS = ["milchsäure", "lactic acid", "calciumlactat", "calcium lactate"];
 
 // Pre-normalized for performance
-const NORM_DAIRY_A1_CASEIN = DAIRY_A1_CASEIN_KEYWORDS.map(normalizeIngredientName);
-const NORM_DAIRY_WHEY = DAIRY_WHEY_KEYWORDS.map(normalizeIngredientName);
-const NORM_DAIRY_FERMENTED = DAIRY_FERMENTED_KEYWORDS.map(normalizeIngredientName);
-const NORM_DAIRY_GHEE = DAIRY_GHEE_KEYWORDS.map(normalizeIngredientName);
-const NORM_DAIRY_GENERAL = DAIRY_GENERAL_KEYWORDS.map(normalizeIngredientName);
-const NORM_DAIRY_EXCEPTIONS = DAIRY_EXCEPTION_KEYWORDS.map(normalizeIngredientName);
+const NORM_DAIRY_A1_CASEIN: readonly string[] = DAIRY_A1_CASEIN_KEYWORDS.map(normalizeIngredientName);
+const NORM_DAIRY_WHEY: readonly string[] = DAIRY_WHEY_KEYWORDS.map(normalizeIngredientName);
+const NORM_DAIRY_FERMENTED: readonly string[] = DAIRY_FERMENTED_KEYWORDS.map(normalizeIngredientName);
+const NORM_DAIRY_GHEE: readonly string[] = DAIRY_GHEE_KEYWORDS.map(normalizeIngredientName);
+const NORM_DAIRY_GENERAL: readonly string[] = DAIRY_GENERAL_KEYWORDS.map(normalizeIngredientName);
+const NORM_DAIRY_EXCEPTIONS: readonly string[] = DAIRY_EXCEPTION_KEYWORDS.map(normalizeIngredientName);
 
 /**
  * Calculates health score for a product (1.0–5.0).
@@ -564,7 +563,7 @@ export function calculateScore(product: Product, profile?: UserProfile): ScoreRe
   }
 
   // Issue #50: Soy / Phytoestrogen detection
-  const soyTypes = detectSoyType(product.ingredients, product.categories);
+  const soyTypes = detectSoyType(product.ingredients);
   for (const soy of soyTypes) {
     const malus =
       soy.type === "non-fermented"
