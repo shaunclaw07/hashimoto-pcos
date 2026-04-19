@@ -109,7 +109,7 @@ test.describe('ScoreCard Component', () => {
   test('education_link_visible_in_score_badge', async ({ page }) => {
     await mockProductApi(page, vermeiden.barcode, vermeiden);
     await page.goto(`/result/${vermeiden.barcode}`);
-    const educationLink = page.getByRole('link', { name: /warum diese bewertung/i });
+    const educationLink = page.getByRole('link', { name: 'Warum diese Bewertung?' });
     await expect(educationLink).toBeVisible({ timeout: 5000 });
     await expect(educationLink).toHaveAttribute('href', '/education');
   });

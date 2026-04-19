@@ -1,12 +1,14 @@
 import { normalizeIngredientName } from "./ingredient-normalization";
 
+export type CanonicalIngredientKey = typeof INGREDIENT_ALIASES[keyof typeof INGREDIENT_ALIASES];
+
 export interface IngredientAliasMatch {
   input: string;
   normalizedInput: string;
-  canonicalKey: string;
+  canonicalKey: CanonicalIngredientKey;
 }
 
-export const INGREDIENT_ALIASES: Readonly<Record<string, string>> = {
+export const INGREDIENT_ALIASES = {
   zucker: "sugar",
   sugar: "sugar",
   sucre: "sugar",
@@ -79,6 +81,9 @@ export const INGREDIENT_ALIASES: Readonly<Record<string, string>> = {
   mandel: "almond",
   almond: "almond",
   amande: "almond",
+  walnuss: "walnut",
+  walnut: "walnut",
+  noix: "walnut",
   haselnuss: "hazelnut",
   hazelnut: "hazelnut",
   noisette: "hazelnut",
@@ -115,15 +120,22 @@ export const INGREDIENT_ALIASES: Readonly<Record<string, string>> = {
   lecithin: "lecithin",
   lecithine: "lecithin",
   e322: "lecithin",
+  sojalecithin: "soy-lecithin",
+  sojalezithin: "soy-lecithin",
+  sojabohnenlecithin: "soy-lecithin",
+  "soy lecithin": "soy-lecithin",
+  "soja lecithin": "soy-lecithin",
+  "soy-lecithin": "soy-lecithin",
   carrageen: "carrageenan",
   carrageenan: "carrageenan",
   carraghenane: "carrageenan",
   e407: "carrageenan",
-};
+} as const satisfies Readonly<Record<string, string>>;
 
 export function resolveIngredientAlias(input: string): IngredientAliasMatch | null {
   const normalizedInput = normalizeIngredientName(input);
-  const canonicalKey = INGREDIENT_ALIASES[normalizedInput];
-  if (!canonicalKey) return null;
+  const rawKey = (INGREDIENT_ALIASES as Readonly<Record<string, string>>)[normalizedInput];
+  if (!rawKey) return null;
+  const canonicalKey = rawKey as CanonicalIngredientKey;
   return { input, normalizedInput, canonicalKey };
 }
