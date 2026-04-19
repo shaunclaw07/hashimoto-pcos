@@ -124,6 +124,25 @@ describe("calculateScore", () => {
     });
   });
 
+  describe("Goitrogen detection (Issue #51)", () => {
+    it("does not warn for cooked Brassica when cooked signal has accents", () => {
+      const product = makeProduct({
+        name: "Grünkohl gedünstet",
+        ingredients: "Grünkohl, gedünstet",
+      });
+      const profile: UserProfile = {
+        condition: "hashimoto",
+        glutenSensitive: false,
+        lactoseIntolerant: false,
+      };
+
+      const result = calculateScore(product, profile);
+
+      expect(result.breakdown.some((item) => item.reason.includes("Kreuzblütler"))).toBe(false);
+      expect(result.maluses).toBe(0);
+    });
+  });
+
   describe("Label bonuses", () => {
     it("+0.5 for gluten-free label", () => {
       const product = makeProduct({ labels: ["gluten-free"] });

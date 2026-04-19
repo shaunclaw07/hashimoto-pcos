@@ -100,14 +100,14 @@ function detectBrassicaState(
 
   // Check cooked first
   const isCooked =
-    BRASSICA_COOKED_SIGNALS.some((s) => text.includes(s)) ||
-    BRASSICA_COOKED_CATEGORIES.some((c) => cats.includes(c));
+    BRASSICA_COOKED_SIGNALS.some((s) => text.includes(normalizeIngredientName(s))) ||
+    BRASSICA_COOKED_CATEGORIES.some((c) => cats.includes(normalizeIngredientName(c)));
   if (isCooked) return "cooked";
 
   // Check raw
   const isRaw =
-    BRASSICA_RAW_SIGNALS.some((s) => text.includes(s)) ||
-    BRASSICA_RAW_CATEGORIES.some((c) => cats.includes(c));
+    BRASSICA_RAW_SIGNALS.some((s) => text.includes(normalizeIngredientName(s))) ||
+    BRASSICA_RAW_CATEGORIES.some((c) => cats.includes(normalizeIngredientName(c)));
   if (isRaw) return "raw";
 
   return "unknown";
