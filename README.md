@@ -33,7 +33,7 @@ hashimoto-pcos/
 │   ├── core/                        # ZERO Framework-Dependencies
 │   │   ├── domain/                  # Datentypen: Product, ScoreResult, UserProfile
 │   │   ├── ports/                   # Interfaces: IProductRepository, IFavoritesRepository
-│   │   ├── services/                # Pure functions: calculateScore, isValidEan13
+│   │   ├── services/                # Pure functions: calculateScore, isValidEan13, normalizeIngredientName
 │   │   └── use-cases/               # Orchestrierung: GetProductUseCase, SearchProductsUseCase
 │   ├── infrastructure/              # Implementierungen der Ports
 │   │   ├── sqlite/                  # SQLite-Adapter (client, mappers, repository)
@@ -192,6 +192,8 @@ Beim DB-Build wird die rohe Zutatenliste (`ingredients_text`) über eine zwei-ph
 - Mehrere Doppelpunkte (z.B. `"Emulgator: Sojalecithin: E322"`) → aufteilen, funktionale Labels herausfiltern
 
 **Reinigung (12 Schritte):** Klammerreste entfernen, Prozentzeichen, Bindestriche normalisieren, Encoding-Artefakte entfernen, E-Nummern formatieren, Ziffern-Token entfernen, Whitelist-Abgleich (GERMAN-Set, ~350 Einträge).
+
+**Alias-Normalisierung (Core):** `src/core/services/ingredient-normalization.ts` stellt eine reine TypeScript-Funktion `normalizeIngredientName()` bereit — unabhängig vom Parser. Sie normalisiert Akzente (NFKD), E-Nummer-Schreibweisen (`E 322` → `e322`) und Bindestrich-/Whitespace-Varianten für stabiles Alias-Matching im Scoring. Null Framework-Abhängigkeiten.
 
 ### Scripts
 

@@ -60,10 +60,11 @@ Browser → Next.js 16 App Router (Presentation)
 **Key Files:**
 - `src/core/services/scoring-service.ts` — scoring algorithm
 - `src/core/services/haptic-service.ts` — haptic feedback patterns
+- `src/core/services/ingredient-normalization.ts` — pure ingredient name normalization (accents, E-numbers, dashes) for alias matching
 - `src/infrastructure/sqlite/sqlite-product-repository.ts` — DB adapter
 - `src/infrastructure/openfoodfacts/off-api-adapter.ts` — API adapter
 - `scripts/build-db.mjs` — DB build pipeline
-- `scripts/ingredient-parser.mjs` — ingredient normalization
+- `scripts/ingredient-parser.mjs` — ingredient parsing
 
 ## Scoring Algorithm
 
@@ -83,6 +84,8 @@ Full thresholds → `src/core/services/scoring-service.ts`
 **SQLite** (`data/products.db`): 460k+ DACH products. FTS5 search on name/brand. Schema → `scripts/build-db.mjs`. When local product lacks nutriments, barcode route fetches from OFf and writes back.
 
 **Ingredient parsing** (`scripts/ingredient-parser.mjs`): Phase 1 flattens parentheticals tracking nesting depth. Phase 2 resolves colon-labels (functional labels like "Emulgator:" → emit right side only). Cleaning pipeline: strip parentheticals → normalize hyphens/E-numbers → whitelist check (GERMAN Set) → functional label guard. Whitelist → `scripts/ingredient-data.mjs` (~350 German ingredient names).
+
+**Ingredient normalization** (`src/core/services/ingredient-normalization.ts`): Pure TypeScript function for stable alias matching. Lowercases, strips accents (NFKD), normalizes E-number spellings (`E 322` → `e322`), and unifies dash/whitespace variants. Used by scoring and future alias mapping. Zero framework dependencies.
 
 ## TypeScript Patterns
 
