@@ -69,6 +69,12 @@ describe("resolveIngredientAlias", () => {
     expect(resolveIngredientAlias("carragh\u00e9nane")?.canonicalKey).toBe("carrageenan");
   });
 
+  it("maps German soy lecithin aliases to soy-lecithin", () => {
+    expect(resolveIngredientAlias("Sojalecithin")?.canonicalKey).toBe("soy-lecithin");
+    expect(resolveIngredientAlias("Sojalezithin")?.canonicalKey).toBe("soy-lecithin");
+    expect(resolveIngredientAlias("Sojabohnenlecithin")?.canonicalKey).toBe("soy-lecithin");
+  });
+
   it("normalizes E-number spellings to match aliases", () => {
     expect(resolveIngredientAlias("E 322")?.canonicalKey).toBe("lecithin");
     expect(resolveIngredientAlias("E-322")?.canonicalKey).toBe("lecithin");
